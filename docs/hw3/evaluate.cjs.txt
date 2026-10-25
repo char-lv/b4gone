@@ -1,0 +1,123 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { createRequire } = require('node:module');
+const base = '/Users/charlenelv/claude_projects';
+const bRequire = createRequire(path.join(base, 'b4gone-hw3-b/package.json'));
+const ts = bRequire('typescript');
+const { JSDOM } = bRequire('jsdom');
+const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'http://localhost' });
+for (const key of ['window', 'document', 'navigator', 'HTMLElement', 'HTMLInputElement', 'Element', 'Node', 'MutationObserver', 'getComputedStyle']) {
+  Object.defineProperty(globalThis, key, { configurable: true, value: key === 'getComputedStyle' ? dom.window.getComputedStyle.bind(dom.window) : dom.window[key] });
+}
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+const React = bRequire('react');
+const { render, fireEvent, cleanup, act } = bRequire('@testing-library/react');
+
+function loadSource(root, relative, cache = new Map()) {
+  let filename = path.resolve(root, relative);
+  if (!path.extname(filename)) filename += fs.existsSync(filename + '.ts') ? '.ts' : '.tsx';
+  if (cache.has(filename)) return cache.get(filename).exports;
+  const module = { exports: {} };
+  cache.set(filename, module);
+  const code = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
+    fileName: filename,
+  }).outputText;
+  const customRequire = (id) => {
+    if (id.startsWith('@/')) return loadSource(root, 'src/' + id.slice(2), cache);
+    if (id.startsWith('.')) return loadSource(root, path.resolve(path.dirname(filename), id), cache);
+    // Both implementations use the same pinned React version; one instance avoids duplicate-hook errors.
+    return bRequire(id);
+  };
+  new Function('exports', 'require', 'module', code)(module.exports, customRequire, module);
+  return module.exports;
+}
+
+const TODAY = '2026-10-24';
+const basic = { name: 'Desk lamp', purchaseDate: '2026-10-20', price: '', returnDeadline: '', warrantyExpiration: '' };
+const cases = [
+  ['minimal valid draft', {}, true],
+  ['trimmed name', { name: '  Desk lamp  ' }, true, { name: 'Desk lamp' }],
+  ['blank name', { name: '   ' }, false],
+  ['100-character name', { name: 'a'.repeat(100) }, true],
+  ['101-character name', { name: 'a'.repeat(101) }, false],
+  ['purchase date required', { purchaseDate: '' }, false],
+  ['today accepted', { purchaseDate: TODAY }, true],
+  ['future purchase date', { purchaseDate: '2026-10-25' }, false],
+  ['impossible date', { purchaseDate: '2026-02-30' }, false],
+  ['valid leap date', { purchaseDate: '2024-02-29' }, true],
+  ['invalid leap date', { purchaseDate: '2025-02-29' }, false],
+  ['blank price means null', { price: ' ' }, true, { priceCents: null }],
+  ['zero price means zero', { price: '0' }, true, { priceCents: 0 }],
+  ['decimal to exact cents', { price: '49.99' }, true, { priceCents: 4999 }],
+  ['single decimal', { price: '0.5' }, true, { priceCents: 50 }],
+  ['negative price', { price: '-1' }, false],
+  ['excess precision', { price: '1.001' }, false],
+  ['non-numeric price', { price: 'five' }, false],
+  ['malformed commas', { price: '1,,2' }, false],
+  ['price beyond safe integer cents', { price: '99999999999999999' }, false],
+  ['return date before purchase', { returnDeadline: '2026-10-19' }, false],
+  ['return date on purchase', { returnDeadline: '2026-10-20' }, true],
+  ['future return date', { returnDeadline: '2026-11-20' }, true],
+  ['warranty before purchase', { warrantyExpiration: '2026-10-19' }, false],
+  ['invalid optional date', { warrantyExpiration: '2026-02-30' }, false],
+  ['empty optional dates become null', {}, true, { returnDeadline: null, warrantyExpiration: null }],
+];
+
+async function review(run) {
+  const root = path.join(base, 'b4gone-hw3-' + run.toLowerCase());
+  const cache = new Map();
+  const isA = run === 'A';
+  const module = loadSource(root, isA ? 'src/lib/purchase.ts' : 'src/features/items/item-schema.ts', cache);
+  const results = cases.map(([name, patch, expected, fields]) => {
+    const draft = { ...basic, ...patch };
+    const raw = isA ? module.validateNewPurchase({ itemName: draft.name, ...Object.fromEntries(Object.entries(draft).filter(([key]) => key !== 'name')) }) : module.validateItemDraft(draft, TODAY);
+    const accepted = isA ? raw.ok : raw.success;
+    const value = isA ? (raw.value && { ...raw.value, name: raw.value.itemName }) : raw.data;
+    const pass = accepted === expected && (!fields || Object.entries(fields).every(([key, val]) => value?.[key] === val));
+    return { name, pass, expectedAccepted: expected, actualAccepted: accepted };
+  });
+  const Form = loadSource(root, isA ? 'src/components/NewPurchaseForm.tsx' : 'src/features/items/AddItemForm.tsx', cache)[isA ? 'NewPurchaseForm' : 'AddItemForm'];
+  const fieldName = isA ? 'itemName' : 'name';
+  for (const mode of ['pending', 'rejection', 'resolution']) {
+    let resolve, reject;
+    const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+    promise.catch(() => {});
+    let calls = 0;
+    const onSubmit = () => { calls++; return promise; };
+    const ui = render(React.createElement(Form, isA ? { onSubmit } : { today: TODAY, onSubmit }));
+    const name = ui.container.querySelector('input[name="' + fieldName + '"]');
+    const purchase = ui.container.querySelector('input[name="purchaseDate"]');
+    fireEvent.change(name, { target: { value: 'Desk lamp' } });
+    fireEvent.change(purchase, { target: { value: '2026-10-20' } });
+    const form = ui.container.querySelector('form');
+    fireEvent.submit(form);
+    if (mode === 'pending') {
+      // Re-enter the same draft if an implementation cleared it too early, then try a second submit.
+      const preserved = name.value === 'Desk lamp';
+      if (!name.value) {
+        fireEvent.change(name, { target: { value: 'Desk lamp' } });
+        fireEvent.change(purchase, { target: { value: '2026-10-20' } });
+      }
+      fireEvent.submit(form);
+      results.push({ name: 'draft retained while submission is pending', pass: preserved });
+      results.push({ name: 'duplicate submission blocked while pending', pass: calls === 1, callbackCalls: calls });
+      await act(async () => { resolve(); await promise; });
+    } else if (mode === 'rejection') {
+      await act(async () => { reject(new Error('Simulated save failure')); await promise.catch(() => {}); });
+      results.push({ name: 'failed async submission retains draft and shows retry error', pass: name.value === 'Desk lamp' && /try again|retry/i.test(ui.container.textContent) });
+    } else {
+      await act(async () => { resolve(); await promise; });
+      results.push({ name: 'successful submission clears draft', pass: name.value === '' && purchase.value === '' });
+    }
+    cleanup();
+  }
+  return { run, fixedToday: TODAY, passed: results.filter(x => x.pass).length, total: results.length, results };
+}
+
+(async () => {
+  const result = { method: 'One post-generation review checklist based on the existing PRD; independent of both generated test suites. Original source files loaded read-only via TypeScript transpilation; no application source changes.', reviews: [await review('A'), await review('B')] };
+  const destination = path.join(__dirname, 'results.json');
+  fs.writeFileSync(destination, JSON.stringify(result, null, 2) + '\n');
+  for (const run of result.reviews) console.log(JSON.stringify({ run: run.run, passed: run.passed, total: run.total, failures: run.results.filter(x => !x.pass) }, null, 2));
+})().catch(error => { console.error(error); process.exitCode = 1; });

@@ -1,0 +1,1373 @@
+diff --git a/README.md b/README.md
+index bad4fca..cd3541c 100644
+--- a/README.md
++++ b/README.md
+@@ -21,7 +21,7 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
+ 
+ ## Current stage
+ 
+-The project scaffold and test tooling are in place (issue #1). The homepage shows only a heading and a setup message. Authentication, item and subscription features, the dashboard, database access, and receipt features are not implemented yet.
++The project scaffold and test tooling are in place (issue #1). The Add item form at `/items/new` validates input and passes the item to an `onSubmit` callback (issue #3); items are not saved yet. Authentication, item persistence and APIs, subscription features, the dashboard, database access, and receipt features are not implemented yet.
+ 
+ ## Local setup
+ 
+diff --git a/package-lock.json b/package-lock.json
+index 5205b4d..ebe1f35 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -10,7 +10,8 @@
+       "dependencies": {
+         "next": "16.4.3",
+         "react": "19.3.1",
+-        "react-dom": "19.3.1"
++        "react-dom": "19.3.1",
++        "zod": "4.6.7"
+       },
+       "devDependencies": {
+         "@playwright/test": "1.64.1",
+@@ -18,6 +19,7 @@
+         "@testing-library/dom": "10.4.2",
+         "@testing-library/jest-dom": "6.10.0",
+         "@testing-library/react": "16.3.3",
++        "@testing-library/user-event": "14.6.7",
+         "@types/node": "24.19.2",
+         "@types/react": "19.3.0",
+         "@types/react-dom": "19.3.0",
+@@ -2828,6 +2830,20 @@
+         }
+       }
+     },
++    "node_modules/@testing-library/user-event": {
++      "version": "14.6.7",
++      "resolved": "https://registry.npmjs.org/@testing-library/user-event/-/user-event-14.6.7.tgz",
++      "integrity": "sha512-MPCpX8bxe8zS+JmmTwLp8jd0dy1rAm60Te/SL8JrQM3qvQJcBOs1d7IefJMyZzqM3EWBrDn/LWDt1BCGu4ASfg==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=12",
++        "npm": ">=6"
++      },
++      "peerDependencies": {
++        "@testing-library/dom": ">=7.21.4"
++      }
++    },
+     "node_modules/@tybys/wasm-util": {
+       "version": "0.10.4",
+       "resolved": "https://registry.npmjs.org/@tybys/wasm-util/-/wasm-util-0.10.4.tgz",
+@@ -9339,7 +9355,6 @@
+       "version": "4.6.7",
+       "resolved": "https://registry.npmjs.org/zod/-/zod-4.6.7.tgz",
+       "integrity": "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==",
+-      "dev": true,
+       "license": "MIT",
+       "peer": true,
+       "funding": {
+diff --git a/package.json b/package.json
+index 771cb51..3fcb40a 100644
+--- a/package.json
++++ b/package.json
+@@ -20,7 +20,8 @@
+   "dependencies": {
+     "next": "16.4.3",
+     "react": "19.3.1",
+-    "react-dom": "19.3.1"
++    "react-dom": "19.3.1",
++    "zod": "4.6.7"
+   },
+   "devDependencies": {
+     "@playwright/test": "1.64.1",
+@@ -28,6 +29,7 @@
+     "@testing-library/dom": "10.4.2",
+     "@testing-library/jest-dom": "6.10.0",
+     "@testing-library/react": "16.3.3",
++    "@testing-library/user-event": "14.6.7",
+     "@types/node": "24.19.2",
+     "@types/react": "19.3.0",
+     "@types/react-dom": "19.3.0",
+diff --git a/src/app/globals.css b/src/app/globals.css
+index a053fc8..4e7c71c 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -2,11 +2,29 @@
+ 
+ @theme {
+   --color-canvas: #f7f6f2;
++  --color-surface: #ffffff;
++  --color-surface-hover: #f6f7f5;
+   --color-ink: #1f2421;
++  --color-muted: #5f6669;
++  --color-line: #e3e5e2;
++  --color-line-button: #cdd1ce;
++  --color-line-strong: #858b88;
+   --color-accent: #1f5f45;
++  --color-accent-hover: #174a3c;
++  --color-accent-soft: #e8f0ec;
++  --color-accent-line: #c9ddd3;
++  --color-urgent: #b42318;
++  --color-urgent-soft: #fdecea;
++  --color-urgent-line: #f1c3bd;
++  --shadow-card: 0 1px 2px rgb(36 41 43 / 0.04), 0 2px 8px rgb(36 41 43 / 0.03);
+ }
+ 
+ body {
+   background-color: var(--color-canvas);
+   color: var(--color-ink);
+ }
++
++:focus-visible {
++  outline: 3px solid var(--color-accent);
++  outline-offset: 2px;
++}
+diff --git a/src/app/items/new/page.tsx b/src/app/items/new/page.tsx
+new file mode 100644
+index 0000000..531cc26
+--- /dev/null
++++ b/src/app/items/new/page.tsx
+@@ -0,0 +1,14 @@
++import type { Metadata } from "next";
++import { NewItemPanel } from "@/features/items/NewItemPanel";
++
++export const metadata: Metadata = {
++  title: "Add item · B4Gone",
++};
++
++export default function NewItemPage() {
++  return (
++    <main className="mx-auto max-w-5xl px-4 pt-6 pb-14 sm:px-5 sm:pt-8">
++      <NewItemPanel />
++    </main>
++  );
++}
+diff --git a/src/app/page.test.tsx b/src/app/page.test.tsx
+index 4ffa94d..722c7ea 100644
+--- a/src/app/page.test.tsx
++++ b/src/app/page.test.tsx
+@@ -8,4 +8,10 @@ describe("HomePage", () => {
+     expect(screen.getByRole("heading", { level: 1, name: "B4Gone" })).toBeInTheDocument();
+     expect(screen.getByText(/project setup is complete/i)).toBeInTheDocument();
+   });
++
++  it("links to the add item form", () => {
++    render(<HomePage />);
++
++    expect(screen.getByRole("link", { name: "Add item" })).toHaveAttribute("href", "/items/new");
++  });
+ });
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 78d8d61..9ad6aa6 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -1,3 +1,5 @@
++import Link from "next/link";
++
+ export default function HomePage() {
+   return (
+     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-6 py-16">
+@@ -6,6 +8,14 @@ export default function HomePage() {
+         Project setup is complete. Return deadlines, warranties, and subscription renewals are
+         coming next.
+       </p>
++      <div>
++        <Link
++          href="/items/new"
++          className="inline-flex min-h-[2.375rem] items-center rounded-md border border-accent bg-accent px-4 py-1.5 text-[0.9375rem] font-semibold text-white shadow-sm hover:bg-accent-hover"
++        >
++          Add item
++        </Link>
++      </div>
+     </main>
+   );
+ }
+diff --git a/src/components/ui/Button.tsx b/src/components/ui/Button.tsx
+new file mode 100644
+index 0000000..c7eac93
+--- /dev/null
++++ b/src/components/ui/Button.tsx
+@@ -0,0 +1,21 @@
++import type { ButtonHTMLAttributes } from "react";
++
++type ButtonVariant = "primary" | "secondary";
++
++type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
++  variant?: ButtonVariant;
++};
++
++const BASE =
++  "inline-flex min-h-[2.375rem] items-center justify-center rounded-md border px-4 py-1.5 text-[0.9375rem] font-semibold shadow-sm cursor-pointer aria-disabled:cursor-progress aria-disabled:opacity-70";
++
++const VARIANTS: Record<ButtonVariant, string> = {
++  primary: "border-accent bg-accent text-white hover:border-accent-hover hover:bg-accent-hover",
++  secondary: "border-line-button bg-surface text-ink hover:bg-surface-hover",
++};
++
++export function Button({ variant = "secondary", className, type = "button", ...props }: ButtonProps) {
++  return (
++    <button type={type} className={[BASE, VARIANTS[variant], className].filter(Boolean).join(" ")} {...props} />
++  );
++}
+diff --git a/src/components/ui/FormField.tsx b/src/components/ui/FormField.tsx
+new file mode 100644
+index 0000000..7e610ad
+--- /dev/null
++++ b/src/components/ui/FormField.tsx
+@@ -0,0 +1,61 @@
++import type { InputHTMLAttributes, Ref } from "react";
++
++type FormFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "className" | "size"> & {
++  id: string;
++  label: string;
++  hint?: string;
++  error?: string;
++  /** Narrower widths for dates and amounts. */
++  size?: "text" | "date" | "money";
++  ref?: Ref<HTMLInputElement>;
++};
++
++const WIDTHS = {
++  text: "sm:max-w-80",
++  date: "sm:max-w-52",
++  money: "sm:max-w-44",
++} as const;
++
++/** A labelled input with a required/optional flag, hint, and associated error message. */
++export function FormField({ id, label, hint, error, required, size = "text", ref, ...inputProps }: FormFieldProps) {
++  const hintId = `${id}-hint`;
++  const errorId = `${id}-error`;
++  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(" ");
++
++  return (
++    <div className="mb-5 min-w-0">
++      <label htmlFor={id} className="block font-semibold">
++        {label}{" "}
++        <span className="text-sm font-normal text-muted">{required ? "(required)" : "(optional)"}</span>
++      </label>
++      {hint ? (
++        <p id={hintId} className="mt-0.5 text-sm text-muted">
++          {hint}
++        </p>
++      ) : null}
++      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
++        <input
++          ref={ref}
++          id={id}
++          required={required}
++          aria-invalid={error ? true : undefined}
++          aria-describedby={describedBy || undefined}
++          autoComplete="off"
++          className={`h-[2.625rem] w-full min-w-0 rounded-md border border-line-strong bg-surface px-3 py-2 focus-visible:border-accent focus-visible:outline-offset-1 aria-invalid:border-urgent aria-invalid:shadow-[inset_0_0_0_1px_var(--color-urgent)] ${WIDTHS[size]}`}
++          {...inputProps}
++        />
++        {error ? (
++          <p id={errorId} className="flex flex-[1_1_14rem] items-start gap-1.5 text-sm font-semibold text-urgent">
++            <span
++              aria-hidden="true"
++              className="mt-px inline-grid size-[1.125rem] flex-none place-items-center rounded-full bg-urgent text-xs font-bold text-white"
++            >
++              !
++            </span>
++            {error}
++          </p>
++        ) : null}
++      </div>
++    </div>
++  );
++}
+diff --git a/src/features/items/AddItemForm.test.tsx b/src/features/items/AddItemForm.test.tsx
+new file mode 100644
+index 0000000..f45c41b
+--- /dev/null
++++ b/src/features/items/AddItemForm.test.tsx
+@@ -0,0 +1,171 @@
++import { render, screen, waitFor } from "@testing-library/react";
++import userEvent from "@testing-library/user-event";
++import { AddItemForm } from "./AddItemForm";
++
++const today = "2026-10-23";
++
++function renderForm(onSubmit = vi.fn(), onCancel = vi.fn()) {
++  const user = userEvent.setup();
++  render(<AddItemForm today={today} onSubmit={onSubmit} onCancel={onCancel} />);
++  return { user, onSubmit, onCancel };
++}
++
++function deferred() {
++  let resolve!: () => void;
++  let reject!: (error: Error) => void;
++  const promise = new Promise<void>((res, rej) => {
++    resolve = res;
++    reject = rej;
++  });
++  return { promise, resolve, reject };
++}
++
++describe("AddItemForm", () => {
++  it("shows the five fields in order with required markers", () => {
++    renderForm();
++
++    const fields = [
++      screen.getByLabelText(/^Name/),
++      screen.getByLabelText(/^Purchase date/),
++      screen.getByLabelText(/^Price \(USD\)/),
++      screen.getByLabelText(/^Return deadline/),
++      screen.getByLabelText(/^Warranty expiration/),
++    ];
++    for (let i = 1; i < fields.length; i++) {
++      expect(fields[i - 1].compareDocumentPosition(fields[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
++    }
++
++    expect(screen.getByLabelText(/^Name/)).toBeRequired();
++    expect(screen.getByLabelText(/^Purchase date/)).toBeRequired();
++    expect(screen.getByLabelText(/^Price \(USD\)/)).not.toBeRequired();
++    expect(screen.getByText("Name").parentElement).toHaveTextContent("(required)");
++    expect(screen.getByText("Price (USD)").parentElement).toHaveTextContent("(optional)");
++    expect(screen.getByLabelText(/^Purchase date/)).toHaveAttribute("max", today);
++    expect(screen.getByRole("button", { name: "Save item" })).toBeInTheDocument();
++    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
++  });
++
++  it("shows field errors, blocks submission, and focuses the first invalid field", async () => {
++    const { user, onSubmit } = renderForm();
++
++    await user.type(screen.getByLabelText(/^Price/), "12.345");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    expect(onSubmit).not.toHaveBeenCalled();
++    expect(screen.getByText("Fix 3 fields to save this item.")).toBeInTheDocument();
++    const name = screen.getByLabelText(/^Name/);
++    expect(name).toHaveAttribute("aria-invalid", "true");
++    expect(name).toHaveAccessibleDescription(/Enter a name\./);
++    expect(screen.getByLabelText(/^Purchase date/)).toHaveAccessibleDescription(
++      /Enter the purchase date\./,
++    );
++    expect(screen.getByLabelText(/^Price/)).toHaveAccessibleDescription(
++      /Use no more than two decimal places\./,
++    );
++    expect(screen.getByLabelText(/^Return deadline/)).not.toHaveAttribute("aria-invalid");
++    expect(name).toHaveFocus();
++  });
++
++  it("updates errors as the user fixes fields after a failed attempt", async () => {
++    const { user } = renderForm();
++
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
++
++    expect(screen.getByLabelText(/^Name/)).not.toHaveAttribute("aria-invalid");
++    expect(screen.getByText("Fix 1 field to save this item.")).toBeInTheDocument();
++  });
++
++  it("rejects deadlines before the purchase date", async () => {
++    const { user, onSubmit } = renderForm();
++
++    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
++    await user.type(screen.getByLabelText(/^Return deadline/), "2026-10-01");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    expect(onSubmit).not.toHaveBeenCalled();
++    expect(screen.getByLabelText(/^Return deadline/)).toHaveAccessibleDescription(
++      /Return deadline can’t be before the purchase date, Oct 9, 2026\./,
++    );
++  });
++
++  it("passes validated values to onSubmit and clears the form after it resolves", async () => {
++    const onSubmit = vi.fn().mockResolvedValue(undefined);
++    const { user } = renderForm(onSubmit);
++
++    await user.type(screen.getByLabelText(/^Name/), "  Wool coat ");
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
++    await user.type(screen.getByLabelText(/^Price/), "0");
++    await user.type(screen.getByLabelText(/^Return deadline/), "2026-11-08");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    expect(onSubmit).toHaveBeenCalledTimes(1);
++    expect(onSubmit).toHaveBeenCalledWith({
++      name: "Wool coat",
++      purchaseDate: "2026-10-09",
++      priceCents: 0,
++      returnDeadline: "2026-11-08",
++      warrantyExpiration: null,
++    });
++    await waitFor(() => expect(screen.getByLabelText(/^Name/)).toHaveValue(""));
++    expect(screen.getByLabelText(/^Price/)).toHaveValue("");
++  });
++
++  it("submits with the Enter key", async () => {
++    const { user, onSubmit } = renderForm();
++
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-23");
++    await user.type(screen.getByLabelText(/^Name/), "Desk lamp{Enter}");
++
++    expect(onSubmit).toHaveBeenCalledWith(
++      expect.objectContaining({ name: "Desk lamp", purchaseDate: "2026-10-23", priceCents: null }),
++    );
++  });
++
++  it("prevents duplicate submissions while saving", async () => {
++    const save = deferred();
++    const onSubmit = vi.fn().mockReturnValue(save.promise);
++    const { user } = renderForm(onSubmit);
++
++    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    const saving = screen.getByRole("button", { name: "Saving…" });
++    expect(saving).toHaveAttribute("aria-disabled", "true");
++    await user.click(saving);
++    expect(onSubmit).toHaveBeenCalledTimes(1);
++
++    save.resolve();
++    expect(await screen.findByRole("button", { name: "Save item" })).toBeInTheDocument();
++  });
++
++  it("keeps the draft and offers a retry when the save fails", async () => {
++    const onSubmit = vi.fn().mockRejectedValueOnce(new Error("Network down")).mockResolvedValue(undefined);
++    const { user } = renderForm(onSubmit);
++
++    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    const alert = await screen.findByRole("alert");
++    expect(alert).toHaveTextContent(/Couldn’t save this item\. Your entries are still here\./);
++    expect(alert).not.toHaveTextContent("Network down");
++    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
++    expect(screen.getByLabelText(/^Purchase date/)).toHaveValue("2026-10-09");
++
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++    expect(onSubmit).toHaveBeenCalledTimes(2);
++    await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
++  });
++
++  it("calls onCancel without submitting", async () => {
++    const { user, onSubmit, onCancel } = renderForm();
++
++    await user.click(screen.getByRole("button", { name: "Cancel" }));
++
++    expect(onCancel).toHaveBeenCalledTimes(1);
++    expect(onSubmit).not.toHaveBeenCalled();
++  });
++});
+diff --git a/src/features/items/AddItemForm.tsx b/src/features/items/AddItemForm.tsx
+new file mode 100644
+index 0000000..a0d1e46
+--- /dev/null
++++ b/src/features/items/AddItemForm.tsx
+@@ -0,0 +1,174 @@
++"use client";
++
++import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
++import { Button } from "@/components/ui/Button";
++import { FormField } from "@/components/ui/FormField";
++import {
++  INVALID_DATE_MESSAGE,
++  INVALID_OPTIONAL_DATE_MESSAGE,
++  ITEM_FIELDS,
++  type ItemDraft,
++  type ItemField,
++  type ItemFieldErrors,
++  type NewItemInput,
++  validateItemDraft,
++} from "./item-schema";
++
++type AddItemFormProps = {
++  /** The user's local calendar date (YYYY-MM-DD); purchase dates cannot be later. */
++  today: string;
++  /** Receives the validated item. A rejected promise keeps the draft and shows a retry message. */
++  onSubmit: (item: NewItemInput) => void | Promise<void>;
++  onCancel?: () => void;
++  /** The id of the heading that names the form. */
++  labelledBy?: string;
++};
++
++const EMPTY_DRAFT: ItemDraft = {
++  name: "",
++  purchaseDate: "",
++  price: "",
++  returnDeadline: "",
++  warrantyExpiration: "",
++};
++
++const DATE_FIELDS = ["purchaseDate", "returnDeadline", "warrantyExpiration"] as const;
++
++type FormCheck = { item: NewItemInput | null; errors: ItemFieldErrors };
++
++function fieldInput(form: HTMLFormElement | null, field: ItemField): HTMLInputElement | null {
++  const element = form?.elements.namedItem(field);
++  return element instanceof HTMLInputElement ? element : null;
++}
++
++export function AddItemForm({ today, onSubmit, onCancel, labelledBy }: AddItemFormProps) {
++  const [draft, setDraft] = useState<ItemDraft>(EMPTY_DRAFT);
++  const [errors, setErrors] = useState<ItemFieldErrors>({});
++  const [attempted, setAttempted] = useState(false);
++  const [saving, setSaving] = useState(false);
++  const [saveFailed, setSaveFailed] = useState(false);
++  const savingRef = useRef(false);
++
++  function check(next: ItemDraft, form: HTMLFormElement | null): FormCheck {
++    const result = validateItemDraft(next, today);
++    const fieldErrors: ItemFieldErrors = result.success ? {} : { ...result.fieldErrors };
++    // Browsers report a partly typed date as an empty value; call it incomplete, not missing.
++    for (const field of DATE_FIELDS) {
++      if (fieldInput(form, field)?.validity.badInput) {
++        fieldErrors[field] = field === "purchaseDate" ? INVALID_DATE_MESSAGE : INVALID_OPTIONAL_DATE_MESSAGE;
++      }
++    }
++    const valid = result.success && Object.keys(fieldErrors).length === 0;
++    return { item: valid ? result.data : null, errors: fieldErrors };
++  }
++
++  function handleChange(field: ItemField) {
++    return (event: ChangeEvent<HTMLInputElement>) => {
++      const next = { ...draft, [field]: event.target.value };
++      setDraft(next);
++      if (attempted) setErrors(check(next, event.target.form).errors);
++    };
++  }
++
++  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
++    event.preventDefault();
++    if (savingRef.current) return;
++
++    setAttempted(true);
++    setSaveFailed(false);
++    const form = event.currentTarget;
++    const { item, errors: fieldErrors } = check(draft, form);
++    setErrors(fieldErrors);
++    if (!item) {
++      const firstInvalid = ITEM_FIELDS.find((field) => fieldErrors[field]);
++      if (firstInvalid) fieldInput(form, firstInvalid)?.focus();
++      return;
++    }
++
++    savingRef.current = true;
++    setSaving(true);
++    try {
++      await onSubmit(item);
++      setDraft(EMPTY_DRAFT);
++      setAttempted(false);
++    } catch {
++      setSaveFailed(true);
++    } finally {
++      savingRef.current = false;
++      setSaving(false);
++    }
++  }
++
++  function fieldProps(field: ItemField) {
++    return {
++      id: `item-${field}`,
++      name: field,
++      value: draft[field],
++      error: errors[field],
++      onChange: handleChange(field),
++    };
++  }
++
++  const errorCount = Object.keys(errors).length;
++
++  return (
++    <form
++      noValidate
++      onSubmit={handleSubmit}
++      aria-labelledby={labelledBy}
++      aria-busy={saving}
++      className="max-w-[46rem] rounded-[10px] border border-line bg-surface p-[1.125rem] shadow-card sm:p-6"
++    >
++      {errorCount > 0 ? (
++        <p className="mb-4 font-semibold text-urgent">
++          Fix {errorCount} {errorCount === 1 ? "field" : "fields"} to save this item.
++        </p>
++      ) : null}
++      {saveFailed ? (
++        <div role="alert" className="mb-4 rounded-md border border-urgent-line bg-urgent-soft px-4 py-3">
++          Couldn’t save this item. Your entries are still here. Select “Save item” to try again.
++        </div>
++      ) : null}
++
++      <FormField {...fieldProps("name")} label="Name" required type="text" spellCheck={false} hint="Up to 100 characters." />
++      <FormField
++        {...fieldProps("purchaseDate")}
++        label="Purchase date"
++        required
++        type="date"
++        size="date"
++        max={today}
++        hint="Today or earlier."
++      />
++      <FormField
++        {...fieldProps("price")}
++        label="Price (USD)"
++        type="text"
++        size="money"
++        inputMode="decimal"
++        hint="Up to two decimal places, like 49.99. Leave blank if unknown; 0 means it was free."
++      />
++      <FormField
++        {...fieldProps("returnDeadline")}
++        label="Return deadline"
++        type="date"
++        size="date"
++        hint="On or after the purchase date."
++      />
++      <FormField
++        {...fieldProps("warrantyExpiration")}
++        label="Warranty expiration"
++        type="date"
++        size="date"
++        hint="On or after the purchase date."
++      />
++
++      <div className="mt-6 flex flex-wrap gap-2 border-t border-line pt-5">
++        <Button type="submit" variant="primary" aria-disabled={saving || undefined}>
++          {saving ? "Saving…" : "Save item"}
++        </Button>
++        <Button onClick={onCancel}>Cancel</Button>
++      </div>
++    </form>
++  );
++}
+diff --git a/src/features/items/NewItemPanel.test.tsx b/src/features/items/NewItemPanel.test.tsx
+new file mode 100644
+index 0000000..16fa720
+--- /dev/null
++++ b/src/features/items/NewItemPanel.test.tsx
+@@ -0,0 +1,69 @@
++import { render, screen } from "@testing-library/react";
++import userEvent from "@testing-library/user-event";
++import { NewItemPanel } from "./NewItemPanel";
++
++const push = vi.fn();
++vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
++
++describe("NewItemPanel", () => {
++  beforeEach(() => {
++    push.mockClear();
++    vi.useFakeTimers({ toFake: ["Date"] });
++    // 02:30 UTC on Oct 24 is still Oct 23 in the test time zone (America/New_York).
++    vi.setSystemTime(new Date("2026-10-24T02:30:00Z"));
++  });
++
++  afterEach(() => {
++    vi.useRealTimers();
++  });
++
++  it("limits the purchase date to the user's local today", () => {
++    render(<NewItemPanel />);
++
++    expect(screen.getByRole("heading", { level: 1, name: "Add item" })).toBeInTheDocument();
++    expect(screen.getByRole("form", { name: "Add item" })).toBeInTheDocument();
++    expect(screen.getByLabelText(/^Purchase date/)).toHaveAttribute("max", "2026-10-23");
++    expect(screen.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");
++  });
++
++  it("confirms the submitted item without claiming it was saved to an account", async () => {
++    const user = userEvent.setup();
++    render(<NewItemPanel />);
++
++    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
++    await user.type(screen.getByLabelText(/^Price/), "189.5");
++    await user.type(screen.getByLabelText(/^Warranty expiration/), "2027-10-09");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    const status = screen.getByRole("status");
++    expect(status).toHaveTextContent("“Wool coat” is ready");
++    expect(status).toHaveTextContent("Purchased Oct 9, 2026");
++    expect(status).toHaveTextContent("$189.50");
++    expect(status).toHaveTextContent("Warranty until Oct 9, 2027");
++    expect(status).toHaveTextContent("Saving items to your account isn’t available yet.");
++  });
++
++  it("describes a blank price as not entered", async () => {
++    const user = userEvent.setup();
++    render(<NewItemPanel />);
++
++    await user.type(screen.getByLabelText(/^Name/), "Phone case");
++    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-15");
++    await user.type(screen.getByLabelText(/^Return deadline/), "2026-11-14");
++    await user.click(screen.getByRole("button", { name: "Save item" }));
++
++    const status = screen.getByRole("status");
++    expect(status).toHaveTextContent("Price not entered");
++    expect(status).toHaveTextContent("Return by Nov 14, 2026");
++  });
++
++  it("returns home on cancel", async () => {
++    const user = userEvent.setup();
++    render(<NewItemPanel />);
++
++    await user.click(screen.getByRole("button", { name: "Cancel" }));
++
++    expect(push).toHaveBeenCalledWith("/");
++  });
++});
+diff --git a/src/features/items/NewItemPanel.tsx b/src/features/items/NewItemPanel.tsx
+new file mode 100644
+index 0000000..08aeff9
+--- /dev/null
++++ b/src/features/items/NewItemPanel.tsx
+@@ -0,0 +1,75 @@
++"use client";
++
++import Link from "next/link";
++import { useRouter } from "next/navigation";
++import { useState, useSyncExternalStore } from "react";
++import { formatDateOnly, todayInTimeZone } from "@/lib/dates";
++import { formatUsd } from "@/lib/money";
++import { AddItemForm } from "./AddItemForm";
++import type { NewItemInput } from "./item-schema";
++
++function subscribeToNothing() {
++  return () => {};
++}
++
++function getLocalToday(): string {
++  return todayInTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone, new Date());
++}
++
++// The server cannot know the user's time zone, so "today" is only known in the browser.
++function getServerToday(): null {
++  return null;
++}
++
++function describeItem(item: NewItemInput): string {
++  const parts = [
++    `Purchased ${formatDateOnly(item.purchaseDate)}`,
++    item.priceCents === null ? "Price not entered" : formatUsd(item.priceCents),
++  ];
++  if (item.returnDeadline) parts.push(`Return by ${formatDateOnly(item.returnDeadline)}`);
++  if (item.warrantyExpiration) parts.push(`Warranty until ${formatDateOnly(item.warrantyExpiration)}`);
++  return parts.join(" · ");
++}
++
++export function NewItemPanel() {
++  const router = useRouter();
++  const today = useSyncExternalStore(subscribeToNothing, getLocalToday, getServerToday);
++  const [submitted, setSubmitted] = useState<NewItemInput | null>(null);
++
++  return (
++    <>
++      <Link
++        href="/"
++        className="mb-4 inline-block text-[0.9375rem] font-semibold text-accent underline decoration-accent-line underline-offset-[3px] hover:text-accent-hover hover:decoration-current"
++      >
++        Back to home
++      </Link>
++      <div className="mb-6">
++        <h1 id="add-item-title" className="text-[1.375rem] font-semibold tracking-tight sm:text-[1.625rem]">
++          Add item
++        </h1>
++      </div>
++
++      <div role="status" aria-live="polite">
++        {submitted ? (
++          <div className="mb-5 rounded-md border border-accent-line bg-accent-soft px-4 py-3 text-[0.9375rem]">
++            <p className="font-semibold">“{submitted.name}” is ready.</p>
++            <p>{describeItem(submitted)}</p>
++            <p className="mt-1 text-muted">Saving items to your account isn’t available yet.</p>
++          </div>
++        ) : null}
++      </div>
++
++      {today ? (
++        <AddItemForm
++          today={today}
++          labelledBy="add-item-title"
++          onSubmit={setSubmitted}
++          onCancel={() => router.push("/")}
++        />
++      ) : (
++        <p className="text-muted">Loading form…</p>
++      )}
++    </>
++  );
++}
+diff --git a/src/features/items/item-schema.test.ts b/src/features/items/item-schema.test.ts
+new file mode 100644
+index 0000000..4807170
+--- /dev/null
++++ b/src/features/items/item-schema.test.ts
+@@ -0,0 +1,150 @@
++import { type ItemDraft, validateItemDraft } from "./item-schema";
++
++const today = "2026-10-23";
++
++function draft(overrides: Partial<ItemDraft> = {}): ItemDraft {
++  return {
++    name: "Wool coat",
++    purchaseDate: "2026-10-09",
++    price: "",
++    returnDeadline: "",
++    warrantyExpiration: "",
++    ...overrides,
++  };
++}
++
++function errorsFor(overrides: Partial<ItemDraft>) {
++  const result = validateItemDraft(draft(overrides), today);
++  if (result.success) throw new Error("Expected validation to fail");
++  return result.fieldErrors;
++}
++
++describe("validateItemDraft", () => {
++  it("returns a trimmed item with null optional fields", () => {
++    expect(validateItemDraft(draft({ name: "  Wool coat  " }), today)).toEqual({
++      success: true,
++      data: {
++        name: "Wool coat",
++        purchaseDate: "2026-10-09",
++        priceCents: null,
++        returnDeadline: null,
++        warrantyExpiration: null,
++      },
++    });
++  });
++
++  it("keeps zero price distinct from a blank price", () => {
++    const result = validateItemDraft(draft({ price: "0" }), today);
++    expect(result).toMatchObject({ success: true, data: { priceCents: 0 } });
++  });
++
++  it("converts price to integer cents and keeps optional dates", () => {
++    const result = validateItemDraft(
++      draft({ price: "189.50", returnDeadline: "2026-11-08", warrantyExpiration: "2027-10-09" }),
++      today,
++    );
++    expect(result).toMatchObject({
++      success: true,
++      data: { priceCents: 18950, returnDeadline: "2026-11-08", warrantyExpiration: "2027-10-09" },
++    });
++  });
++
++  describe("name", () => {
++    it("requires a name after trimming", () => {
++      expect(errorsFor({ name: "" }).name).toBe("Enter a name.");
++      expect(errorsFor({ name: "   " }).name).toBe("Enter a name.");
++    });
++
++    it("accepts 1 and 100 characters after trimming", () => {
++      expect(validateItemDraft(draft({ name: " a " }), today).success).toBe(true);
++      expect(validateItemDraft(draft({ name: ` ${"a".repeat(100)} ` }), today).success).toBe(true);
++    });
++
++    it("rejects 101 characters after trimming", () => {
++      expect(errorsFor({ name: "a".repeat(101) }).name).toBe(
++        "Use 100 characters or fewer. This one has 101.",
++      );
++    });
++
++    it("counts an emoji as one character", () => {
++      expect(validateItemDraft(draft({ name: "🎁".repeat(100) }), today).success).toBe(true);
++    });
++  });
++
++  describe("purchase date", () => {
++    it("is required", () => {
++      expect(errorsFor({ purchaseDate: "" }).purchaseDate).toBe("Enter the purchase date.");
++    });
++
++    it("rejects dates that do not exist", () => {
++      expect(errorsFor({ purchaseDate: "2026-02-29" }).purchaseDate).toBe(
++        "Enter a complete, real date.",
++      );
++    });
++
++    it("accepts today and a leap day", () => {
++      expect(validateItemDraft(draft({ purchaseDate: today }), today).success).toBe(true);
++      expect(validateItemDraft(draft({ purchaseDate: "2024-02-29" }), today).success).toBe(true);
++    });
++
++    it("rejects tomorrow", () => {
++      expect(errorsFor({ purchaseDate: "2026-10-24" }).purchaseDate).toBe(
++        "Purchase date can’t be in the future.",
++      );
++    });
++  });
++
++  describe("price", () => {
++    it.each([
++      ["-5", "Price can’t be negative."],
++      ["$5", "Use digits only, like 1299.99, without $ or commas."],
++      ["5.999", "Use no more than two decimal places."],
++      ["five", "Enter a price like 49.99, or leave it blank."],
++      ["99999999999999999", "Enter a smaller amount."],
++    ])("rejects %j", (price, message) => {
++      expect(errorsFor({ price }).price).toBe(message);
++    });
++  });
++
++  describe.each([
++    ["returnDeadline", "Return deadline"],
++    ["warrantyExpiration", "Warranty expiration"],
++  ] as const)("%s", (key, label) => {
++    it("accepts the purchase date itself and later dates, including future ones", () => {
++      expect(validateItemDraft(draft({ [key]: "2026-10-09" }), today).success).toBe(true);
++      expect(validateItemDraft(draft({ [key]: "2030-01-01" }), today).success).toBe(true);
++    });
++
++    it("rejects a date before the purchase date", () => {
++      expect(errorsFor({ [key]: "2026-10-08" })[key]).toBe(
++        `${label} can’t be before the purchase date, Oct 9, 2026.`,
++      );
++    });
++
++    it("rejects an invalid date", () => {
++      expect(errorsFor({ [key]: "2026-11-31" })[key]).toBe(
++        "Enter a complete, real date, or clear the field.",
++      );
++    });
++
++    it("skips the comparison when the purchase date is invalid", () => {
++      const errors = errorsFor({ purchaseDate: "", [key]: "2000-01-01" });
++      expect(errors[key]).toBeUndefined();
++    });
++  });
++
++  it("reports every invalid field at once", () => {
++    const errors = errorsFor({
++      name: "",
++      purchaseDate: "2026-10-30",
++      price: "1.234",
++      returnDeadline: "2026-10-01",
++    });
++    expect(Object.keys(errors).sort()).toEqual(["name", "price", "purchaseDate"].sort());
++  });
++
++  it("rejects non-string input from untrusted callers", () => {
++    const result = validateItemDraft({ ...draft(), name: 42 } as unknown as ItemDraft, today);
++    expect(result.success).toBe(false);
++  });
++});
+diff --git a/src/features/items/item-schema.ts b/src/features/items/item-schema.ts
+new file mode 100644
+index 0000000..7b9c791
+--- /dev/null
++++ b/src/features/items/item-schema.ts
+@@ -0,0 +1,144 @@
++import { z } from "zod";
++import { formatDateOnly, isValidDateOnly } from "@/lib/dates";
++import { type MoneyErrorCode, parseUsdToCents } from "@/lib/money";
++
++export const ITEM_NAME_MAX = 100;
++
++/** Raw text entered in the add/edit item form. */
++export type ItemDraft = {
++  name: string;
++  purchaseDate: string;
++  price: string;
++  returnDeadline: string;
++  warrantyExpiration: string;
++};
++
++export type ItemField = keyof ItemDraft;
++
++/** A validated new item: trimmed name, date-only strings, and integer cents. */
++export type NewItemInput = {
++  name: string;
++  purchaseDate: string;
++  priceCents: number | null;
++  returnDeadline: string | null;
++  warrantyExpiration: string | null;
++};
++
++export type ItemFieldErrors = Partial<Record<ItemField, string>>;
++
++export type ItemValidationResult =
++  | { success: true; data: NewItemInput }
++  | { success: false; fieldErrors: ItemFieldErrors };
++
++export const ITEM_FIELDS: readonly ItemField[] = [
++  "name",
++  "purchaseDate",
++  "price",
++  "returnDeadline",
++  "warrantyExpiration",
++];
++
++const PRICE_ERRORS: Record<MoneyErrorCode, string> = {
++  negative: "Price can’t be negative.",
++  symbols: "Use digits only, like 1299.99, without $ or commas.",
++  decimals: "Use no more than two decimal places.",
++  too_large: "Enter a smaller amount.",
++  format: "Enter a price like 49.99, or leave it blank.",
++};
++
++const DEADLINE_LABELS = {
++  returnDeadline: "Return deadline",
++  warrantyExpiration: "Warranty expiration",
++} as const;
++
++export const INVALID_DATE_MESSAGE = "Enter a complete, real date.";
++export const INVALID_OPTIONAL_DATE_MESSAGE = "Enter a complete, real date, or clear the field.";
++
++function nameError(raw: string): string | undefined {
++  // Count code points so an emoji counts as one character.
++  const length = Array.from(raw.trim()).length;
++  if (length === 0) return "Enter a name.";
++  if (length > ITEM_NAME_MAX) {
++    return `Use ${ITEM_NAME_MAX} characters or fewer. This one has ${length}.`;
++  }
++  return undefined;
++}
++
++function purchaseDateError(value: string, today: string): string | undefined {
++  if (value === "") return "Enter the purchase date.";
++  if (!isValidDateOnly(value)) return INVALID_DATE_MESSAGE;
++  if (value > today) return "Purchase date can’t be in the future.";
++  return undefined;
++}
++
++function deadlineError(
++  field: keyof typeof DEADLINE_LABELS,
++  value: string,
++  validPurchaseDate: string | null,
++): string | undefined {
++  if (value === "") return undefined;
++  if (!isValidDateOnly(value)) return INVALID_OPTIONAL_DATE_MESSAGE;
++  if (validPurchaseDate && value < validPurchaseDate) {
++    return `${DEADLINE_LABELS[field]} can’t be before the purchase date, ${formatDateOnly(validPurchaseDate)}.`;
++  }
++  return undefined;
++}
++
++/**
++ * The shared item draft schema for the form and, later, the item API.
++ * `today` is the user's local calendar date (YYYY-MM-DD), injected by the caller.
++ */
++export function createItemDraftSchema(today: string) {
++  return z
++    .object({
++      name: z.string(),
++      purchaseDate: z.string().trim(),
++      price: z.string(),
++      returnDeadline: z.string().trim(),
++      warrantyExpiration: z.string().trim(),
++    })
++    .superRefine((draft, ctx) => {
++      const purchaseError = purchaseDateError(draft.purchaseDate, today);
++      const validPurchaseDate = purchaseError ? null : draft.purchaseDate;
++      const price = parseUsdToCents(draft.price);
++      const errors: ItemFieldErrors = {
++        name: nameError(draft.name),
++        purchaseDate: purchaseError,
++        price: price.ok ? undefined : PRICE_ERRORS[price.code],
++        returnDeadline: deadlineError("returnDeadline", draft.returnDeadline, validPurchaseDate),
++        warrantyExpiration: deadlineError(
++          "warrantyExpiration",
++          draft.warrantyExpiration,
++          validPurchaseDate,
++        ),
++      };
++      for (const field of ITEM_FIELDS) {
++        const message = errors[field];
++        if (message) ctx.addIssue({ code: "custom", path: [field], message });
++      }
++    })
++    .transform((draft): NewItemInput => {
++      const price = parseUsdToCents(draft.price);
++      return {
++        name: draft.name.trim(),
++        purchaseDate: draft.purchaseDate,
++        priceCents: price.ok ? price.cents : null,
++        returnDeadline: draft.returnDeadline || null,
++        warrantyExpiration: draft.warrantyExpiration || null,
++      };
++    });
++}
++
++export function validateItemDraft(draft: ItemDraft, today: string): ItemValidationResult {
++  const result = createItemDraftSchema(today).safeParse(draft);
++  if (result.success) return { success: true, data: result.data };
++
++  const fieldErrors: ItemFieldErrors = {};
++  for (const issue of result.error.issues) {
++    const field = issue.path[0];
++    if (typeof field === "string" && ITEM_FIELDS.includes(field as ItemField)) {
++      fieldErrors[field as ItemField] ??= issue.message;
++    }
++  }
++  return { success: false, fieldErrors };
++}
+diff --git a/src/lib/dates.test.ts b/src/lib/dates.test.ts
+new file mode 100644
+index 0000000..88d78c5
+--- /dev/null
++++ b/src/lib/dates.test.ts
+@@ -0,0 +1,46 @@
++import { formatDateOnly, isValidDateOnly, todayInTimeZone } from "./dates";
++
++describe("isValidDateOnly", () => {
++  it.each(["2026-10-23", "2024-02-29", "2026-01-31", "2000-02-29"])("accepts %s", (value) => {
++    expect(isValidDateOnly(value)).toBe(true);
++  });
++
++  it.each([
++    "",
++    "2026-02-29",
++    "1900-02-29",
++    "2026-04-31",
++    "2026-13-01",
++    "2026-00-10",
++    "2026-10-00",
++    "2026-1-5",
++    "10/23/2026",
++    "2026-10-23T00:00:00Z",
++    " 2026-10-23",
++  ])("rejects %j", (value) => {
++    expect(isValidDateOnly(value)).toBe(false);
++  });
++});
++
++describe("todayInTimeZone", () => {
++  // 2026-10-24 02:30 UTC is still October 23 in New York and already October 24 in Tokyo.
++  const now = new Date("2026-10-24T02:30:00Z");
++
++  it("derives the calendar date in the given time zone", () => {
++    expect(todayInTimeZone("America/New_York", now)).toBe("2026-10-23");
++    expect(todayInTimeZone("Asia/Tokyo", now)).toBe("2026-10-24");
++    expect(todayInTimeZone("UTC", now)).toBe("2026-10-24");
++  });
++
++  it("rejects an unknown time zone", () => {
++    expect(() => todayInTimeZone("Not/AZone", now)).toThrow(RangeError);
++  });
++});
++
++describe("formatDateOnly", () => {
++  it("formats a date-only value without shifting the day", () => {
++    expect(formatDateOnly("2026-10-09")).toBe("Oct 9, 2026");
++    expect(formatDateOnly("2024-02-29")).toBe("Feb 29, 2024");
++    expect(formatDateOnly("2026-12-31")).toBe("Dec 31, 2026");
++  });
++});
+diff --git a/src/lib/dates.ts b/src/lib/dates.ts
+new file mode 100644
+index 0000000..e00205b
+--- /dev/null
++++ b/src/lib/dates.ts
+@@ -0,0 +1,40 @@
++// Date-only values are "YYYY-MM-DD" strings. They are compared as strings and never
++// converted through UTC timestamps, so a date cannot shift to another day.
++
++const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
++const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
++
++function isLeapYear(year: number): boolean {
++  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
++}
++
++function daysInMonth(year: number, month: number): number {
++  if (month === 2) return isLeapYear(year) ? 29 : 28;
++  return [4, 6, 9, 11].includes(month) ? 30 : 31;
++}
++
++export function isValidDateOnly(value: string): boolean {
++  const match = DATE_ONLY_PATTERN.exec(value);
++  if (!match) return false;
++  const year = Number(match[1]);
++  const month = Number(match[2]);
++  const day = Number(match[3]);
++  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
++}
++
++/** The calendar date at `now` in an IANA time zone, such as "America/New_York". */
++export function todayInTimeZone(timeZone: string, now: Date): string {
++  // The en-CA locale formats dates as YYYY-MM-DD.
++  return new Intl.DateTimeFormat("en-CA", {
++    timeZone,
++    year: "numeric",
++    month: "2-digit",
++    day: "2-digit",
++  }).format(now);
++}
++
++/** Formats a valid date-only value for display, such as "Oct 9, 2026". */
++export function formatDateOnly(value: string): string {
++  const [year, month, day] = value.split("-").map(Number);
++  return `${MONTHS_SHORT[month - 1]} ${day}, ${year}`;
++}
+diff --git a/src/lib/money.test.ts b/src/lib/money.test.ts
+new file mode 100644
+index 0000000..698f80e
+--- /dev/null
++++ b/src/lib/money.test.ts
+@@ -0,0 +1,51 @@
++import { formatUsd, parseUsdToCents } from "./money";
++
++describe("parseUsdToCents", () => {
++  it("treats blank input as no amount, distinct from zero", () => {
++    expect(parseUsdToCents("")).toEqual({ ok: true, cents: null });
++    expect(parseUsdToCents("   ")).toEqual({ ok: true, cents: null });
++    expect(parseUsdToCents("0")).toEqual({ ok: true, cents: 0 });
++    expect(parseUsdToCents("0.00")).toEqual({ ok: true, cents: 0 });
++  });
++
++  it.each([
++    ["49.99", 4999],
++    ["49.9", 4990],
++    ["49", 4900],
++    ["  12.50 ", 1250],
++    ["1299.99", 129999],
++    ["0.01", 1],
++    ["007.5", 750],
++  ])("converts %j to %i cents", (raw, cents) => {
++    expect(parseUsdToCents(raw)).toEqual({ ok: true, cents });
++  });
++
++  it.each([
++    ["-1", "negative"],
++    ["-0.01", "negative"],
++    ["$5", "symbols"],
++    ["1,299.99", "symbols"],
++    ["1.999", "decimals"],
++    ["0.001", "decimals"],
++    ["abc", "format"],
++    ["1.", "format"],
++    [".5", "format"],
++    ["1e3", "format"],
++    ["1 000", "format"],
++    ["99999999999999999", "too_large"],
++  ])("rejects %j as %s", (raw, code) => {
++    expect(parseUsdToCents(raw)).toEqual({ ok: false, code });
++  });
++});
++
++describe("formatUsd", () => {
++  it.each([
++    [0, "$0.00"],
++    [1, "$0.01"],
++    [4999, "$49.99"],
++    [129999, "$1,299.99"],
++    [100000000, "$1,000,000.00"],
++  ])("formats %i cents as %s", (cents, text) => {
++    expect(formatUsd(cents)).toBe(text);
++  });
++});
+diff --git a/src/lib/money.ts b/src/lib/money.ts
+new file mode 100644
+index 0000000..7130ee2
+--- /dev/null
++++ b/src/lib/money.ts
+@@ -0,0 +1,31 @@
++// USD amounts are stored as integer cents and formatted only for display.
++
++export type MoneyErrorCode = "negative" | "symbols" | "format" | "decimals" | "too_large";
++
++export type MoneyParseResult =
++  | { ok: true; cents: number | null }
++  | { ok: false; code: MoneyErrorCode };
++
++const AMOUNT_PATTERN = /^(\d+)(?:\.(\d+))?$/;
++
++/** Parses entered USD text. Blank input means no amount; zero is a real amount. Never rounds. */
++export function parseUsdToCents(raw: string): MoneyParseResult {
++  const text = raw.trim();
++  if (text === "") return { ok: true, cents: null };
++  if (text.startsWith("-")) return { ok: false, code: "negative" };
++  if (/[$,]/.test(text)) return { ok: false, code: "symbols" };
++
++  const match = AMOUNT_PATTERN.exec(text);
++  if (!match) return { ok: false, code: "format" };
++  const fraction = match[2] ?? "";
++  if (fraction.length > 2) return { ok: false, code: "decimals" };
++
++  const cents = Number(match[1]) * 100 + Number(fraction.padEnd(2, "0"));
++  if (!Number.isSafeInteger(cents)) return { ok: false, code: "too_large" };
++  return { ok: true, cents };
++}
++
++export function formatUsd(cents: number): string {
++  const dollars = Math.floor(cents / 100).toLocaleString("en-US");
++  return `$${dollars}.${String(cents % 100).padStart(2, "0")}`;
++}
+diff --git a/tests/e2e/add-item.spec.ts b/tests/e2e/add-item.spec.ts
+new file mode 100644
+index 0000000..c2e77a9
+--- /dev/null
++++ b/tests/e2e/add-item.spec.ts
+@@ -0,0 +1,67 @@
++import { expect, test } from "@playwright/test";
++
++// Fix the user's time zone and clock so "today" is deterministic: Oct 23, 2026 in New York.
++test.use({ timezoneId: "America/New_York" });
++
++test.beforeEach(async ({ page }) => {
++  await page.clock.setFixedTime(new Date("2026-10-24T02:30:00Z"));
++});
++
++test("adds an item from the homepage, fixing field errors first", async ({ page }) => {
++  await page.goto("/");
++  await page.getByRole("link", { name: "Add item" }).click();
++
++  await expect(page).toHaveURL(/\/items\/new$/);
++  await expect(page.getByRole("heading", { level: 1, name: "Add item" })).toBeVisible();
++  await expect(page.getByLabel(/^Purchase date/)).toHaveAttribute("max", "2026-10-23");
++
++  await page.getByLabel(/^Price/).fill("49.999");
++  await page.getByRole("button", { name: "Save item" }).click();
++
++  await expect(page.getByText("Fix 3 fields to save this item.")).toBeVisible();
++  await expect(page.getByLabel(/^Name/)).toBeFocused();
++  await expect(page.getByText("Enter a name.")).toBeVisible();
++  await expect(page.getByText("Use no more than two decimal places.")).toBeVisible();
++
++  await page.getByLabel(/^Name/).fill("Wool coat");
++  await page.getByLabel(/^Purchase date/).fill("2026-10-09");
++  await page.getByLabel(/^Price/).fill("189.50");
++  await page.getByLabel(/^Return deadline/).fill("2026-11-08");
++  await page.getByRole("button", { name: "Save item" }).click();
++
++  const status = page.getByRole("status");
++  await expect(status).toContainText("Wool coat");
++  await expect(status).toContainText("$189.50");
++  await expect(status).toContainText("Nov 8, 2026");
++  await expect(page.getByLabel(/^Name/)).toHaveValue("");
++});
++
++test("rejects a purchase date after the user's local today", async ({ page }) => {
++  await page.goto("/items/new");
++
++  await page.getByLabel(/^Name/).fill("Running shoes");
++  await page.getByLabel(/^Purchase date/).fill("2026-10-24");
++  await page.getByRole("button", { name: "Save item" }).click();
++
++  await expect(page.getByText("Purchase date can’t be in the future.")).toBeVisible();
++  await expect(page.getByRole("status")).toBeEmpty();
++});
++
++test("can be completed with the keyboard only", async ({ page }) => {
++  await page.goto("/items/new");
++
++  await page.getByLabel(/^Name/).focus();
++  await page.keyboard.type("Desk lamp");
++  await page.keyboard.press("Tab");
++  await expect(page.getByLabel(/^Purchase date/)).toBeFocused();
++  await page.getByLabel(/^Purchase date/).fill("2026-10-23");
++  await page.getByLabel(/^Purchase date/).press("Enter");
++
++  await expect(page.getByRole("status")).toContainText("Desk lamp");
++});
++
++test("cancel returns to the homepage", async ({ page }) => {
++  await page.goto("/items/new");
++  await page.getByRole("button", { name: "Cancel" }).click();
++  await expect(page).toHaveURL(/\/$/);
++});
+diff --git a/vitest.config.mts b/vitest.config.mts
+index 611de48..ecdf668 100644
+--- a/vitest.config.mts
++++ b/vitest.config.mts
+@@ -2,6 +2,10 @@ import react from "@vitejs/plugin-react";
+ import { fileURLToPath } from "node:url";
+ import { defineConfig } from "vitest/config";
+ 
++// Fix the time zone so tests that derive "today" from the clock are deterministic.
++// Set before workers start so they inherit it.
++process.env.TZ = "America/New_York";
++
+ export default defineConfig({
+   plugins: [react()],
+   resolve: {

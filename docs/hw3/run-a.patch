@@ -1,0 +1,643 @@
+diff --git a/src/app/page.test.tsx b/src/app/page.test.tsx
+index 4ffa94d..7ece8bf 100644
+--- a/src/app/page.test.tsx
++++ b/src/app/page.test.tsx
+@@ -7,5 +7,9 @@ describe("HomePage", () => {
+ 
+     expect(screen.getByRole("heading", { level: 1, name: "B4Gone" })).toBeInTheDocument();
+     expect(screen.getByText(/project setup is complete/i)).toBeInTheDocument();
++    expect(screen.getByRole("link", { name: "Add a purchase" })).toHaveAttribute(
++      "href",
++      "/purchases/new",
++    );
+   });
+ });
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 78d8d61..bb2eb8e 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -1,3 +1,5 @@
++import Link from "next/link";
++
+ export default function HomePage() {
+   return (
+     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-6 py-16">
+@@ -6,6 +8,12 @@ export default function HomePage() {
+         Project setup is complete. Return deadlines, warranties, and subscription renewals are
+         coming next.
+       </p>
++      <Link
++        href="/purchases/new"
++        className="self-start rounded-md bg-accent px-4 py-2 font-medium text-white hover:opacity-90"
++      >
++        Add a purchase
++      </Link>
+     </main>
+   );
+ }
+diff --git a/src/app/purchases/new/NewPurchaseSection.tsx b/src/app/purchases/new/NewPurchaseSection.tsx
+new file mode 100644
+index 0000000..db0076f
+--- /dev/null
++++ b/src/app/purchases/new/NewPurchaseSection.tsx
+@@ -0,0 +1,22 @@
++"use client";
++
++import { useState } from "react";
++import { NewPurchaseForm } from "@/components/NewPurchaseForm";
++import type { NewPurchase } from "@/lib/purchase";
++
++// Saving is not implemented yet, so this only echoes the most recent submission back.
++export function NewPurchaseSection() {
++  const [lastSubmitted, setLastSubmitted] = useState<NewPurchase | null>(null);
++
++  return (
++    <>
++      <NewPurchaseForm onSubmit={setLastSubmitted} />
++      {lastSubmitted && (
++        <section role="status" className="rounded-md border border-accent/40 bg-white p-4">
++          <h2 className="font-semibold">Received &ldquo;{lastSubmitted.itemName}&rdquo;</h2>
++          <p className="text-sm">Saving purchases isn&rsquo;t available yet, so this entry is not stored.</p>
++        </section>
++      )}
++    </>
++  );
++}
+diff --git a/src/app/purchases/new/page.test.tsx b/src/app/purchases/new/page.test.tsx
+new file mode 100644
+index 0000000..f6e3e1f
+--- /dev/null
++++ b/src/app/purchases/new/page.test.tsx
+@@ -0,0 +1,20 @@
++import { fireEvent, render, screen } from "@testing-library/react";
++import NewPurchasePage from "./page";
++
++describe("NewPurchasePage", () => {
++  it("renders the form and acknowledges a submission without claiming it was saved", () => {
++    render(<NewPurchasePage />);
++
++    expect(screen.getByRole("heading", { level: 1, name: "Add a purchase" })).toBeInTheDocument();
++    expect(screen.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");
++    expect(screen.queryByRole("status")).not.toBeInTheDocument();
++
++    fireEvent.change(screen.getByLabelText(/item name/i), { target: { value: "Kettle" } });
++    fireEvent.change(screen.getByLabelText(/purchase date/i), { target: { value: "2026-10-20" } });
++    fireEvent.click(screen.getByRole("button", { name: "Add purchase" }));
++
++    const status = screen.getByRole("status");
++    expect(status).toHaveTextContent("Received “Kettle”");
++    expect(status).toHaveTextContent(/not stored/i);
++  });
++});
+diff --git a/src/app/purchases/new/page.tsx b/src/app/purchases/new/page.tsx
+new file mode 100644
+index 0000000..637f474
+--- /dev/null
++++ b/src/app/purchases/new/page.tsx
+@@ -0,0 +1,19 @@
++import type { Metadata } from "next";
++import Link from "next/link";
++import { NewPurchaseSection } from "./NewPurchaseSection";
++
++export const metadata: Metadata = {
++  title: "Add a purchase | B4Gone",
++};
++
++export default function NewPurchasePage() {
++  return (
++    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-16">
++      <Link href="/" className="self-start text-accent underline">
++        Back to home
++      </Link>
++      <h1 className="text-3xl font-semibold tracking-tight text-accent">Add a purchase</h1>
++      <NewPurchaseSection />
++    </main>
++  );
++}
+diff --git a/src/components/NewPurchaseForm.test.tsx b/src/components/NewPurchaseForm.test.tsx
+new file mode 100644
+index 0000000..0adfb07
+--- /dev/null
++++ b/src/components/NewPurchaseForm.test.tsx
+@@ -0,0 +1,102 @@
++import { fireEvent, render, screen } from "@testing-library/react";
++import { NewPurchaseForm } from "./NewPurchaseForm";
++
++function fill(label: RegExp, value: string) {
++  fireEvent.change(screen.getByLabelText(label), { target: { value } });
++}
++
++function submit() {
++  fireEvent.click(screen.getByRole("button", { name: "Add purchase" }));
++}
++
++describe("NewPurchaseForm", () => {
++  it("renders labelled inputs for every field", () => {
++    render(<NewPurchaseForm onSubmit={vi.fn()} />);
++
++    expect(screen.getByLabelText(/item name/i)).toHaveAttribute("type", "text");
++    expect(screen.getByLabelText(/purchase date/i)).toHaveAttribute("type", "date");
++    expect(screen.getByLabelText(/price \(usd\)/i)).toHaveAttribute("inputmode", "decimal");
++    expect(screen.getByLabelText(/return deadline/i)).toHaveAttribute("type", "date");
++    expect(screen.getByLabelText(/warranty expiration/i)).toHaveAttribute("type", "date");
++    expect(screen.getByLabelText(/item name/i)).toBeRequired();
++    expect(screen.getByLabelText(/return deadline/i)).not.toBeRequired();
++  });
++
++  it("passes the entered purchase to onSubmit and clears the form", () => {
++    const onSubmit = vi.fn();
++    render(<NewPurchaseForm onSubmit={onSubmit} />);
++
++    fill(/item name/i, "Stand mixer");
++    fill(/purchase date/i, "2026-10-20");
++    fill(/price/i, "$349.99");
++    fill(/return deadline/i, "2026-11-19");
++    fill(/warranty expiration/i, "2027-10-20");
++    submit();
++
++    expect(onSubmit).toHaveBeenCalledTimes(1);
++    expect(onSubmit).toHaveBeenCalledWith({
++      itemName: "Stand mixer",
++      purchaseDate: "2026-10-20",
++      priceCents: 34999,
++      returnDeadline: "2026-11-19",
++      warrantyExpiration: "2027-10-20",
++    });
++    expect(screen.getByLabelText(/item name/i)).toHaveValue("");
++    expect(screen.getByLabelText(/price/i)).toHaveValue("");
++  });
++
++  it("submits with only the required fields", () => {
++    const onSubmit = vi.fn();
++    render(<NewPurchaseForm onSubmit={onSubmit} />);
++
++    fill(/item name/i, "Socks");
++    fill(/purchase date/i, "2026-10-20");
++    submit();
++
++    expect(onSubmit).toHaveBeenCalledWith({
++      itemName: "Socks",
++      purchaseDate: "2026-10-20",
++      priceCents: null,
++      returnDeadline: null,
++      warrantyExpiration: null,
++    });
++  });
++
++  it("shows errors, focuses the first invalid field, and does not call onSubmit", () => {
++    const onSubmit = vi.fn();
++    render(<NewPurchaseForm onSubmit={onSubmit} />);
++
++    fill(/price/i, "abc");
++    submit();
++
++    expect(onSubmit).not.toHaveBeenCalled();
++    const itemName = screen.getByLabelText(/item name/i);
++    expect(itemName).toHaveFocus();
++    expect(itemName).toHaveAttribute("aria-invalid", "true");
++    expect(itemName).toHaveAccessibleDescription("Enter the item name.");
++    expect(screen.getByLabelText(/purchase date/i)).toHaveAccessibleDescription(
++      "Enter the purchase date.",
++    );
++    expect(screen.getByLabelText(/price/i)).toHaveAccessibleDescription(
++      "For example, 19.99 Enter a price in dollars, such as 19.99.",
++    );
++    // Entered values are kept so the user can correct them.
++    expect(screen.getByLabelText(/price/i)).toHaveValue("abc");
++  });
++
++  it("clears errors once the input is corrected and resubmitted", () => {
++    const onSubmit = vi.fn();
++    render(<NewPurchaseForm onSubmit={onSubmit} />);
++
++    submit();
++    expect(screen.getByText("Enter the item name.")).toBeInTheDocument();
++
++    fill(/item name/i, "Lamp");
++    fill(/purchase date/i, "2026-10-20");
++    submit();
++
++    expect(onSubmit).toHaveBeenCalledTimes(1);
++    expect(screen.queryByText("Enter the item name.")).not.toBeInTheDocument();
++    expect(screen.getByLabelText(/item name/i)).not.toHaveAttribute("aria-invalid");
++  });
++});
+diff --git a/src/components/NewPurchaseForm.tsx b/src/components/NewPurchaseForm.tsx
+new file mode 100644
+index 0000000..daf56ec
+--- /dev/null
++++ b/src/components/NewPurchaseForm.tsx
+@@ -0,0 +1,115 @@
++"use client";
++
++import { useId, useState, type FormEvent } from "react";
++import {
++  ITEM_NAME_MAX_LENGTH,
++  validateNewPurchase,
++  type NewPurchase,
++  type NewPurchaseErrors,
++  type NewPurchaseInput,
++} from "@/lib/purchase";
++
++const EMPTY_INPUT: NewPurchaseInput = {
++  itemName: "",
++  purchaseDate: "",
++  price: "",
++  returnDeadline: "",
++  warrantyExpiration: "",
++};
++
++type FieldConfig = {
++  name: keyof NewPurchaseInput;
++  label: string;
++  type: "text" | "date";
++  required: boolean;
++  hint?: string;
++};
++
++const FIELDS: FieldConfig[] = [
++  { name: "itemName", label: "Item name", type: "text", required: true },
++  { name: "purchaseDate", label: "Purchase date", type: "date", required: true },
++  { name: "price", label: "Price (USD)", type: "text", required: false, hint: "For example, 19.99" },
++  { name: "returnDeadline", label: "Return deadline", type: "date", required: false },
++  { name: "warrantyExpiration", label: "Warranty expiration date", type: "date", required: false },
++];
++
++export type NewPurchaseFormProps = {
++  /** Called with the validated purchase. The form clears itself after it returns. */
++  onSubmit: (purchase: NewPurchase) => void;
++};
++
++export function NewPurchaseForm({ onSubmit }: NewPurchaseFormProps) {
++  const idPrefix = useId();
++  const [input, setInput] = useState<NewPurchaseInput>(EMPTY_INPUT);
++  const [errors, setErrors] = useState<NewPurchaseErrors>({});
++
++  function handleSubmit(event: FormEvent<HTMLFormElement>) {
++    event.preventDefault();
++    const result = validateNewPurchase(input);
++    if (!result.ok) {
++      setErrors(result.errors);
++      const firstInvalid = FIELDS.find((field) => result.errors[field.name]);
++      if (firstInvalid) document.getElementById(`${idPrefix}-${firstInvalid.name}`)?.focus();
++      return;
++    }
++    setErrors({});
++    onSubmit(result.value);
++    setInput(EMPTY_INPUT);
++  }
++
++  return (
++    <form noValidate onSubmit={handleSubmit} aria-label="New purchase" className="flex flex-col gap-5">
++      {FIELDS.map((field) => {
++        const id = `${idPrefix}-${field.name}`;
++        const error = errors[field.name];
++        const describedBy =
++          [field.hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") ||
++          undefined;
++        return (
++          <div key={field.name} className="flex flex-col gap-1">
++            <label htmlFor={id} className="font-medium">
++              {field.label}
++              {field.required ? (
++                <span aria-hidden="true" className="text-red-700">
++                  {" "}
++                  *
++                </span>
++              ) : (
++                <span className="font-normal text-ink/70"> (optional)</span>
++              )}
++            </label>
++            {field.hint && (
++              <p id={`${id}-hint`} className="text-sm text-ink/70">
++                {field.hint}
++              </p>
++            )}
++            <input
++              id={id}
++              name={field.name}
++              type={field.type}
++              inputMode={field.name === "price" ? "decimal" : undefined}
++              maxLength={field.name === "itemName" ? ITEM_NAME_MAX_LENGTH : undefined}
++              required={field.required}
++              aria-invalid={error ? true : undefined}
++              aria-describedby={describedBy}
++              value={input[field.name]}
++              onChange={(event) => setInput({ ...input, [field.name]: event.target.value })}
++              className="rounded-md border border-ink/30 bg-white px-3 py-2 focus:outline-2 focus:outline-accent aria-invalid:border-red-700"
++            />
++            {error && (
++              <p id={`${id}-error`} className="text-sm text-red-700">
++                {error}
++              </p>
++            )}
++          </div>
++        );
++      })}
++      <button
++        type="submit"
++        className="self-start rounded-md bg-accent px-4 py-2 font-medium text-white hover:opacity-90 focus:outline-2 focus:outline-offset-2 focus:outline-accent"
++      >
++        Add purchase
++      </button>
++    </form>
++  );
++}
+diff --git a/src/lib/purchase.test.ts b/src/lib/purchase.test.ts
+new file mode 100644
+index 0000000..15052dc
+--- /dev/null
++++ b/src/lib/purchase.test.ts
+@@ -0,0 +1,148 @@
++import {
++  isValidIsoDate,
++  ITEM_NAME_MAX_LENGTH,
++  parsePriceToCents,
++  validateNewPurchase,
++  type NewPurchaseInput,
++} from "./purchase";
++
++const valid: NewPurchaseInput = {
++  itemName: "Headphones",
++  purchaseDate: "2026-10-01",
++  price: "",
++  returnDeadline: "",
++  warrantyExpiration: "",
++};
++
++describe("isValidIsoDate", () => {
++  it.each(["2026-10-01", "2024-02-29", "1999-12-31"])("accepts %s", (value) => {
++    expect(isValidIsoDate(value)).toBe(true);
++  });
++
++  it.each(["", "2026-10-1", "10/01/2026", "2026-13-01", "2026-02-30", "2025-02-29", "2026-10-01x"])(
++    "rejects %j",
++    (value) => {
++      expect(isValidIsoDate(value)).toBe(false);
++    },
++  );
++});
++
++describe("parsePriceToCents", () => {
++  it.each([
++    ["19.99", 1999],
++    ["0", 0],
++    ["0.5", 50],
++    ["12", 1200],
++    ["$1,250.00", 125000],
++    [" 3.10 ", 310],
++  ])("parses %j as %i cents", (value, cents) => {
++    expect(parsePriceToCents(value)).toBe(cents);
++  });
++
++  it.each(["", "abc", "-5", "1.999", "1.", ".50", "1e3", "12.3.4"])("rejects %j", (value) => {
++    expect(parsePriceToCents(value)).toBeNull();
++  });
++});
++
++describe("validateNewPurchase", () => {
++  it("returns only the required fields when optional ones are blank", () => {
++    expect(validateNewPurchase(valid)).toEqual({
++      ok: true,
++      value: {
++        itemName: "Headphones",
++        purchaseDate: "2026-10-01",
++        priceCents: null,
++        returnDeadline: null,
++        warrantyExpiration: null,
++      },
++    });
++  });
++
++  it("trims values and includes all optional fields", () => {
++    const result = validateNewPurchase({
++      itemName: "  Headphones  ",
++      purchaseDate: "2026-10-01",
++      price: "149.50",
++      returnDeadline: "2026-10-31",
++      warrantyExpiration: "2027-10-01",
++    });
++
++    expect(result).toEqual({
++      ok: true,
++      value: {
++        itemName: "Headphones",
++        purchaseDate: "2026-10-01",
++        priceCents: 14950,
++        returnDeadline: "2026-10-31",
++        warrantyExpiration: "2027-10-01",
++      },
++    });
++  });
++
++  it("allows deadlines on the purchase date itself", () => {
++    const result = validateNewPurchase({
++      ...valid,
++      returnDeadline: valid.purchaseDate,
++      warrantyExpiration: valid.purchaseDate,
++    });
++    expect(result.ok).toBe(true);
++  });
++
++  it("requires item name and purchase date", () => {
++    expect(validateNewPurchase({ ...valid, itemName: "   ", purchaseDate: "" })).toEqual({
++      ok: false,
++      errors: { itemName: "Enter the item name.", purchaseDate: "Enter the purchase date." },
++    });
++  });
++
++  it("rejects an item name that is too long", () => {
++    const result = validateNewPurchase({ ...valid, itemName: "x".repeat(ITEM_NAME_MAX_LENGTH + 1) });
++    expect(result).toMatchObject({ ok: false, errors: { itemName: expect.stringMatching(/200/) } });
++  });
++
++  it("rejects malformed dates and prices", () => {
++    expect(
++      validateNewPurchase({
++        ...valid,
++        purchaseDate: "2026-02-30",
++        price: "ten dollars",
++        returnDeadline: "soon",
++        warrantyExpiration: "2027-13-01",
++      }),
++    ).toEqual({
++      ok: false,
++      errors: {
++        purchaseDate: "Enter a valid purchase date.",
++        price: "Enter a price in dollars, such as 19.99.",
++        returnDeadline: "Enter a valid return deadline.",
++        warrantyExpiration: "Enter a valid warranty expiration date.",
++      },
++    });
++  });
++
++  it("rejects a price above the maximum", () => {
++    expect(validateNewPurchase({ ...valid, price: "100000000.01" })).toEqual({
++      ok: false,
++      errors: { price: "Price is too large." },
++    });
++  });
++
++  it("rejects deadlines before the purchase date", () => {
++    expect(
++      validateNewPurchase({ ...valid, returnDeadline: "2026-09-30", warrantyExpiration: "2026-01-01" }),
++    ).toEqual({
++      ok: false,
++      errors: {
++        returnDeadline: "The return deadline can't be before the purchase date.",
++        warrantyExpiration: "The warranty expiration date can't be before the purchase date.",
++      },
++    });
++  });
++
++  it("skips the ordering check when the purchase date itself is invalid", () => {
++    expect(validateNewPurchase({ ...valid, purchaseDate: "", returnDeadline: "2026-09-30" })).toEqual({
++      ok: false,
++      errors: { purchaseDate: "Enter the purchase date." },
++    });
++  });
++});
+diff --git a/src/lib/purchase.ts b/src/lib/purchase.ts
+new file mode 100644
+index 0000000..cc1194b
+--- /dev/null
++++ b/src/lib/purchase.ts
+@@ -0,0 +1,110 @@
++// Validation for the "new purchase" form. Kept free of React so it can be reused by the API
++// layer once persistence exists.
++
++export type NewPurchase = {
++  itemName: string;
++  /** Calendar date in YYYY-MM-DD form. */
++  purchaseDate: string;
++  /** Price in US cents, so amounts never pass through floating point. */
++  priceCents: number | null;
++  returnDeadline: string | null;
++  warrantyExpiration: string | null;
++};
++
++/** Raw string values as they come out of the form inputs. */
++export type NewPurchaseInput = {
++  itemName: string;
++  purchaseDate: string;
++  price: string;
++  returnDeadline: string;
++  warrantyExpiration: string;
++};
++
++export type NewPurchaseErrors = Partial<Record<keyof NewPurchaseInput, string>>;
++
++export type ValidationResult =
++  | { ok: true; value: NewPurchase }
++  | { ok: false; errors: NewPurchaseErrors };
++
++export const ITEM_NAME_MAX_LENGTH = 200;
++// Upper bound keeps cents comfortably inside Number.MAX_SAFE_INTEGER.
++export const PRICE_MAX_CENTS = 100_000_000_00;
++
++const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
++const PRICE = /^(\d+)(?:\.(\d{1,2}))?$/;
++
++/** True when the string is YYYY-MM-DD and names a real calendar date. */
++export function isValidIsoDate(value: string): boolean {
++  const match = ISO_DATE.exec(value);
++  if (!match) return false;
++  const [year, month, day] = match.slice(1).map(Number);
++  const date = new Date(Date.UTC(year, month - 1, day));
++  return (
++    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
++  );
++}
++
++/**
++ * Parses a USD amount such as "19.99", "$1,250" or "0.5" into cents. Returns null when the
++ * text is not a valid non-negative amount with at most two decimal places.
++ */
++export function parsePriceToCents(value: string): number | null {
++  const normalized = value.trim().replace(/^\$/, "").replace(/,/g, "");
++  const match = PRICE.exec(normalized);
++  if (!match) return null;
++  const dollars = Number(match[1]);
++  const cents = Number((match[2] ?? "").padEnd(2, "0"));
++  return dollars * 100 + cents;
++}
++
++export function validateNewPurchase(input: NewPurchaseInput): ValidationResult {
++  const errors: NewPurchaseErrors = {};
++
++  const itemName = input.itemName.trim();
++  if (!itemName) {
++    errors.itemName = "Enter the item name.";
++  } else if (itemName.length > ITEM_NAME_MAX_LENGTH) {
++    errors.itemName = `Item name must be ${ITEM_NAME_MAX_LENGTH} characters or fewer.`;
++  }
++
++  const purchaseDate = input.purchaseDate.trim();
++  if (!purchaseDate) {
++    errors.purchaseDate = "Enter the purchase date.";
++  } else if (!isValidIsoDate(purchaseDate)) {
++    errors.purchaseDate = "Enter a valid purchase date.";
++  }
++
++  let priceCents: number | null = null;
++  const price = input.price.trim();
++  if (price) {
++    priceCents = parsePriceToCents(price);
++    if (priceCents === null) {
++      errors.price = "Enter a price in dollars, such as 19.99.";
++    } else if (priceCents > PRICE_MAX_CENTS) {
++      errors.price = "Price is too large.";
++    }
++  }
++
++  const optionalDate = (
++    field: "returnDeadline" | "warrantyExpiration",
++    label: string,
++  ): string | null => {
++    const value = input[field].trim();
++    if (!value) return null;
++    if (!isValidIsoDate(value)) {
++      errors[field] = `Enter a valid ${label}.`;
++    } else if (!errors.purchaseDate && value < purchaseDate) {
++      // YYYY-MM-DD strings sort chronologically, so string comparison is safe here.
++      errors[field] = `The ${label} can't be before the purchase date.`;
++    }
++    return value;
++  };
++  const returnDeadline = optionalDate("returnDeadline", "return deadline");
++  const warrantyExpiration = optionalDate("warrantyExpiration", "warranty expiration date");
++
++  if (Object.keys(errors).length > 0) return { ok: false, errors };
++  return {
++    ok: true,
++    value: { itemName, purchaseDate, priceCents, returnDeadline, warrantyExpiration },
++  };
++}
+diff --git a/tests/e2e/new-purchase.spec.ts b/tests/e2e/new-purchase.spec.ts
+new file mode 100644
+index 0000000..e455103
+--- /dev/null
++++ b/tests/e2e/new-purchase.spec.ts
+@@ -0,0 +1,22 @@
++import { expect, test } from "@playwright/test";
++
++test("a user can open the new purchase form from the homepage and submit it", async ({ page }) => {
++  await page.goto("/");
++  await page.getByRole("link", { name: "Add a purchase" }).click();
++
++  await expect(page).toHaveURL(/\/purchases\/new$/);
++  await expect(page).toHaveTitle("Add a purchase | B4Gone");
++
++  await page.getByRole("button", { name: "Add purchase" }).click();
++  await expect(page.getByText("Enter the item name.")).toBeVisible();
++  await expect(page.getByLabel(/item name/i)).toBeFocused();
++
++  await page.getByLabel(/item name/i).fill("Running shoes");
++  await page.getByLabel(/purchase date/i).fill("2026-10-20");
++  await page.getByLabel(/price/i).fill("89.95");
++  await page.getByLabel(/return deadline/i).fill("2026-11-19");
++  await page.getByRole("button", { name: "Add purchase" }).click();
++
++  await expect(page.getByRole("status")).toContainText("Received “Running shoes”");
++  await expect(page.getByLabel(/item name/i)).toHaveValue("");
++});
