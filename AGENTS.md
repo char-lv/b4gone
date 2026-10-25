@@ -15,7 +15,7 @@ https://claude.ai/artifact/CPRyvxx7bDpjMWau2JmddM?sk=1KRqQph1BLUcx5C4NxUw-g
 
 ## Stack and dependency policy
 
-The scaffold and add-item form experiment now exist. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. Run B added Zod 4.6.7. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. Database and authentication dependencies remain planned.
+The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The HW3 add-item form runs are archived as patches under docs/hw3/ and are not part of the application yet; run B added Zod 4.6.7 in its own copy. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. Database and authentication dependencies remain planned.
 
 | Area | Baseline |
 | --- | --- |
