@@ -8,3 +8,12 @@ coverage/
 !.env.example
 *.log
 .DS_Store
+next-env.d.ts
+*.tsbuildinfo
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Personal homework records stay outside the shared repository (see AGENTS.md).
+/docs/hw3/

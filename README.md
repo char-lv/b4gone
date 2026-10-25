@@ -21,4 +21,41 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 
 ## Current stage
 
-This repository begins with planning documents for CS6983 HW3 and Project 2. GitHub workflow setup, the shared rules file, the controlled implementation comparison, and feature development are the next steps.
+The project scaffold and test tooling are in place (issue #1). The homepage shows only a heading and a setup message. Authentication, item and subscription features, the dashboard, database access, and receipt features are not implemented yet.
+
+## Local setup
+
+Requirements: Node.js 24.11.0 (see `.nvmrc`) and npm 11.x.
+
+```bash
+npm ci
+npx playwright install chromium
+npm run dev
+```
+
+The site runs at http://localhost:3000.
+
+## Commands
+
+| Command | Purpose | Status |
+| --- | --- | --- |
+| `npm run dev` | Local development server | Works |
+| `npm run lint` | ESLint CLI (flat config with eslint-config-next) | Works |
+| `npm run typecheck` | `tsc --noEmit` in strict mode | Works |
+| `npm run test:unit` | Vitest unit/component tests in run mode (jsdom, React Testing Library) | Works |
+| `npm run test:coverage` | Vitest with V8 coverage and the declared thresholds | Works |
+| `npm run test:e2e` | Playwright suite on Chromium; builds and starts the production server on port 3100 | Works (see note) |
+| `npm run build` | Production build | Works |
+| `npm run test:integration` | Database/API integration suite | Pending: exits with an error until the database work adds a real suite |
+
+Coverage thresholds: 80% lines, statements, and functions and 75% branches for `src/`, plus 90% lines and branches for `src/lib/**`. The root layout is excluded from unit coverage because it renders `<html>` and `<body>`; the Playwright smoke test covers it.
+
+### Playwright on macOS 13
+
+Playwright 1.64 cannot download its bundled Chromium on macOS 13. On those machines, use an installed Google Chrome:
+
+```bash
+PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e
+```
+
+Without the variable, the suite uses Playwright's bundled Chromium (the default for CI and newer systems).

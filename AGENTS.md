@@ -7,7 +7,7 @@ B4Gone is a website for purchase return deadlines, warranty expirations, and sub
 - Must have: private accounts, item CRUD and return/undo, subscription CRUD and cancel/reactivate, and a dashboard with upcoming deadlines and average monthly subscription cost.
 - Receipt uploads and AI receipt extraction are could-have work only after the core features, tests, and deployment work. Manual entry must remain independent.
 - Exclude email/push notifications, multiple currencies, banking, and shared household records. Use USD and dashboard reminders.
-- Use English for repository content, interface text, code comments, PRs, and experiment evidence. Keep changes within the assigned issue.
+- Use English for repository content, interface text, code comments, and PRs. Keep changes within the assigned issue.
 
 Prototype URL:
 
@@ -15,7 +15,7 @@ https://claude.ai/artifact/CPRyvxx7bDpjMWau2JmddM?sk=1KRqQph1BLUcx5C4NxUw-g
 
 ## Stack and dependency policy
 
-This repository currently contains planning documents. The following is the planned implementation baseline, not a claim that packages or scripts already exist.
+The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form was evaluated separately and has not yet been integrated into this branch; its extra validation dependency is not installed in this scaffold. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. Database and authentication dependencies remain planned.
 
 | Area | Baseline |
 | --- | --- |
@@ -56,8 +56,8 @@ Use one Next.js application. Keep route handlers thin: authenticate, validate, c
 ## Product rules that must survive implementation
 
 - Item names are required and 1-100 characters after trimming. Purchase dates are valid calendar dates on or before the user's local today. Optional return and warranty dates cannot precede purchase.
-- Item price is optional: blank means null and zero means zero. Subscription amount is required. Reject malformed, negative, or more-than-two-decimal amounts; never silently round entered prices. Store integer cents and format USD only for display.
-- Keep date-only values as YYYY-MM-DD/PostgreSQL DATE. Do not convert them through UTC timestamps for rendering. Pass an explicit user timezone to server-side date validation and derive today from the server clock in that timezone; inject today in pure functions and tests.
+- Item price is optional: blank means null and zero means zero. Subscription amount is required. Reject malformed, negative, or more-than-two-decimal amounts; never silently round entered prices. Reject malformed separators such as 1,,2 rather than stripping commas before validation. Store integer cents and format USD only for display.
+- Keep date-only values as YYYY-MM-DD/PostgreSQL DATE. Do not convert them through UTC timestamps for rendering. Pass an explicit user timezone to server-side date validation and derive today from the server clock in that timezone; inject today in pure functions and tests. Recompute the current local date at the validation/submission boundary or update it across local midnight; a value captured when the page opened can become stale. Test a page that remains open across midnight.
 - Subscription names are 1-100 trimmed characters. Cycles are monthly or yearly, and the original firstBillingDate is the recurring anchor. The next charge is the first occurrence on or after today, including today.
 - Preserve monthly anchor days: January 31 becomes February's last day, then March 31. A yearly February 29 becomes February 28 in non-leap years. Do not recur from a previously clamped date.
 - Dashboard events cover today through day 30 inclusive; urgency covers days 0-7 inclusive. Exclude past events, returned items, and cancelled subscriptions. Include at most one next renewal per subscription; an item can have both a return and a warranty event.
@@ -78,7 +78,7 @@ Use the prototype for Dashboard, Items, and Subscriptions. Follow the PRD when t
 
 ## Testing and commands
 
-Use red-green-refactor for application behavior: write a meaningful failing test, run it, commit the failure with the issue reference, implement the smallest change, then refactor with tests passing. Preserve this sequence in git history; do not squash away required TDD evidence.
+Use red-green-refactor for application behavior: write a meaningful failing test, run it, commit the failure with the issue reference, implement the smallest change, then refactor with tests passing. Preserve this sequence in git history; do not squash away required TDD evidence. Keep the actual failing-test output with its commit SHA. Disclose split or reordered local commits; commit order alone does not establish when tests were run.
 
 - Unit tests cover date, recurrence, money, validation, reminder selection, and cost calculations. Component tests use accessible roles/labels and user actions rather than implementation internals or large snapshots.
 - Integration tests use an isolated PostgreSQL test database for auth, persistence, validation, and two-user ownership checks. Never run destructive setup against production or development records.
@@ -86,7 +86,7 @@ Use red-green-refactor for application behavior: write a meaningful failing test
 - Project coverage goals: at least 80% lines/statements/functions and 75% branches for authored application code; at least 90% lines and branches for shared date/money/recurrence/validation modules. Exclude generated files and configuration, not difficult business cases. These are team targets, not percentages specified by the instructor.
 - Required cases include blank versus zero money, excess decimals, trimmed-name boundaries, invalid/future purchase dates, leap years, short months, dates on days 0/7/30, and foreign-owner record IDs. Fix the clock and timezone in tests.
 
-Issue #1 must create and verify these npm scripts. Until then, report them as unavailable rather than claiming checks passed.
+The scaffold provides the scripts below. Database/API integration tests are still a pending placeholder that exits with code 1; do not describe that result as a passing suite. On the current macOS 13 machine, use PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e. Bundled Chromium remains unverified on this machine.
 
 | Command | Purpose |
 | --- | --- |
@@ -120,14 +120,10 @@ Run checks appropriate to the change. Report actual commands, results, and envir
 - Keep database credentials, JWT secrets, tokens, and real personal records out of commits, fixtures, logs, screenshots, and PR descriptions. Commit .env.example placeholders only. Keep dependency/security findings visible and address applicable findings before release.
 - Do not introduce email/push, banking, sharing, currency conversion, or AI services while implementing core issues. Do not rewrite working modules, drop user data, disable protections, or add packages without a concrete need explained in the PR.
 
-## HW3 comparison and rule refinement
+## Repository content
 
-Use issue #3 for the add-item form and validation through an onSubmit callback boundary. Persistence and authenticated item APIs belong to issue #4. Do not implement the comparison feature while preparing its baseline.
+Keep project source, tests, configuration, README, PRD, and shared development rules in this repository. Individual homework reflections, submission packages, raw conversations, and experimental archives stay outside the shared repository unless an assignment explicitly requires repository storage. HW3 comparison evidence and the personal reflection can be submitted through Canvas.
 
-1. First finish the scaffold/test-tool baseline from issue #1 and record its commit SHA. Make two isolated working copies from that same code baseline in a location without unrelated parent project instructions.
-2. Run A in a fresh chat with project instruction files/imports/rules disabled and only the brief feature request. Keep the PRD, prototype guidance, prior answers, and project-specific memory out of that run's supplied context. Record any unavoidable shared global instructions.
-3. Run B in another fresh chat with these rules active plus the PRD and prototype references. Keep model, tools, code baseline, feature scope, and runtime the same. Verify the actual loaded instruction files; do not rely on a filename alone. Keep auto memory off for both runs and prevent cross-run reuse.
-4. Preserve prompts, code snapshots, generated tests, screenshots or snippets, actual check output, and the active/disabled instruction setup under docs/hw3/ after both runs. Use one evaluation checklist for both; keep evaluation-only tests out of the implementation prompts.
-5. Compare naming/architecture, validation, UI intent, generated tests, and measured check results. Record failures, ties, and limitations as observed. Refine the rules only after this comparison, preserve the before/after rules diff, and write the required 1-2 page reflection. Do not prewrite findings or manufacture improvement.
+## Loading shared instructions
 
-Keep AGENTS.md as the shared source. A root CLAUDE.md may contain only an import of this file so Claude Code versions with different loading behavior use the same rules. Verify loaded context with /context or /memory before run B; disable both files and other project rule sources for run A. Never remove a teammate's global settings to prepare the experiment.
+Keep AGENTS.md as the shared source. A root CLAUDE.md may contain only an import of this file so Claude Code versions with different loading behavior use the same rules. Verify loaded context with /context or /memory when checking shared instructions. Never remove a teammate's global settings to prepare the experiment.
