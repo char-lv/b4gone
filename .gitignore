@@ -14,3 +14,6 @@ playwright-report/
 test-results/
 blob-report/
 playwright/.cache/
+
+# Personal homework records stay outside the shared repository (see AGENTS.md).
+/docs/hw3/
