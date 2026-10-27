@@ -1,0 +1,33 @@
+# Smoke-checks each successful deployment reported to GitHub (issue #11). Vercel's GitHub
+# integration reports a preview deployment for each pull request and a production deployment
+# for each push to main. Until that integration is connected (docs/deployment.md), nothing
+# triggers this workflow.
+name: Deployment smoke check
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke check (${{ github.event.deployment.environment }})
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Check the deployed site
+        env:
+          DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
+          DEPLOYED_SHA: ${{ github.event.deployment.sha }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          echo "Deployed commit: $DEPLOYED_SHA"
+          npm run smoke -- "$DEPLOYMENT_URL"
