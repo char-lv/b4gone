@@ -35,16 +35,21 @@ describe("readDatabaseUrl for the app database", () => {
   });
 
   it("rejects a value that is not a URL", () => {
-    expect(() => readDatabaseUrl({ DATABASE_URL: "localhost:5432 b4gone_dev" }, "app")).toThrow(
+    expect(() => readDatabaseUrl({ DATABASE_URL: "b4gone_dev on localhost" }, "app")).toThrow(
       new DatabaseConfigError("DATABASE_URL is not a valid connection URL."),
     );
   });
 
-  it("rejects a non-PostgreSQL scheme", () => {
-    expect(() => readDatabaseUrl({ DATABASE_URL: "mysql://b4gone:s3cret-pw@localhost/b4gone_dev" }, "app")).toThrow(
-      new DatabaseConfigError("DATABASE_URL must start with postgres:// or postgresql://."),
-    );
-  });
+  // "localhost:5432/b4gone_dev" parses as a URL whose scheme is "localhost:", so a missing scheme
+  // gets the scheme error rather than the not-a-URL error.
+  it.each(["mysql://b4gone:s3cret-pw@localhost/b4gone_dev", "localhost:5432/b4gone_dev"])(
+    "rejects a non-PostgreSQL scheme (%s)",
+    (value) => {
+      expect(() => readDatabaseUrl({ DATABASE_URL: value }, "app")).toThrow(
+        new DatabaseConfigError("DATABASE_URL must start with postgres:// or postgresql://."),
+      );
+    },
+  );
 
   it.each(["postgresql://b4gone:s3cret-pw@localhost:5432", "postgresql://b4gone:s3cret-pw@localhost:5432/"])(
     "rejects a URL without a database name (%s)",
