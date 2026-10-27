@@ -111,7 +111,7 @@ Run checks appropriate to the change. Report actual commands, results, and envir
 - Open a focused PR explaining behavior, validation, and remaining limits. Use Refs #N for partial work and Closes #N only when all issue criteria are met. Move to In Review when ready and Done after review, passing required checks, and merge.
 - The other partner reviews before merge; do not self-approve or fabricate review activity. Preserve real commits from both partners and at least five genuine PR reviews per partner over P2. Both partners maintain these rules; ownership may change with availability.
 - Plan each sprint jointly, record at least three standup updates per partner per sprint in the course Slack channel, and write a retrospective with partner feedback. Record actual completed work, next steps, blockers, and links; keep an honest contribution log.
-- Once configured, PR CI runs lint/types, unit/integration tests, E2E, build, and security scanning. Provide PR deployment previews and reviewed-main production deployment with separate local/test/preview/production settings. Keep OpenAPI and setup documentation aligned with implemented endpoints.
+- PR CI lives in .github/workflows/ and the README summarizes it: lint/types, unit tests with coverage, integration tests on a disposable PostgreSQL 17 service, build, E2E, dependency audit/review, and CodeQL. Merge only when required checks pass; do not skip or weaken a check to make it pass. Provide PR deployment previews and reviewed-main production deployment with separate local/test/preview/production settings (docs/setup.md, docs/deployment.md). Keep OpenAPI and setup documentation aligned with implemented endpoints.
 
 ## Security and changes to avoid
 
