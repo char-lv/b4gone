@@ -59,3 +59,20 @@ PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e
 ```
 
 Without the variable, the suite uses Playwright's bundled Chromium (the default for CI and newer systems).
+
+## Continuous integration
+
+Every pull request and every push to `main` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on Node.js from `.nvmrc`:
+
+| Stage | Job | Checks |
+| --- | --- | --- |
+| 1 | Lint and type-check | `npm run lint`, `npm run typecheck` |
+| 1 | Unit and component tests | `npm run test:coverage` with the declared thresholds; uploads the coverage report |
+| 1 | Dependency audit | `npm audit --audit-level=high` |
+| 1 | Dependency review (pull requests only) | Fails if the pull request adds a dependency with a high or critical advisory |
+| 2 | Production build | `npm run build` after stage 1 quality and unit jobs pass |
+| 3 | End-to-end tests | `npm run test:e2e` on Playwright's bundled Chromium after the build passes |
+
+[`.github/workflows/codeql.yml`](.github/workflows/codeql.yml) runs CodeQL security analysis (`security-extended` queries) on pull requests, on `main`, and weekly. Results appear under the repository's Security tab.
+
+Third-party actions are pinned to full commit SHAs. Database integration tests, deploy previews, and automated production deployment are still pending under issue #11.
