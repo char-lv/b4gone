@@ -76,3 +76,7 @@ Every pull request and every push to `main` runs [`.github/workflows/ci.yml`](.g
 [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml) runs CodeQL security analysis (`security-extended` queries) on pull requests, on `main`, and weekly. Results appear under the repository's Security tab.
 
 Third-party actions are pinned to full commit SHAs. Database integration tests, deploy previews, and automated production deployment are still pending under issue #11.
+
+## Deployment
+
+The site is not deployed yet. [docs/deployment.md](docs/deployment.md) describes the planned Vercel setup (preview deployments for pull requests, production deployments from `main`), the steps for the first deployment, and the evidence to record. `npm run smoke -- <url>` checks a deployed site, and [`.github/workflows/deployment-smoke.yml`](.github/workflows/deployment-smoke.yml) runs that check after each successful deployment once Vercel is connected.
