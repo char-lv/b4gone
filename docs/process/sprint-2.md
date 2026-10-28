@@ -8,16 +8,18 @@
 
 Joint planning record: **Pending.** Plan Sprint 2 together after the Sprint 1 retrospective and confirm the estimates and owners below.
 
-| Issue | Points | Priority | Suggested owner (unconfirmed) | Board status on 2026-10-27 | Evidence |
-| --- | --- | --- | --- | --- | --- |
-| [#7](https://github.com/char-lv/b4gone/issues/7) Subscription CRUD, cancel, reactivate | 5 | high | Jasmine | Backlog | Not started |
-| [#8](https://github.com/char-lv/b4gone/issues/8) Billing dates and average monthly cost | 3 | high | Charlene | Backlog | Not started |
-| [#9](https://github.com/char-lv/b4gone/issues/9) Dashboard | 5 | high | Charlene | Backlog | Not started |
-| [#10](https://github.com/char-lv/b4gone/issues/10) Synchronized views, accessibility, failure states | 3 | medium | Jasmine | Backlog | Not started |
-| [#11](https://github.com/char-lv/b4gone/issues/11) CI checks, PR previews, automated deployment | 5 | high | Charlene (only the repository owner can connect Vercel) | In Progress | CI, security scanning, and deployment preparation in [#15](https://github.com/char-lv/b4gone/pull/15), open with review requested; nothing deployed yet |
-| [#12](https://github.com/char-lv/b4gone/issues/12) API, architecture, sprint, and demo docs | 3 | medium | Jasmine leads; both contribute | In Progress | Process notes in [#17](https://github.com/char-lv/b4gone/pull/17), open with review requested |
+- Product Owner and Scrum Master for Sprint 2: **Pending**. Each partner takes the role the other held in Sprint 1.
 
-Total: 24 points. The suggested split is 13 points for Charlene and 11 for Jasmine plus shared #12 work. Rebalance at Sprint 2 planning from Sprint 1's actual velocity.
+| Issue | Points | Priority | Suggested owner (unconfirmed) | Board status on 2026-10-28 | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| [#7](https://github.com/char-lv/b4gone/issues/7) Subscription CRUD, cancel, reactivate | 5 | high | Jiaying | Backlog | Not started |
+| [#8](https://github.com/char-lv/b4gone/issues/8) Billing dates and average monthly cost | 3 | high | Chengling | Backlog | Not started |
+| [#9](https://github.com/char-lv/b4gone/issues/9) Dashboard | 5 | high | Chengling | Backlog | Not started |
+| [#10](https://github.com/char-lv/b4gone/issues/10) Synchronized views, accessibility, failure states | 3 | medium | Jiaying | Backlog | Not started |
+| [#11](https://github.com/char-lv/b4gone/issues/11) CI checks, PR previews, automated deployment | 5 | high | Chengling (only the repository owner can connect Vercel) | In Progress | CI, security scanning, and deployment preparation in [#15](https://github.com/char-lv/b4gone/pull/15), open with review requested; nothing deployed yet |
+| [#12](https://github.com/char-lv/b4gone/issues/12) API, architecture, sprint, and demo docs | 3 | medium | Jiaying leads; both contribute | In Progress | Process notes in [#17](https://github.com/char-lv/b4gone/pull/17), open with review requested |
+
+Total: 24 points. The suggested split is 13 points for Chengling and 11 for Jiaying plus shared #12 work. Rebalance at Sprint 2 planning from Sprint 1's actual velocity.
 
 Dependencies: #8 provides the calculations that #7's views and #9's dashboard display; #10 verifies the finished flows; #12 documents the implemented API.
 
@@ -27,12 +29,12 @@ At least three updates per partner, posted in the course Slack channel.
 
 | Date | Partner | Done | Next | Blockers | Link |
 | --- | --- | --- | --- | --- | --- |
-| Pending | Charlene | | | | |
-| Pending | Charlene | | | | |
-| Pending | Charlene | | | | |
-| Pending | Jasmine | | | | |
-| Pending | Jasmine | | | | |
-| Pending | Jasmine | | | | |
+| Pending | Chengling | | | | |
+| Pending | Chengling | | | | |
+| Pending | Chengling | | | | |
+| Pending | Jiaying | | | | |
+| Pending | Jiaying | | | | |
+| Pending | Jiaying | | | | |
 
 ## Retrospective
 
@@ -41,6 +43,6 @@ At least three updates per partner, posted in the course Slack channel.
 - What went well:
 - What to improve:
 - Action items (owner, due date):
-- Charlene's feedback for Jasmine:
-- Jasmine's feedback for Charlene:
+- Chengling's feedback for Jiaying:
+- Jiaying's feedback for Chengling:
 - Shared-rules changes agreed (link the AGENTS.md pull request):

@@ -1,8 +1,8 @@
 # Process evidence index
 
-This index links the evidence for the P2 process requirements. It lists only records that exist; anything not yet recorded is marked **Pending**. Last updated 2026-10-27.
+This index links the evidence for the P2 process requirements. It lists only records that exist; anything not yet recorded is marked **Pending**. Last updated 2026-10-28.
 
-Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner) and [`Jasmine-G-uo`](https://github.com/Jasmine-G-uo).
+Partners: Chengling ([`char-lv`](https://github.com/char-lv), repository owner) and Jiaying ([`Jasmine-G-uo`](https://github.com/Jasmine-G-uo)).
 
 | Document | Contents |
 | --- | --- |
@@ -20,7 +20,7 @@ Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner
 | User stories with acceptance criteria | [PRD Section 4](../PRD.md#4-user-stories-and-acceptance-criteria) (US-01–US-07) and the acceptance checklist in each issue | Done |
 | Task estimation | Story points in each issue's Planning section; totals in the sprint notes | Done |
 | Joint sprint planning | No meeting notes or chat record linked yet | **Pending**: both partners |
-| Task ownership | No issue has an assignee | **Pending**: suggestions in the sprint notes need confirmation |
+| Task ownership | Confirmed by both partners: [#2](https://github.com/char-lv/b4gone/issues/2) Jiaying (assigned to `Jasmine-G-uo`), [#3](https://github.com/char-lv/b4gone/issues/3)–[#5](https://github.com/char-lv/b4gone/issues/5) Chengling (assigned to `char-lv`), assigned on 2026-10-28 | Partly done: #1 and #6–#12 have no confirmed owner |
 | Standups: at least 3 per partner per sprint | None recorded yet (0 of 6 per sprint) | **Pending**: posted in the course Slack channel, then linked in the sprint notes |
 | Retrospective per sprint with feedback from both partners | None yet | **Pending**: end of each sprint |
 
@@ -29,10 +29,10 @@ Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner
 | Requirement | Evidence | Status |
 | --- | --- | --- |
 | Shared repository, both partners with push access | [char-lv/b4gone](https://github.com/char-lv/b4gone); the collaborator API reports `write` permission for `Jasmine-G-uo` (checked 2026-10-27) | Done |
-| Branch per issue, partner review before merge | [#13](https://github.com/char-lv/b4gone/pull/13) (`chore/1-project-rules`) and [#14](https://github.com/char-lv/b4gone/pull/14) (`docs/3-hw3-evidence`), each approved by Jasmine before merge. [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), and [#17](https://github.com/char-lv/b4gone/pull/17) are open with Jasmine's review requested | Followed so far |
-| At least 5 genuine PR reviews per partner | Jasmine: 2 ([#13 review](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250), [#14 review](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036)). Charlene: 0 (no pull requests by Jasmine yet) | **Pending**: 3 more by Jasmine, 5 by Charlene |
-| Meaningful commits from both partners | Charlene: 14 commits on `main` plus 2 merge commits. Jasmine: none yet | **Pending**: Jasmine's commits |
-| Shared rules maintained by both partners | [AGENTS.md history](https://github.com/char-lv/b4gone/commits/main/AGENTS.md): Charlene's commits so far | **Pending**: Jasmine's rule changes |
+| Branch per issue, partner review before merge | [#13](https://github.com/char-lv/b4gone/pull/13) (`chore/1-project-rules`) and [#14](https://github.com/char-lv/b4gone/pull/14) (`docs/3-hw3-evidence`), each approved by Jiaying before merge. [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), and [#17](https://github.com/char-lv/b4gone/pull/17) are open with Jiaying's review requested | Followed so far |
+| At least 5 genuine PR reviews per partner | Jiaying: 2 ([#13 review](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250), [#14 review](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036)). Chengling: 0 (no pull requests by Jiaying yet) | **Pending**: 3 more by Jiaying, 5 by Chengling |
+| Meaningful commits from both partners | Chengling: 14 commits on `main` plus 2 merge commits. Jiaying: none yet | **Pending**: Jiaying's commits |
+| Shared rules maintained by both partners | [AGENTS.md history](https://github.com/char-lv/b4gone/commits/main/AGENTS.md): Chengling's commits so far | **Pending**: Jiaying's rule changes |
 
 ## Engineering evidence
 
@@ -60,4 +60,4 @@ Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner
 
 ## HW3 experiment records
 
-The HW3 rules comparison (#3) is personal homework and stays outside this repository (see AGENTS.md, Repository content). Charlene keeps the Run A and Run B working copies, a verified git bundle of Run B, and the patches locally. Run B's add-item commits (`5c4ffb9` test → `6f507f3` feat → `1d832d7` test → `fa53822` feat; local commits, not on GitHub) are the starting point for integrating #3; the integration pull request should say they were imported and add new TDD commits for the remaining midnight-date fix.
+The HW3 rules comparison (#3) is personal homework and stays outside this repository (see AGENTS.md, Repository content). Chengling keeps the Run A and Run B working copies, a verified git bundle of Run B, and the patches locally. Run B's add-item commits (`5c4ffb9` test → `6f507f3` feat → `1d832d7` test → `fa53822` feat; local commits, not on GitHub) are the starting point for integrating #3; the integration pull request should say they were imported and add new TDD commits for the remaining midnight-date fix.

@@ -1,22 +1,22 @@
 # AI workflow and shared rules
 
-The P2 assignment names Antigravity, guided by the shared rules file, as the primary AI harness. This page records the AI tools the team has actually used, how context reaches them, and how AGENTS.md has changed. Add an entry for every AI session that produces committed work.
+The P2 specification names Antigravity as the primary AI harness for Weeks 6–8. The professor has since confirmed that any IDE is acceptable (link to that confirmation: **Pending**). The team uses VS Code with Claude Code, guided by the shared AGENTS.md. This page records the AI tools the team has actually used, how context reaches them, and how AGENTS.md has changed. Add an entry for every AI session that produces committed work.
 
 ## Recorded AI use
 
 | Date | Partner | Tool and model | Work | Evidence |
 | --- | --- | --- | --- | --- |
-| 2026-10-24 to 25 | Charlene | Claude Code with Claude Opus 5.5 | Scaffold, homepage TDD pair, and HW3 documentation (#1, #3) | Commits with the `Co-Authored-By: Claude` trailer, listed in [contribution-log.md](contribution-log.md) |
-| 2026-10-24 | Charlene | Claude Code CLI 2.1.308, Opus 5.5, medium effort, two fresh sessions | HW3 controlled comparison: run A without project rules, run B with AGENTS.md, the PRD, and the prototype (#3) | HW3 submission on Canvas; local run records outside the repository |
-| 2026-10-27 | Charlene | Claude Code desktop app (Code tab), Opus 5.5, as assistance outside the primary harness | Baseline verification; CI, security scanning, and deployment preparation (#11); environment and database setup with TDD (#1); these process notes (#12) | Pull requests [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), and [#17](https://github.com/char-lv/b4gone/pull/17) |
-| Pending | Jasmine | | | |
-| Pending | Both | Antigravity | No Antigravity session has been recorded yet. Each partner records sessions here as they happen | **Pending** |
+| 2026-10-24 to 25 | Chengling | Claude Code with Claude Opus 5.5 | Scaffold, homepage TDD pair, and HW3 documentation (#1, #3) | Commits with the `Co-Authored-By: Claude` trailer, listed in [contribution-log.md](contribution-log.md) |
+| 2026-10-24 | Chengling | Claude Code CLI 2.1.308, Opus 5.5, medium effort, two fresh sessions | HW3 controlled comparison: run A without project rules, run B with AGENTS.md, the PRD, and the prototype (#3) | HW3 submission on Canvas; local run records outside the repository |
+| 2026-10-27 | Chengling | Claude Code desktop app (Code tab), Opus 5.5 | Baseline verification; CI, security scanning, and deployment preparation (#11); environment and database setup with TDD (#1); these process notes (#12) | Pull requests [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), and [#17](https://github.com/char-lv/b4gone/pull/17) |
+| 2026-10-28 | Chengling | Claude Code VS Code extension, Opus 5.5 | P2 preparation audit, issue assignments for #2–#5, team names and owners in these notes, and the P2 completion tracker (#12) | Pull request [#17](https://github.com/char-lv/b4gone/pull/17) and [P2_CHECKLIST.md](../P2_CHECKLIST.md) |
+| Pending | Jiaying | | | |
 
 For each new entry, record the issue, what the agent was asked to do, which checks were run, and what was kept, changed, or rejected after human review.
 
 ## How context reaches the agent
 
-- **Shared rules:** root [AGENTS.md](../../AGENTS.md). Claude Code loads it through the one-line root `CLAUDE.md` import. Whether Antigravity loads AGENTS.md automatically has not been checked yet: **Pending**, each partner confirms in their own Antigravity setup and notes the result here.
+- **Shared rules:** root [AGENTS.md](../../AGENTS.md). Claude Code loads it through the one-line root `CLAUDE.md` import (`@AGENTS.md`). Each partner confirms this once in their own VS Code setup with `/memory` or `/context`. Chengling: confirmed on 2026-10-28, when the session context showed `CLAUDE.md` importing the AGENTS.md rules. Jiaying: **Pending**.
 - **Task:** the GitHub issue body (goal, acceptance criteria, estimate, PRD reference).
 - **Behavior and design:** [docs/PRD.md](../PRD.md) and the prototype linked in its Section 7.
 - **Verification:** the npm scripts in the README, CI on every pull request, and partner review before merge.
@@ -44,7 +44,7 @@ For each new entry, record the issue, what the agent was asked to do, which chec
 These proposals have not been applied. Discuss them at planning or the retrospective; either partner can open the AGENTS.md pull request that adopts the agreed ones.
 
 1. Record every AI session that produces committed work in this file: tool, model, issue, request summary, checks run, and what was kept or rejected.
-2. Record how Antigravity loads AGENTS.md, as the Loading shared instructions section already does for Claude Code.
+2. Withdrawn on 2026-10-28: this proposal covered Antigravity, but the team uses VS Code with Claude Code, which the Loading shared instructions section already covers.
 3. A red commit may include a stub that only declares the interface, so each test fails on its own assertion; the commit message must say so.
 4. If TDD commits are rebased before publishing, re-run the red and green states at the published SHAs and report both runs.
 5. A pull request that adds an environment variable also updates `.env.example` (placeholder only), the environment matrix in `docs/setup.md`, and the hosting provider's scoped settings.
