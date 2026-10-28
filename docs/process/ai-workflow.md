@@ -8,7 +8,7 @@ The P2 assignment names Antigravity, guided by the shared rules file, as the pri
 | --- | --- | --- | --- | --- |
 | 2026-10-24 to 25 | Charlene | Claude Code with Claude Opus 5.5 | Scaffold, homepage TDD pair, and HW3 documentation (#1, #3) | Commits with the `Co-Authored-By: Claude` trailer, listed in [contribution-log.md](contribution-log.md) |
 | 2026-10-24 | Charlene | Claude Code CLI 2.1.308, Opus 5.5, medium effort, two fresh sessions | HW3 controlled comparison: run A without project rules, run B with AGENTS.md, the PRD, and the prototype (#3) | HW3 submission on Canvas; local run records outside the repository |
-| 2026-10-27 | Charlene | Claude Code desktop app (Code tab), Opus 5.5, as assistance outside the primary harness | Baseline verification; CI, security scanning, and deployment preparation (#11); environment and database setup with TDD (#1); these process notes (#12) | Branches `chore/11-ci-pipeline`, `chore/1-env-database-setup`, `docs/12-process-evidence`; pull requests **Pending** |
+| 2026-10-27 | Charlene | Claude Code desktop app (Code tab), Opus 5.5, as assistance outside the primary harness | Baseline verification; CI, security scanning, and deployment preparation (#11); environment and database setup with TDD (#1); these process notes (#12) | Pull requests [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), and [#17](https://github.com/char-lv/b4gone/pull/17) |
 | Pending | Jasmine | | | |
 | Pending | Both | Antigravity | No Antigravity session has been recorded yet. Each partner records sessions here as they happen | **Pending** |
 
@@ -26,7 +26,7 @@ For each new entry, record the issue, what the agent was asked to do, which chec
 | Issue | Red | Green | Notes |
 | --- | --- | --- | --- |
 | #1 homepage | [`960aa11`](https://github.com/char-lv/b4gone/commit/960aa11) | [`54b2916`](https://github.com/char-lv/b4gone/commit/54b2916) | The original failing output was not kept. A re-run on 2026-10-27 fails at `960aa11` (1 failed: no heading named "B4Gone") and passes at `54b2916` |
-| #1 database URL configuration | First test commit on `chore/1-env-database-setup`: Tests 27 failed (27) against a stub that only declares the interface | Implementation commit on the same branch: Tests 28 passed (28) | A second test commit corrected one example after the first implementation showed that `localhost:5432 b4gone_dev` parses as a URL (still red: 28 failed). The branch was rebased before publishing; red and green were re-run at the published SHAs. Details are in that pull request |
+| #1 database URL configuration | [`24e2633`](https://github.com/char-lv/b4gone/commit/24e2633): Tests 27 failed (27) against a stub that only declares the interface | [`1f6b8eb`](https://github.com/char-lv/b4gone/commit/1f6b8eb): Tests 28 passed (28) | A second test commit, [`ec5761d`](https://github.com/char-lv/b4gone/commit/ec5761d), corrected one example after the first implementation showed that `localhost:5432 b4gone_dev` parses as a URL (still red: 28 failed). The branch was rebased before publishing; red and green were re-run at the published SHAs. Details are in [#16](https://github.com/char-lv/b4gone/pull/16) |
 
 ## Shared-rules history
 
@@ -37,7 +37,7 @@ For each new entry, record the issue, what the agent was asked to do, which chec
 | [`c96d056`](https://github.com/char-lv/b4gone/commit/c96d056) | Reject malformed money separators such as `1,,2`; recompute local today across midnight; honest TDD evidence (#3) | Observed in the HW3 comparison |
 | [`f723561`](https://github.com/char-lv/b4gone/commit/f723561) | Corrected the scaffold and command status (#3) | Keep the rules accurate |
 | [`4d64a01`](https://github.com/char-lv/b4gone/commit/4d64a01) | Personal homework records stay outside the repository (#3) | Separate shared and individual work |
-| Pending merge | Database configuration, the integration suite, and `db:check` (#1); the configured CI pipeline and environment guides (#11) | Rules must describe the actual setup |
+| [`61f1ff0`](https://github.com/char-lv/b4gone/commit/61f1ff0) and [`89646b7`](https://github.com/char-lv/b4gone/commit/89646b7) in [#16](https://github.com/char-lv/b4gone/pull/16), not merged | Database configuration, the integration suite, and `db:check` (#1); the configured CI pipeline and environment guides (#11) | Rules must describe the actual setup |
 
 ## Proposed rule changes for joint review
 

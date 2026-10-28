@@ -10,7 +10,7 @@ Joint planning record: **Pending.** Add the date, attendees, and a link to the m
 
 | Issue | Points | Priority | Suggested owner (unconfirmed) | Board status on 2026-10-27 | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| [#1](https://github.com/char-lv/b4gone/issues/1) Next.js project and shared rules | 3 | high | Charlene | In Progress | [#13](https://github.com/char-lv/b4gone/pull/13) and [#14](https://github.com/char-lv/b4gone/pull/14) merged; environment and database setup on `chore/1-env-database-setup` |
+| [#1](https://github.com/char-lv/b4gone/issues/1) Next.js project and shared rules | 3 | high | Charlene | In Progress | [#13](https://github.com/char-lv/b4gone/pull/13) and [#14](https://github.com/char-lv/b4gone/pull/14) merged; environment and database setup in [#16](https://github.com/char-lv/b4gone/pull/16), open with review requested |
 | [#2](https://github.com/char-lv/b4gone/issues/2) Registration, sign-in, sign-out | 5 | high | Jasmine | Sprint Todo | Not started |
 | [#3](https://github.com/char-lv/b4gone/issues/3) Add-item form and HW3 comparison | 5 | high | Charlene | In Progress | HW3 comparison done (submitted through Canvas); form integration and midnight-date fix not started |
 | [#4](https://github.com/char-lv/b4gone/issues/4) Item APIs and persistence | 5 | high | Charlene | Sprint Todo | Not started |

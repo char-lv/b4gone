@@ -28,8 +28,8 @@ Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner
 
 | Requirement | Evidence | Status |
 | --- | --- | --- |
-| Shared repository, both partners with push access | [char-lv/b4gone](https://github.com/char-lv/b4gone) | Partner push access not verified from the public API; **Pending** owner confirmation |
-| Branch per issue, partner review before merge | [#13](https://github.com/char-lv/b4gone/pull/13) (`chore/1-project-rules`) and [#14](https://github.com/char-lv/b4gone/pull/14) (`docs/3-hw3-evidence`), each approved by Jasmine before merge | Followed so far |
+| Shared repository, both partners with push access | [char-lv/b4gone](https://github.com/char-lv/b4gone); the collaborator API reports `write` permission for `Jasmine-G-uo` (checked 2026-10-27) | Done |
+| Branch per issue, partner review before merge | [#13](https://github.com/char-lv/b4gone/pull/13) (`chore/1-project-rules`) and [#14](https://github.com/char-lv/b4gone/pull/14) (`docs/3-hw3-evidence`), each approved by Jasmine before merge. [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), and [#17](https://github.com/char-lv/b4gone/pull/17) are open with Jasmine's review requested | Followed so far |
 | At least 5 genuine PR reviews per partner | Jasmine: 2 ([#13 review](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250), [#14 review](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036)). Charlene: 0 (no pull requests by Jasmine yet) | **Pending**: 3 more by Jasmine, 5 by Charlene |
 | Meaningful commits from both partners | Charlene: 14 commits on `main` plus 2 merge commits. Jasmine: none yet | **Pending**: Jasmine's commits |
 | Shared rules maintained by both partners | [AGENTS.md history](https://github.com/char-lv/b4gone/commits/main/AGENTS.md): Charlene's commits so far | **Pending**: Jasmine's rule changes |
@@ -38,10 +38,10 @@ Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner
 
 | Requirement | Evidence | Status |
 | --- | --- | --- |
-| TDD: failing test committed before implementation | #1 homepage: [`960aa11`](https://github.com/char-lv/b4gone/commit/960aa11) test → [`54b2916`](https://github.com/char-lv/b4gone/commit/54b2916) feat. The original failing output was not retained; a re-run on 2026-10-27 fails at `960aa11` (`Unable to find an accessible element with the role "heading" and name "B4Gone"`, 1 failed) and passes at `54b2916`. #1 database configuration: red/green commits on branch `chore/1-env-database-setup`, output in that pull request | Partly done; database configuration commits **Pending** merge |
-| Unit, integration, and E2E tests | Vitest unit/component suite, Playwright smoke test, and (on `chore/1-env-database-setup`) a database connection integration suite | Feature tests **Pending** (#2–#10) |
-| Multi-stage CI on every pull request, security scanning | Branch `chore/11-ci-pipeline`: CI, CodeQL, dependency audit and review | **Pending**: pull request and first run |
-| Deploy previews, automated deployment, environment management | Branch `chore/11-ci-pipeline`: `docs/deployment.md` and the deployment smoke check; branch `chore/1-env-database-setup`: `docs/setup.md` environment matrix | **Pending**: no hosting account connected; no deployment exists |
+| TDD: failing test committed before implementation | #1 homepage: [`960aa11`](https://github.com/char-lv/b4gone/commit/960aa11) test → [`54b2916`](https://github.com/char-lv/b4gone/commit/54b2916) feat. The original failing output was not retained; a re-run on 2026-10-27 fails at `960aa11` (`Unable to find an accessible element with the role "heading" and name "B4Gone"`, 1 failed) and passes at `54b2916`. #1 database configuration: red [`24e2633`](https://github.com/char-lv/b4gone/commit/24e2633) and [`ec5761d`](https://github.com/char-lv/b4gone/commit/ec5761d), green [`1f6b8eb`](https://github.com/char-lv/b4gone/commit/1f6b8eb), with the failing output in [#16](https://github.com/char-lv/b4gone/pull/16) | Partly done; database configuration commits **Pending** merge |
+| Unit, integration, and E2E tests | Vitest unit/component suite, Playwright smoke test, and (in [#16](https://github.com/char-lv/b4gone/pull/16)) a database connection integration suite | Feature tests **Pending** (#2–#10) |
+| Multi-stage CI on every pull request, security scanning | [#15](https://github.com/char-lv/b4gone/pull/15): CI, CodeQL, dependency audit and review ([first run](https://github.com/char-lv/b4gone/actions/runs/40637667877)). [#16](https://github.com/char-lv/b4gone/pull/16) adds a PostgreSQL integration job ([first run](https://github.com/char-lv/b4gone/actions/runs/40637696970): connected to PostgreSQL 17.11, 3 tests passed). Every job passed except dependency review, which fails because the dependency graph is off. Secret scanning, push protection, and Dependabot alerts are also off (checked 2026-10-27) | **Pending**: the owner enables the dependency graph and re-runs that job; merge; decision on the other security settings |
+| Deploy previews, automated deployment, environment management | [#15](https://github.com/char-lv/b4gone/pull/15): `docs/deployment.md` and the deployment smoke check; [#16](https://github.com/char-lv/b4gone/pull/16): `docs/setup.md` environment matrix | **Pending**: no hosting account connected; no deployment exists |
 | Production URL | None | **Pending** (#11) |
 
 ## Documentation and submission
@@ -52,7 +52,7 @@ Partners: Charlene Lv ([`char-lv`](https://github.com/char-lv), repository owner
 | PRD and prototype | [docs/PRD.md](../PRD.md), prototype link in PRD Section 7 | Done |
 | API documentation (OpenAPI/Swagger) | None | **Pending** (#12, after #2/#4/#7 endpoints exist) |
 | Architecture and database schema diagrams | None | **Pending** (#12) |
-| Setup and deployment guide | `docs/setup.md` and `docs/deployment.md` on the open branches | **Pending** merge |
+| Setup and deployment guide | `docs/setup.md` in [#16](https://github.com/char-lv/b4gone/pull/16) and `docs/deployment.md` in [#15](https://github.com/char-lv/b4gone/pull/15) | **Pending** merge |
 | Sprint retrospectives | Sprint notes | **Pending** |
 | Partner contribution log | [contribution-log.md](contribution-log.md) | Started |
 | 10-minute demo video | None | **Pending** |

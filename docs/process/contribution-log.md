@@ -7,7 +7,7 @@ Who did what, with links to the actual records. Each partner adds their own entr
 | | Charlene (`char-lv`) | Jasmine (`Jasmine-G-uo`) |
 | --- | --- | --- |
 | Commits on `main` | 14 plus 2 merge commits ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 0 |
-| Pull requests authored | 2 merged: [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14) | 0 |
+| Pull requests authored | 2 merged: [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14). 3 open: [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), [#17](https://github.com/char-lv/b4gone/pull/17) | 0 |
 | Pull request reviews | 0 | 2 approvals: [#13](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250), [#14](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036) |
 | AGENTS.md changes | 4 commits on `main`, plus the CLAUDE.md import | 0 |
 | Standups | 0 recorded | 0 recorded |
@@ -26,5 +26,5 @@ Targets for P2: at least 5 genuine reviews per partner, substantial commits from
 | 2026-10-25 | Jasmine | Reviewed and approved #13 (shared rules) | [Review](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250) |
 | 2026-10-25 | Jasmine | Reviewed and approved #14; reported running `npm ci`, lint, typecheck, `test:unit`, and build on Node 24.11.0, all passing | [Review](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036) |
 | 2026-10-25 | Charlene | Merged #13 and #14 after Jasmine's approvals | [`f63e121`](https://github.com/char-lv/b4gone/commit/f63e121), [`7820b4c`](https://github.com/char-lv/b4gone/commit/7820b4c) |
-| 2026-10-27 | Charlene (AI-assisted) | P2 preparation: CI, security scanning, and deployment preparation (#11); environment and database setup with TDD (#1); these process notes (#12) | Branches `chore/11-ci-pipeline`, `chore/1-env-database-setup`, `docs/12-process-evidence`; pull requests **Pending** |
+| 2026-10-27 | Charlene (AI-assisted) | P2 preparation: CI, security scanning, and deployment preparation (#11); environment and database setup with TDD (#1); these process notes (#12) | [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), [#17](https://github.com/char-lv/b4gone/pull/17), open with Jasmine's review requested |
 | Pending | Jasmine | | |
