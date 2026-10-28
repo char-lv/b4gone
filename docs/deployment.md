@@ -1,6 +1,6 @@
 # Deployment
 
-Status: **not deployed yet.** No hosting account is connected to the repository, so there is no production URL, deployed commit, or deployed smoke-check result to record. The steps below are prepared but not yet performed. Remaining work is tracked in issue #11.
+Status: **Vercel is connected, but no production deployment has succeeded yet.** On 2026-10-28 the owner connected a Vercel Hobby project and performed steps 1–4 below. The first production build of `main` (`7820b4c`) failed in `npm ci`: the lockfile lacked entries that Vercel's npm 11.19.1 requires. Pull request #18 fixes the lockfile, and its preview build succeeded. The production URL, deployed commit, and deployed smoke-check result are still pending. Remaining work is tracked in issue #11.
 
 ## Plan
 
@@ -10,7 +10,7 @@ Status: **not deployed yet.** No hosting account is connected to the repository,
 
 ## Initial scaffold deployment (repository owner)
 
-Only the repository owner can let Vercel read `char-lv/b4gone`, so the owner (Charlene, `char-lv`) performs these steps in their own browser. Never paste tokens, passwords, or connection strings into chat, issues, or pull requests.
+Only the repository owner can let Vercel read `char-lv/b4gone`, so the owner (Chengling, `char-lv`) performs these steps in their own browser. Never paste tokens, passwords, or connection strings into chat, issues, or pull requests.
 
 1. Sign in at https://vercel.com with GitHub as `char-lv` and use the Hobby plan.
 2. Choose **Add New → Project**, then import `char-lv/b4gone`. When GitHub asks which repositories the Vercel app can access, choose **Only select repositories** and select `b4gone`.
@@ -68,3 +68,4 @@ In Vercel, open **Deployments**, pick the last good production deployment, and p
 - Confirm that a reviewed merge to `main` deploys to production automatically.
 - Add preview and production databases and secrets when #2 and #4 need them.
 - Run end-to-end tests against an isolated test database and environment once sign-in and item flows exist.
+- Confirm that `deployment-smoke.yml` runs. On 2026-10-28 Vercel reported commit statuses, but the GitHub deployments API listed no deployments, and this workflow starts only from `deployment_status` events.
