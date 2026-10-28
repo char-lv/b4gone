@@ -14,8 +14,8 @@ Joint planning record: **Pending.** Plan Sprint 2 together after the Sprint 1 re
 | [#8](https://github.com/char-lv/b4gone/issues/8) Billing dates and average monthly cost | 3 | high | Charlene | Backlog | Not started |
 | [#9](https://github.com/char-lv/b4gone/issues/9) Dashboard | 5 | high | Charlene | Backlog | Not started |
 | [#10](https://github.com/char-lv/b4gone/issues/10) Synchronized views, accessibility, failure states | 3 | medium | Jasmine | Backlog | Not started |
-| [#11](https://github.com/char-lv/b4gone/issues/11) CI checks, PR previews, automated deployment | 5 | high | Charlene (only the repository owner can connect Vercel) | Backlog | CI, security scanning, and deployment preparation in [#15](https://github.com/char-lv/b4gone/pull/15), open with review requested; nothing deployed yet |
-| [#12](https://github.com/char-lv/b4gone/issues/12) API, architecture, sprint, and demo docs | 3 | medium | Jasmine leads; both contribute | Backlog | Process notes in [#17](https://github.com/char-lv/b4gone/pull/17), open with review requested |
+| [#11](https://github.com/char-lv/b4gone/issues/11) CI checks, PR previews, automated deployment | 5 | high | Charlene (only the repository owner can connect Vercel) | In Progress | CI, security scanning, and deployment preparation in [#15](https://github.com/char-lv/b4gone/pull/15), open with review requested; nothing deployed yet |
+| [#12](https://github.com/char-lv/b4gone/issues/12) API, architecture, sprint, and demo docs | 3 | medium | Jasmine leads; both contribute | In Progress | Process notes in [#17](https://github.com/char-lv/b4gone/pull/17), open with review requested |
 
 Total: 24 points. The suggested split is 13 points for Charlene and 11 for Jasmine plus shared #12 work. Rebalance at Sprint 2 planning from Sprint 1's actual velocity.
 
