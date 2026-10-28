@@ -40,10 +40,10 @@ brew services start postgresql@17
 
 The connection strings are `postgresql://<your-macOS-user>@localhost:5432/b4gone_dev` and `postgresql://<your-macOS-user>@localhost:5432/b4gone_test`. Postgres.app (PostgreSQL 17) works the same way.
 
-With Docker, choose your own local password in place of `<local-password>`:
+With Docker, choose your own local password in place of `<local-password>`. The `127.0.0.1:` prefix keeps the database reachable only from your own machine:
 
 ```bash
-docker run --name b4gone-postgres -e POSTGRES_USER=b4gone -e POSTGRES_PASSWORD=<local-password> -p 5432:5432 -d postgres:17
+docker run --name b4gone-postgres -e POSTGRES_USER=b4gone -e POSTGRES_PASSWORD=<local-password> -p 127.0.0.1:5432:5432 -d postgres:17
 docker exec b4gone-postgres createdb -U b4gone b4gone_dev
 docker exec b4gone-postgres createdb -U b4gone b4gone_test
 ```
