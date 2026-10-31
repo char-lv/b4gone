@@ -1,6 +1,6 @@
 # Pull request and main-branch checks (issue #11). Stages: quality and unit tests run first,
 # the production build runs after both pass, and end-to-end tests run after the build.
-# Integration tests run against a disposable PostgreSQL service after the quality job.
+# Integration and end-to-end tests run against disposable PostgreSQL services.
 # Dependency audit and review run in parallel with the first stage.
 name: CI
 
@@ -116,6 +116,25 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The site needs a database and a session secret once accounts exist (issue #2). Both are
+    # throwaway values for this job's disposable service container; neither is a secret.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: b4gone
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: b4gone_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U b4gone -d b4gone_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://b4gone:ci-only-password@localhost:5432/b4gone_e2e
+      SESSION_SECRET: ci-only-session-secret-not-used-anywhere-else
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -125,6 +144,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Apply database migrations
+        run: npm run db:migrate
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Run Playwright (bundled Chromium)
