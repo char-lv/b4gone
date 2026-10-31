@@ -34,17 +34,17 @@ export default async function HomePage() {
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3.5">
           <Wordmark href="/" />
-          <nav aria-label="Account" className="flex items-center gap-2">
+          <nav aria-label="Account" className="flex items-center gap-1 sm:gap-2">
             {user ? (
-              <Link href="/dashboard" className="rounded-control px-3 py-2 text-[0.9375rem] font-semibold text-ink hover:text-accent">
+              <Link href="/dashboard" className="whitespace-nowrap rounded-control px-2.5 py-2 text-[0.9375rem] font-semibold text-ink hover:text-accent">
                 Dashboard
               </Link>
             ) : (
               <>
-                <Link href="/sign-in" className="rounded-control px-3 py-2 text-[0.9375rem] font-semibold text-ink hover:text-accent">
+                <Link href="/sign-in" className="whitespace-nowrap rounded-control px-2.5 py-2 text-[0.9375rem] font-semibold text-ink hover:text-accent">
                   Sign in
                 </Link>
-                <Link href="/register" className={`${primaryLink} min-h-9 px-3.5 text-[0.9375rem]`}>
+                <Link href="/register" className={`${primaryLink} min-h-9 whitespace-nowrap px-3.5 text-[0.9375rem]`}>
                   Create account
                 </Link>
               </>
