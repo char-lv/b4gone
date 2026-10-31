@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => ({
     environment: "node",
     globals: true,
     include: ["tests/integration/**/*.test.ts"],
+    globalSetup: ["tests/integration/global-setup.ts"],
+    setupFiles: ["tests/integration/setup.ts"],
     env: loadEnv(mode, process.cwd(), ""),
     // Suites share one test database, so files run one at a time.
     fileParallelism: false,

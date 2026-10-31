@@ -1,0 +1,5 @@
+import type { Pool } from "pg";
+
+export function getPool(): Pool {
+  throw new Error("Not implemented: getPool");
+}
