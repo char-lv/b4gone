@@ -27,7 +27,7 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 
 ## Current stage
 
-The project scaffold, test tooling, and database connection configuration are in place (issue #1). The homepage shows only a heading and a setup message. Authentication, item and subscription features, the dashboard, the database schema and data access, and receipt features are not implemented yet.
+The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private and currently shows an empty state. Item and subscription features, the dashboard's deadlines, and receipt features are not implemented yet.
 
 ## Local setup
 
@@ -35,14 +35,15 @@ Requirements: Node.js 24.11.0 (see `.nvmrc`), npm 11.x, and access to a PostgreS
 
 ```bash
 npm ci
-cp .env.example .env.local   # then set DATABASE_URL and TEST_DATABASE_URL
+cp .env.example .env.local   # then set DATABASE_URL, TEST_DATABASE_URL, and SESSION_SECRET
 npm run db:check             # connects to DATABASE_URL
 npm run db:check -- --test   # connects to TEST_DATABASE_URL
+npm run db:migrate           # creates the tables in DATABASE_URL
 npx playwright install chromium
 npm run dev
 ```
 
-The site runs at http://localhost:3000. The current pages do not read from the database yet, so `npm run dev` also works before the databases exist.
+The site runs at http://localhost:3000. Registration and sign-in need the migrated `DATABASE_URL` database and `SESSION_SECRET`; the homepage loads without them.
 
 ## Commands
 
@@ -55,8 +56,9 @@ The site runs at http://localhost:3000. The current pages do not read from the d
 | `npm run test:coverage` | Vitest with V8 coverage and the declared thresholds | Works |
 | `npm run test:e2e` | Playwright suite on Chromium; builds and starts the production server on port 3100 | Works (see note) |
 | `npm run build` | Production build | Works |
-| `npm run test:integration` | Vitest integration suite in Node against `TEST_DATABASE_URL` | Works; currently only the database connection check. Fails if `TEST_DATABASE_URL` is missing or unsafe |
+| `npm run test:integration` | Vitest integration suite in Node against `TEST_DATABASE_URL` | Works; connection, migration, and auth API suites (migrations are applied first). Fails if `TEST_DATABASE_URL` is missing or unsafe |
 | `npm run db:check` | Connects to `DATABASE_URL` (add `-- --test` for `TEST_DATABASE_URL`) and prints the database, user, and server version | Works |
+| `npm run db:migrate` | Applies pending `db/migrations/*.sql` files to `DATABASE_URL` (add `-- --test` for `TEST_DATABASE_URL`) and records them in `schema_migrations` | Works |
 
 Coverage thresholds: 80% lines, statements, and functions and 75% branches for `src/`, plus 90% lines and branches for `src/lib/**`. The root layout is excluded from unit coverage because it renders `<html>` and `<body>`; the Playwright smoke test covers it.
 
@@ -82,7 +84,7 @@ Every pull request and every push to `main` runs [`.github/workflows/ci.yml`](.g
 | 1 | Dependency review (pull requests only) | Fails if the pull request adds a dependency with a high or critical advisory |
 | 2 | Integration tests (PostgreSQL 17) | `npm run db:check -- --test` and `npm run test:integration` against a disposable `postgres:17` service container, after lint and type-check pass |
 | 2 | Production build | `npm run build` after stage 1 quality and unit jobs pass |
-| 3 | End-to-end tests | `npm run test:e2e` on Playwright's bundled Chromium after the build passes |
+| 3 | End-to-end tests | `npm run db:migrate`, then `npm run test:e2e` on Playwright's bundled Chromium against a disposable `postgres:17` service, after the build passes |
 
 [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml) runs CodeQL security analysis (`security-extended` queries) on pull requests, on `main`, and weekly. Results appear under the repository's Security tab.
 
