@@ -15,7 +15,7 @@ https://claude.ai/artifact/CPRyvxx7bDpjMWau2JmddM?sk=1KRqQph1BLUcx5C4NxUw-g
 
 ## Stack and dependency policy
 
-The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form was evaluated separately and has not yet been integrated into this branch; its extra validation dependency is not installed in this scaffold. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. Database and authentication dependencies remain planned.
+The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form was evaluated separately and has not yet been integrated into this branch; its extra validation dependency is not installed in this scaffold. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. pg 8.23.1 is installed for database access, which so far covers connection configuration only; authentication dependencies remain planned.
 
 | Area | Baseline |
 | --- | --- |
@@ -81,12 +81,12 @@ Use the prototype for Dashboard, Items, and Subscriptions. Follow the PRD when t
 Use red-green-refactor for application behavior: write a meaningful failing test, run it, commit the failure with the issue reference, implement the smallest change, then refactor with tests passing. Preserve this sequence in git history; do not squash away required TDD evidence. Keep the actual failing-test output with its commit SHA. Disclose split or reordered local commits; commit order alone does not establish when tests were run.
 
 - Unit tests cover date, recurrence, money, validation, reminder selection, and cost calculations. Component tests use accessible roles/labels and user actions rather than implementation internals or large snapshots.
-- Integration tests use an isolated PostgreSQL test database for auth, persistence, validation, and two-user ownership checks. Never run destructive setup against production or development records.
+- Integration tests use an isolated PostgreSQL test database for auth, persistence, validation, and two-user ownership checks. Never run destructive setup against production or development records. Integration tests connect only through TEST_DATABASE_URL; src/lib/db/config.ts requires its database name to end in _test and to differ from DATABASE_URL.
 - Playwright covers sign-in, item add/edit/return/undo/delete, subscription cancel/reactivate, and updates across lists/details/dashboard/totals. Include a failed-save path and keyboard use. Async Server Components are verified through integration/E2E where needed.
 - Project coverage goals: at least 80% lines/statements/functions and 75% branches for authored application code; at least 90% lines and branches for shared date/money/recurrence/validation modules. Exclude generated files and configuration, not difficult business cases. These are team targets, not percentages specified by the instructor.
 - Required cases include blank versus zero money, excess decimals, trimmed-name boundaries, invalid/future purchase dates, leap years, short months, dates on days 0/7/30, and foreign-owner record IDs. Fix the clock and timezone in tests.
 
-The scaffold provides the scripts below. Database/API integration tests are still a pending placeholder that exits with code 1; do not describe that result as a passing suite. On the current macOS 13 machine, use PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e. Bundled Chromium remains unverified on this machine.
+The scripts below are available. npm run test:integration currently contains only the test-database connection check; do not describe it as API or ownership coverage until those suites exist. Database commands read .env.local; docs/setup.md explains the development and test databases. On the current macOS 13 machine, use PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e. Bundled Chromium remains unverified on this machine.
 
 | Command | Purpose |
 | --- | --- |
@@ -98,6 +98,7 @@ The scaffold provides the scripts below. Database/API integration tests are stil
 | npm run test:coverage | Vitest with the declared thresholds |
 | npm run test:e2e | Playwright end-to-end suite |
 | npm run build | Production build |
+| npm run db:check | Connection check for DATABASE_URL; add -- --test for TEST_DATABASE_URL |
 
 Run checks appropriate to the change. Report actual commands, results, and environment blockers. Do not weaken assertions, thresholds, auth, or CI to make a check pass.
 
@@ -110,7 +111,7 @@ Run checks appropriate to the change. Report actual commands, results, and envir
 - Open a focused PR explaining behavior, validation, and remaining limits. Use Refs #N for partial work and Closes #N only when all issue criteria are met. Move to In Review when ready and Done after review, passing required checks, and merge.
 - The other partner reviews before merge; do not self-approve or fabricate review activity. Preserve real commits from both partners and at least five genuine PR reviews per partner over P2. Both partners maintain these rules; ownership may change with availability.
 - Plan each sprint jointly, record at least three standup updates per partner per sprint in the course Slack channel, and write a retrospective with partner feedback. Record actual completed work, next steps, blockers, and links; keep an honest contribution log.
-- Once configured, PR CI runs lint/types, unit/integration tests, E2E, build, and security scanning. Provide PR deployment previews and reviewed-main production deployment with separate local/test/preview/production settings. Keep OpenAPI and setup documentation aligned with implemented endpoints.
+- PR CI lives in .github/workflows/ and the README summarizes it: lint/types, unit tests with coverage, integration tests on a disposable PostgreSQL 17 service, build, E2E, dependency audit/review, and CodeQL. Merge only when required checks pass; do not skip or weaken a check to make it pass. Provide PR deployment previews and reviewed-main production deployment with separate local/test/preview/production settings (docs/setup.md, docs/deployment.md). Keep OpenAPI and setup documentation aligned with implemented endpoints.
 
 ## Security and changes to avoid
 

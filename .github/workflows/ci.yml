@@ -1,5 +1,6 @@
 # Pull request and main-branch checks (issue #11). Stages: quality and unit tests run first,
 # the production build runs after both pass, and end-to-end tests run after the build.
+# Integration tests run against a disposable PostgreSQL service after the quality job.
 # Dependency audit and review run in parallel with the first stage.
 name: CI
 
@@ -58,6 +59,41 @@ jobs:
           path: coverage/
           retention-days: 14
           if-no-files-found: ignore
+
+  integration:
+    name: Integration tests (PostgreSQL 17)
+    needs: [quality]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: b4gone
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: b4gone_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U b4gone -d b4gone_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway credentials for this job's disposable service container; not a secret.
+      TEST_DATABASE_URL: postgresql://b4gone:ci-only-password@localhost:5432/b4gone_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Check the test database connection
+        run: npm run db:check -- --test
+      - run: npm run test:integration
 
   build:
     name: Production build

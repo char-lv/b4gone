@@ -5,7 +5,7 @@ Status: **Vercel is connected, but no production deployment has succeeded yet.**
 ## Plan
 
 - **Hosting:** one Vercel project linked to `char-lv/b4gone`. Vercel's Git integration builds a preview deployment for every pull request branch and a production deployment for every push to `main`. Partner review happens before merge, so production deployments come from reviewed changes.
-- **Database:** the scaffold does not use the database. When #2 and #4 add data access, production and preview each get their own managed PostgreSQL 17 database (for example a Neon project with a production branch and a preview branch). The setup guide (`docs/setup.md`, added with the database setup for #1) lists every environment and where its settings live.
+- **Database:** the scaffold does not use the database. When #2 and #4 add data access, production and preview each get their own managed PostgreSQL 17 database (for example a Neon project with a production branch and a preview branch). See the environment matrix in [setup.md](setup.md#environments).
 - **Checks:** CI runs on every pull request ([README](../README.md#continuous-integration)). After a deployment succeeds, [`.github/workflows/deployment-smoke.yml`](../.github/workflows/deployment-smoke.yml) prints the deployed commit and runs `npm run smoke` against the deployment URL.
 
 ## Initial scaffold deployment (repository owner)
