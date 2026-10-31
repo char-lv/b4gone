@@ -16,6 +16,11 @@ async function register(page: Page, email: string): Promise<void> {
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 
+async function signOut(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+}
+
 test("register, reach the dashboard, sign out, and lose access", async ({ page }) => {
   const email = uniqueEmail("flow");
 
@@ -23,8 +28,7 @@ test("register, reach the dashboard, sign out, and lose access", async ({ page }
   await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible();
   await expect(page.getByText(email)).toBeVisible();
 
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/sign-in$/);
+  await signOut(page);
 
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/sign-in\?next=%2Fdashboard$/);
@@ -34,8 +38,7 @@ test("register, reach the dashboard, sign out, and lose access", async ({ page }
 test("a private page sends a visitor to sign in and back after signing in", async ({ page }) => {
   const email = uniqueEmail("return");
   await register(page, email);
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/sign-in$/);
+  await signOut(page);
 
   await page.goto("/dashboard");
   await page.getByLabel(/^Email/).fill(email.toUpperCase());
@@ -49,13 +52,13 @@ test("a private page sends a visitor to sign in and back after signing in", asyn
 test("wrong credentials show an error and keep the typed email", async ({ page }) => {
   const email = uniqueEmail("wrong");
   await register(page, email);
-  await page.getByRole("button", { name: "Sign out" }).click();
+  await signOut(page);
 
   await page.getByLabel(/^Email/).fill(email);
   await page.getByLabel(/^Password/).fill("not the password");
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await expect(page.getByRole("alert")).toHaveText("Invalid email or password.");
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText("Invalid email or password.");
   await expect(page.getByLabel(/^Email/)).toHaveValue(email);
   await expect(page).toHaveURL(/\/sign-in$/);
 });
@@ -69,7 +72,7 @@ test("field errors appear next to the fields and a duplicate email is refused", 
   await expect(page.getByLabel(/^Email/)).toBeFocused();
 
   await register(page, email);
-  await page.getByRole("button", { name: "Sign out" }).click();
+  await signOut(page);
   await page.goto("/register");
   await page.getByLabel(/^Email/).fill(email);
   await page.getByLabel(/^Password/).fill(PASSWORD);
@@ -81,8 +84,7 @@ test("field errors appear next to the fields and a duplicate email is refused", 
 test("signing in works with the keyboard alone", async ({ page }) => {
   const email = uniqueEmail("keys");
   await register(page, email);
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/sign-in$/);
+  await signOut(page);
 
   await page.getByLabel(/^Email/).focus();
   await page.keyboard.type(email);
