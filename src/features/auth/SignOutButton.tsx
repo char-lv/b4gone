@@ -36,7 +36,7 @@ export function SignOutButton() {
         type="button"
         onClick={signOut}
         disabled={pending}
-        className="inline-flex min-h-9 items-center rounded-control border border-line-button bg-surface px-3 text-sm font-semibold text-ink shadow-control transition-colors hover:border-[#b9bebb] hover:bg-surface-hover disabled:cursor-progress disabled:opacity-70"
+        className="inline-flex min-h-9 items-center whitespace-nowrap rounded-control border border-line-button bg-surface px-3 text-sm font-semibold text-ink shadow-control transition-colors hover:border-[#b9bebb] hover:bg-surface-hover disabled:cursor-progress disabled:opacity-70"
       >
         {pending ? "Signing out…" : "Sign out"}
       </button>

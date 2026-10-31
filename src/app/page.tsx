@@ -44,7 +44,10 @@ export default async function HomePage() {
                 <Link href="/sign-in" className="whitespace-nowrap rounded-control px-2.5 py-2 text-[0.9375rem] font-semibold text-ink hover:text-accent">
                   Sign in
                 </Link>
-                <Link href="/register" className={`${primaryLink} min-h-9 whitespace-nowrap px-3.5 text-[0.9375rem]`}>
+                <Link
+                  href="/register"
+                  className="hidden min-h-9 items-center whitespace-nowrap rounded-control border border-accent bg-accent px-3.5 text-[0.9375rem] font-semibold text-white shadow-control transition-colors hover:border-accent-hover hover:bg-accent-hover sm:inline-flex"
+                >
                   Create account
                 </Link>
               </>
