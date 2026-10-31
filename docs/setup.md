@@ -54,12 +54,13 @@ docker exec b4gone-postgres createdb -U b4gone b4gone_test
 cp .env.example .env.local
 ```
 
-Replace both placeholders in `.env.local`:
+Replace the placeholders in `.env.local`:
 
 | Variable | Used by | Rule |
 | --- | --- | --- |
 | `DATABASE_URL` | The website (from #2 and #4 on) and `npm run db:check` | `postgres://` or `postgresql://` URL that names a database |
 | `TEST_DATABASE_URL` | `npm run test:integration` and `npm run db:check -- --test` | Same format; the database name must end in `_test` and must differ from `DATABASE_URL` |
+| `SESSION_SECRET` | Signing session cookies (#2) | At least 32 random characters, for example from `openssl rand -base64 36` |
 
 `.env.local` is ignored by git. Next.js loads it for `npm run dev` and `npm run build`; `npm run db:check` and `npm run test:integration` load it too. A variable already set in your shell takes priority over the file. Error messages name the variable but never print its value.
 
@@ -68,7 +69,8 @@ Replace both placeholders in `.env.local`:
 ```bash
 npm run db:check
 npm run db:check -- --test
-npm run test:integration
+npm run db:migrate          # creates or updates the tables in DATABASE_URL
+npm run test:integration    # migrates TEST_DATABASE_URL first, then runs the suites
 npm run lint
 npm run typecheck
 npm run test:unit
@@ -76,7 +78,7 @@ npm run build
 npm run test:e2e   # macOS 13: PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e
 ```
 
-A working connection prints a line such as `Connected to the app database "b4gone_dev" as "b4gone" (PostgreSQL 17.x).` The integration suite currently has three tests. It checks the connection, the PostgreSQL major version, and that the test role can create a table inside a transaction that is rolled back.
+A working connection prints a line such as `Connected to the app database "b4gone_dev" as "b4gone" (PostgreSQL 17.x).` `npm run db:migrate` prints the versions it applied, or that the database is up to date. The integration suite applies migrations to the test database, then checks the connection, the migration runner, and the auth API (registration, sign-in, sign-out, session lookup, cross-origin rejection, and two-user isolation). Auth suites delete only the accounts they create.
 
 ## Environments
 

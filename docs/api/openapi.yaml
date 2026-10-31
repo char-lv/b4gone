@@ -1,0 +1,229 @@
+openapi: 3.1.0
+info:
+  title: B4Gone API
+  version: 0.1.0
+  description: |
+    JSON API behind the B4Gone website. Sessions are signed JWTs stored in the HttpOnly
+    `b4gone_session` cookie, so browsers send them automatically and scripts cannot read them.
+
+    State-changing requests from a browser must come from the B4Gone site: a request whose
+    `Origin` (or `Sec-Fetch-Site`) shows another site is rejected with `403 forbidden_origin`.
+    Non-browser clients that send neither header are accepted.
+
+    Every error uses the same shape: `{ "error": { "code", "message", "fields"? } }`, where
+    `fields` maps a request field to the message to show next to it.
+
+    Item, subscription, and dashboard endpoints are added by issues #4, #7, and #9.
+servers:
+  - url: https://b4gone.vercel.app
+    description: Production
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: Accounts
+    description: Registration, sign-in, sign-out, and the current session (issue #2).
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Accounts]
+      summary: Create an account and start a session
+      description: |
+        The email is trimmed and lowercased before it is stored, so addresses that differ only in
+        case belong to the same account. The password is hashed with bcrypt and never returned.
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegisterRequest" }
+            example: { email: jane@example.com, password: correct horse battery }
+      responses:
+        "201":
+          description: Account created. The response sets the session cookie.
+          headers:
+            Set-Cookie: { $ref: "#/components/headers/SessionCookie" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserResponse" }
+              example: { user: { id: 4b3f3f0c-6a51-4c39-9a64-2f0f6f1d8e21, email: jane@example.com } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "409":
+          description: An account with this email already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: email_taken
+                  message: Check the highlighted fields.
+                  fields: { email: An account with this email already exists. Sign in instead. }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/auth/login:
+    post:
+      tags: [Accounts]
+      summary: Sign in and start a session
+      description: |
+        A wrong password and an unknown email return the same `401` response, so the API does not
+        reveal which addresses have accounts.
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignInRequest" }
+            example: { email: jane@example.com, password: correct horse battery }
+      responses:
+        "200":
+          description: Signed in. The response sets the session cookie.
+          headers:
+            Set-Cookie: { $ref: "#/components/headers/SessionCookie" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401":
+          description: The email and password do not match an account.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: { code: invalid_credentials, message: Invalid email or password. } }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/auth/logout:
+    post:
+      tags: [Accounts]
+      summary: End the session
+      description: Clears the session cookie. It succeeds even when no session exists.
+      operationId: logout
+      security: []
+      responses:
+        "204":
+          description: Signed out. The response expires the session cookie (`Max-Age=0`).
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+
+  /api/auth/me:
+    get:
+      tags: [Accounts]
+      summary: Get the signed-in user
+      description: |
+        Returns the account named by the verified session cookie. Query parameters or headers that
+        name another user are ignored. A valid token for a deleted account returns `401`.
+      operationId: getCurrentUser
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: The signed-in user.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserResponse" }
+        "401":
+          description: No valid session.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: { code: unauthenticated, message: Sign in to continue. } }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: b4gone_session
+      description: Signed HS256 JWT set by register or login. Valid for 7 days.
+
+  headers:
+    SessionCookie:
+      description: "`b4gone_session=<token>; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax`, plus `Secure` in production."
+      schema: { type: string }
+
+  schemas:
+    Email:
+      type: string
+      format: email
+      maxLength: 254
+      description: Trimmed and lowercased by the server.
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email: { $ref: "#/components/schemas/Email" }
+        password:
+          type: string
+          minLength: 8
+          description: At least 8 characters and at most 72 bytes in UTF-8 (bcrypt's limit). Longer passwords are rejected, not truncated. Spaces are kept.
+    SignInRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email: { $ref: "#/components/schemas/Email" }
+        password:
+          type: string
+          minLength: 1
+          description: At most 72 bytes in UTF-8.
+    User:
+      type: object
+      required: [id, email]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+    UserResponse:
+      type: object
+      required: [user]
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [validation_failed, invalid_json, email_taken, invalid_credentials, unauthenticated, forbidden_origin, server_error]
+            message: { type: string }
+            fields:
+              type: object
+              additionalProperties: { type: string }
+              description: Message per invalid request field.
+
+  responses:
+    BadRequest:
+      description: The body is not JSON (`invalid_json`) or a field is invalid (`validation_failed`).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            validation:
+              value:
+                error:
+                  code: validation_failed
+                  message: Check the highlighted fields.
+                  fields:
+                    email: Enter a valid email address, like name@example.com.
+                    password: Password must be at least 8 characters.
+            json:
+              value: { error: { code: invalid_json, message: Send the request body as JSON. } }
+    ForbiddenOrigin:
+      description: The request came from another site.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { error: { code: forbidden_origin, message: This request must come from the B4Gone site. } }
+    ServerError:
+      description: An unexpected failure, such as an unreachable database. Details are never returned.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { error: { code: server_error, message: Something went wrong. Please try again. } }
