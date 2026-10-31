@@ -31,6 +31,32 @@ describe("isSameOriginRequest", () => {
     expect(isSameOriginRequest(request({ "sec-fetch-site": "cross-site" }))).toBe(false);
   });
 
+  it("compares against the host the browser used, not the server's internal URL", () => {
+    // `next start` reports request.url as localhost even when the browser opened 127.0.0.1.
+    const local = new Request("http://localhost:3100/api/auth/login", {
+      method: "POST",
+      headers: { host: "127.0.0.1:3100", origin: "http://127.0.0.1:3100" },
+    });
+    // Vercel forwards the public host and protocol.
+    const hosted = new Request("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      headers: {
+        host: "localhost:3000",
+        "x-forwarded-host": "b4gone.vercel.app",
+        "x-forwarded-proto": "https",
+        origin: "https://b4gone.vercel.app",
+      },
+    });
+    const forged = new Request("http://localhost:3100/api/auth/login", {
+      method: "POST",
+      headers: { host: "127.0.0.1:3100", origin: "http://localhost:3100" },
+    });
+
+    expect(isSameOriginRequest(local)).toBe(true);
+    expect(isSameOriginRequest(hosted)).toBe(true);
+    expect(isSameOriginRequest(forged)).toBe(false);
+  });
+
   it("accepts a non-browser client that sends neither header", () => {
     expect(isSameOriginRequest(request({}))).toBe(true);
   });
