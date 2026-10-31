@@ -8,6 +8,7 @@ B4Gone is a website for purchase return deadlines, warranty expirations, and sub
 - Receipt uploads and AI receipt extraction are could-have work only after the core features, tests, and deployment work. Manual entry must remain independent.
 - Exclude email/push notifications, multiple currencies, banking, and shared household records. Use USD and dashboard reminders.
 - Use English for repository content, interface text, code comments, and PRs. Keep changes within the assigned issue.
+- Check [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) for project-wide P2 status. When a PR completes or changes tracked work, update that row's status, evidence, and remaining action in the same PR.
 
 Prototype URL:
 
@@ -106,6 +107,7 @@ Run checks appropriate to the change. Report actual commands, results, and envir
 
 - Board: https://github.com/users/char-lv/projects/1 . Keep Backlog, Sprint Todo, In Progress, In Review, Done in that order. Move an issue only when its real state changes.
 - Milestones: Sprint 1 and Sprint 2, with at least five issues each. Their current due dates are internal planning targets; Canvas defines the official homework/project deadlines. Keep estimates and acceptance checklists in issue bodies.
+- Each sprint has a Product Owner and a Scrum Master. The partners swap roles every sprint; the sprint notes in docs/process/ record who holds each role.
 - Work on one branch per issue: feature/4-item-api, fix/10-dashboard-refresh, chore/1-project-rules, or docs/12-api-guide. Start from current main and preserve unrelated work.
 - Commit format: type(scope): short action (#issue). Types are feat, fix, test, refactor, docs, and chore. Example: test(items): reject invalid return dates (#4). Reference the issue in commits and PRs; add code comments with issue links only when they explain a lasting decision.
 - Open a focused PR explaining behavior, validation, and remaining limits. Use Refs #N for partial work and Closes #N only when all issue criteria are met. Move to In Review when ready and Done after review, passing required checks, and merge.

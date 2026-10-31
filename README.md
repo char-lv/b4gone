@@ -15,6 +15,12 @@ Receipt uploads and AI receipt extraction are optional additions after the core 
 
 The product requirements, user stories, acceptance criteria, and prototype URL are in [docs/PRD.md](docs/PRD.md).
 
+## Project status
+
+- [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) tracks every P2 requirement with its status, related issue or pull request, evidence, and remaining action.
+- Sprint notes, standups, retrospectives, the contribution log, and the AI workflow record are in [docs/process/](docs/process/README.md).
+- Work is planned on the [project board](https://github.com/users/char-lv/projects/1).
+
 ## Planned stack
 
 Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authentication.
