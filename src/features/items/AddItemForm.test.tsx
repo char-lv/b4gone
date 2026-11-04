@@ -168,4 +168,45 @@ describe("AddItemForm", () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it("locks the fields while a save is pending so the saved item matches the screen", async () => {
+    const save = deferred();
+    const onSubmit = vi.fn().mockReturnValue(save.promise);
+    const { user } = renderForm(onSubmit);
+
+    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
+    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    await user.type(screen.getByLabelText(/^Name/), " (edited)");
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+    expect(screen.getByLabelText(/^Name/)).toHaveAttribute("readonly");
+
+    save.reject(new Error("Network down"));
+    await screen.findByRole("alert");
+    expect(screen.getByLabelText(/^Name/)).not.toHaveAttribute("readonly");
+    await user.type(screen.getByLabelText(/^Name/), " (edited)");
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat (edited)");
+  });
+
+  it("shows field errors from a rejected save next to their fields and keeps the draft", async () => {
+    // The item API (#4) validates again on the server; it can reject with messages per form field.
+    const rejection = Object.assign(new Error("Validation failed"), {
+      fieldErrors: { purchaseDate: "Purchase date can’t be in the future." },
+    });
+    const onSubmit = vi.fn().mockRejectedValue(rejection);
+    const { user } = renderForm(onSubmit);
+
+    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
+    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-23");
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    const purchaseDate = screen.getByLabelText(/^Purchase date/);
+    await waitFor(() => expect(purchaseDate).toHaveAccessibleDescription(/Purchase date can’t be in the future\./));
+    expect(purchaseDate).toHaveAttribute("aria-invalid", "true");
+    expect(purchaseDate).toHaveFocus();
+    expect(screen.getByText("Fix 1 field to save this item.")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+  });
 });
