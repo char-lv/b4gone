@@ -170,3 +170,19 @@ export function fieldErrorsFromRejection(error: unknown): ItemFieldErrors | null
   }
   return Object.keys(fieldErrors).length > 0 ? fieldErrors : null;
 }
+
+export type NewItemField = keyof NewItemInput;
+export type NewItemFieldErrors = Partial<Record<NewItemField, string>>;
+export type NewItemValidationResult =
+  | { success: true; data: NewItemInput }
+  | { success: false; fieldErrors: NewItemFieldErrors };
+
+/**
+ * Validates an item API request body (a NewItemInput sent as JSON) with the form's rules.
+ * `today` is the user's local calendar date, computed on the server from the user's time zone.
+ */
+export function validateNewItem(payload: unknown, today: string): NewItemValidationResult {
+  void payload;
+  void today;
+  throw new Error("Not implemented: validateNewItem");
+}
