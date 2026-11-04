@@ -23,8 +23,8 @@ Only the repository owner can let Vercel read `char-lv/b4gone`, so the owner (Ch
 
 | Item | Where to find it | Value |
 | --- | --- | --- |
-| Production URL | Vercel project → Domains | https://b4gone.vercel.app answered `200` to an anonymous request on 2026-11-04 and serves the `main` homepage. The Domains page itself has not been checked yet (it needs the owner's Vercel sign-in) |
-| Deployed commit | Vercel deployment → Source (should be the current `main` SHA) | `7aa3a2b` ([`7aa3a2bc`](https://github.com/char-lv/b4gone/commit/7aa3a2bc424048667a4a4efb0ba8b82a948237b2)), from Vercel's commit status "Deployment has completed" (2026-10-31 04:21 UTC). Not yet confirmed on the deployment's Source field |
+| Production URL | Vercel project → Domains | https://b4gone.vercel.app. On 2026-11-04 the Vercel project API listed it as an alias of the current production deployment, and it answered `200` to an anonymous request with the `main` homepage |
+| Deployed commit | Vercel deployment → Source (should be the current `main` SHA) | `7aa3a2b` ([`7aa3a2bc`](https://github.com/char-lv/b4gone/commit/7aa3a2bc424048667a4a4efb0ba8b82a948237b2)): the production target's `githubCommitSha` in the Vercel project API and the build log's clone line (2026-11-04, Vercel CLI 64.7.0). Built with Node v24.22.2 and npm 11.19.1 |
 | Deployment page | Vercel deployment URL | [6ANgb6a3f](https://vercel.com/cj-09b7/b4gone/6ANgb6a3fiKmVVDJeNiLbfvs9b5K) (requires Vercel sign-in) |
 | Smoke check | `npm run smoke -- <production URL>` output | Passed on 2026-11-04 from Chengling's machine: `PASS HTTP status: 200`, `PASS HTML response: text/html; charset=utf-8`, `PASS Page title contains B4Gone: B4Gone` |
 | Preview deployment | Vercel comment or GitHub deployment on the next pull request | #18 ([`3dd6e23`](https://vercel.com/cj-09b7/b4gone/98ZMtHChnbAEWPaA4jqhP9cpnZ58)) and #20 ([`5b6cf81`](https://vercel.com/cj-09b7/b4gone/DeRXtTiPZAvZiwUXipeCkK9VxYzG)) built successfully. Their URLs redirect anonymous visitors to the Vercel sign-in (Vercel Authentication) |
@@ -41,7 +41,9 @@ PASS Page title contains B4Gone: B4Gone
 
 ## Automated smoke check
 
-[`deployment-smoke.yml`](../.github/workflows/deployment-smoke.yml) starts only from `deployment_status` events. Vercel created no GitHub deployments for this repository (none listed on 2026-10-28 or 2026-11-04), so the workflow has never started. Vercel's [GitHub integration docs](https://vercel.com/docs/git/vercel-for-github) recommend `repository_dispatch` events such as `vercel.deployment.success`, whose payload includes the deployment URL. Proposed follow-up under #11: the owner checks the deployment event settings in the Vercel project's Git settings, and a reviewed pull request changes the workflow trigger to match. A smoke run only counts as evidence once a real run appears under Actions.
+[`deployment-smoke.yml`](../.github/workflows/deployment-smoke.yml) starts only from `deployment_status` events, and it has never run. On 2026-11-04 the Vercel project API showed both deployment event sources turned off: `gitProviderOptions.createDeployments` is `disabled` (no GitHub deployments, so no `deployment_status`), and `disableRepositoryDispatchEvents` is `true`.
+
+[#23](https://github.com/char-lv/b4gone/pull/23) switches the trigger to the `vercel.deployment.success` repository dispatch event that [Vercel's docs](https://vercel.com/docs/git/vercel-for-github) recommend. It checks production on https://b4gone.vercel.app, because every unique deployment URL is behind Vercel Authentication. After #23 merges, the owner turns on repository dispatch events in the Vercel project's Git settings. A smoke run only counts as evidence once a real run appears under Actions.
 
 ## Deployment Protection for previews
 
