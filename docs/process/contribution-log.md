@@ -2,14 +2,16 @@
 
 Who did what, with links to the actual records. Each partner adds their own entries; do not record planned or unverified work as done. Commits marked "AI-assisted" carry a `Co-Authored-By: Claude` trailer.
 
-## Summary on 2026-10-28
+## Summary on 2026-11-04
+
+Counted with `git log origin/main` at `7aa3a2b` and the GitHub API.
 
 | | Chengling (`char-lv`) | Jiaying (`Jasmine-G-uo`) |
 | --- | --- | --- |
-| Commits on `main` | 14 plus 2 merge commits ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 0 |
-| Pull requests authored | 2 merged: [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14). 5 open: [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), [#17](https://github.com/char-lv/b4gone/pull/17), [#18](https://github.com/char-lv/b4gone/pull/18), [#19](https://github.com/char-lv/b4gone/pull/19) | 0 |
-| Pull request reviews | 0 | 2 approvals: [#13](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250), [#14](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036) |
-| AGENTS.md changes | 4 commits on `main`, plus the CLAUDE.md import | 0 |
+| Commits on `main` | 39 plus 2 merge commits ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 5 merge commits (#15–#19); 18 commits for #2 are on the open [#20](https://github.com/char-lv/b4gone/pull/20) branch |
+| Pull requests authored | 7 merged: [#13](https://github.com/char-lv/b4gone/pull/13)–[#19](https://github.com/char-lv/b4gone/pull/19) | 1 open: [#20](https://github.com/char-lv/b4gone/pull/20) |
+| Pull request reviews | 0 | 7 approvals: #13–#19 (links in the log below) |
+| AGENTS.md changes | 7 commits on `main`, plus the CLAUDE.md import | 0 on `main`; #20 changes one line |
 | Standups | 0 recorded | 0 recorded |
 
 Targets for P2: at least 5 genuine reviews per partner, substantial commits from both, and shared-rules changes from both.
@@ -32,5 +34,8 @@ Targets for P2: at least 5 genuine reviews per partner, substantial commits from
 | 2026-10-28 | Chengling (AI-assisted) | Connected Vercel (Hobby). The first production build failed in `npm ci`; diagnosed the npm 11.19.1 lockfile error and opened the lockfile fix, whose preview build succeeded (#11) | [#11 comment](https://github.com/char-lv/b4gone/issues/11#issuecomment-6482116957), [#18](https://github.com/char-lv/b4gone/pull/18) |
 | 2026-10-28 | Chengling (AI-assisted) | Team names and confirmed owners in the process notes; added the P2 completion tracker (#12) | [#17](https://github.com/char-lv/b4gone/pull/17), [P2_CHECKLIST.md](../P2_CHECKLIST.md) |
 | 2026-10-28 | Chengling (AI-assisted) | Issue and pull request templates (#12) | [#19](https://github.com/char-lv/b4gone/pull/19) |
+| 2026-10-31 | Jiaying | Reviewed and approved #18, #15, #16, #17, and #19, then merged each one | Reviews: [#18](https://github.com/char-lv/b4gone/pull/18#pullrequestreview-5721019519), [#15](https://github.com/char-lv/b4gone/pull/15#pullrequestreview-5721043876), [#16](https://github.com/char-lv/b4gone/pull/16#pullrequestreview-5721170397), [#17](https://github.com/char-lv/b4gone/pull/17#pullrequestreview-5721186599), [#19](https://github.com/char-lv/b4gone/pull/19#pullrequestreview-5721189402); merge commits `f43926f`, `1534c59`, `569d25c`, `e077d58`, `7aa3a2b` |
+| 2026-10-31 | Jiaying | Opened #20 for accounts (#2) with 18 commits | [#20](https://github.com/char-lv/b4gone/pull/20); Jiaying adds a description of the work |
+| 2026-11-04 | Chengling (AI-assisted) | Checked the production URL and smoke result, found that the deployment smoke workflow never runs, refreshed the P2 tracker (#11, #12), and drafted a Node/npm alignment proposal for joint review (#11) | This pull request; branch `chore/11-node-npm-alignment` |
 | Pending | Jiaying | Wrote the formal project proposal | Location **Pending**: add the link or the Canvas submission reference |
 | Pending | Jiaying | | |

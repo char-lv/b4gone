@@ -1,6 +1,6 @@
 # Deployment
 
-Status: **Vercel is connected, but no production deployment has succeeded yet.** On 2026-10-28 the owner connected a Vercel Hobby project and performed steps 1–4 below. The first production build of `main` (`7820b4c`) failed in `npm ci`: the lockfile lacked entries that Vercel's npm 11.19.1 requires. Pull request #18 fixes the lockfile, and its preview build succeeded. The production URL, deployed commit, and deployed smoke-check result are still pending. Remaining work is tracked in issue #11.
+Status on 2026-11-04: **the scaffold homepage is publicly served from `main`, but the automated smoke check has never run and sign-in is not deployed yet.** On 2026-10-28 the owner connected a Vercel Hobby project and performed steps 1–4 below. The first production build of `main` (`7820b4c`) failed in `npm ci`: the lockfile lacked entries that Vercel's npm 11.19.1 requires. Pull request #18 fixed the lockfile and was merged on 2026-10-31. Vercel then reported a completed deployment for `main` at `7aa3a2b`, and the production URL passed the smoke check from Chengling's machine. Remaining work is tracked in issue #11.
 
 ## Plan
 
@@ -23,12 +23,12 @@ Only the repository owner can let Vercel read `char-lv/b4gone`, so the owner (Ch
 
 | Item | Where to find it | Value |
 | --- | --- | --- |
-| Production URL | Vercel project → Domains | Pending |
-| Deployed commit | Vercel deployment → Source (should be the current `main` SHA) | Pending |
-| Deployment page | Vercel deployment URL | Pending |
-| Smoke check | `npm run smoke -- <production URL>` output | Pending |
-| Preview deployment | Vercel comment or GitHub deployment on the next pull request | Pending |
-| Automated smoke run | Actions → Deployment smoke check | Pending |
+| Production URL | Vercel project → Domains | https://b4gone.vercel.app answered `200` to an anonymous request on 2026-11-04 and serves the `main` homepage. The Domains page itself has not been checked yet (it needs the owner's Vercel sign-in) |
+| Deployed commit | Vercel deployment → Source (should be the current `main` SHA) | `7aa3a2b` ([`7aa3a2bc`](https://github.com/char-lv/b4gone/commit/7aa3a2bc424048667a4a4efb0ba8b82a948237b2)), from Vercel's commit status "Deployment has completed" (2026-10-31 04:21 UTC). Not yet confirmed on the deployment's Source field |
+| Deployment page | Vercel deployment URL | [6ANgb6a3f](https://vercel.com/cj-09b7/b4gone/6ANgb6a3fiKmVVDJeNiLbfvs9b5K) (requires Vercel sign-in) |
+| Smoke check | `npm run smoke -- <production URL>` output | Passed on 2026-11-04 from Chengling's machine: `PASS HTTP status: 200`, `PASS HTML response: text/html; charset=utf-8`, `PASS Page title contains B4Gone: B4Gone` |
+| Preview deployment | Vercel comment or GitHub deployment on the next pull request | #18 ([`3dd6e23`](https://vercel.com/cj-09b7/b4gone/98ZMtHChnbAEWPaA4jqhP9cpnZ58)) and #20 ([`5b6cf81`](https://vercel.com/cj-09b7/b4gone/DeRXtTiPZAvZiwUXipeCkK9VxYzG)) built successfully. Their URLs redirect anonymous visitors to the Vercel sign-in (Vercel Authentication) |
+| Automated smoke run | Actions → Deployment smoke check | **Never run.** On 2026-11-04 the GitHub deployments API listed no deployments and the workflow had no runs. See [Automated smoke check](#automated-smoke-check) |
 
 Paste the smoke-check output and links into issue #11 and the process evidence index. A passing check prints three `PASS` lines:
 
@@ -38,6 +38,10 @@ PASS HTTP status: 200
 PASS HTML response: text/html; charset=utf-8
 PASS Page title contains B4Gone: B4Gone
 ```
+
+## Automated smoke check
+
+[`deployment-smoke.yml`](../.github/workflows/deployment-smoke.yml) starts only from `deployment_status` events. Vercel created no GitHub deployments for this repository (none listed on 2026-10-28 or 2026-11-04), so the workflow has never started. Vercel's [GitHub integration docs](https://vercel.com/docs/git/vercel-for-github) recommend `repository_dispatch` events such as `vercel.deployment.success`, whose payload includes the deployment URL. Proposed follow-up under #11: the owner checks the deployment event settings in the Vercel project's Git settings, and a reviewed pull request changes the workflow trigger to match. A smoke run only counts as evidence once a real run appears under Actions.
 
 ## Deployment Protection for previews
 
@@ -63,9 +67,9 @@ In Vercel, open **Deployments**, pick the last good production deployment, and p
 
 ## Remaining under #11
 
-- Connect Vercel, perform the first deployment, and fill in the evidence table.
+- Confirm the production domain (Domains) and the deployed commit (deployment Source) in the Vercel dashboard. The first successful deployment and an anonymous smoke check are recorded above.
 - Confirm one pull request preview deployment and its automated smoke check.
 - Confirm that a reviewed merge to `main` deploys to production automatically.
 - Add preview and production databases and secrets when #2 and #4 need them.
 - Run end-to-end tests against an isolated test database and environment once sign-in and item flows exist.
-- Confirm that `deployment-smoke.yml` runs. On 2026-10-28 Vercel reported commit statuses, but the GitHub deployments API listed no deployments, and this workflow starts only from `deployment_status` events.
+- Make `deployment-smoke.yml` run (see [Automated smoke check](#automated-smoke-check)). On 2026-10-28 and 2026-11-04 Vercel reported commit statuses, but the GitHub deployments API listed no deployments, and this workflow starts only from `deployment_status` events.
