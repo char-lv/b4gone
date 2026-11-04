@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { formatDateOnly, isValidDateOnly } from "@/lib/dates";
-import { type MoneyErrorCode, parseUsdToCents } from "@/lib/money";
+import { type MoneyErrorCode, type MoneyParseResult, parseUsdToCents } from "@/lib/money";
 
 export const ITEM_NAME_MAX = 100;
 
@@ -163,9 +163,11 @@ export function fieldErrorsFromRejection(error: unknown): ItemFieldErrors | null
   const candidate = (error as { fieldErrors: unknown }).fieldErrors;
   if (typeof candidate !== "object" || candidate === null) return null;
 
+  const messages = candidate as Record<string, unknown>;
   const fieldErrors: ItemFieldErrors = {};
   for (const field of ITEM_FIELDS) {
-    const message = (candidate as Record<string, unknown>)[field];
+    // The API names the price field priceCents (see validateNewItem); the form calls it price.
+    const message = field === "price" ? (messages.price ?? messages.priceCents) : messages[field];
     if (typeof message === "string" && message.trim() !== "") fieldErrors[field] = message;
   }
   return Object.keys(fieldErrors).length > 0 ? fieldErrors : null;
@@ -182,7 +184,61 @@ export type NewItemValidationResult =
  * `today` is the user's local calendar date, computed on the server from the user's time zone.
  */
 export function validateNewItem(payload: unknown, today: string): NewItemValidationResult {
-  void payload;
-  void today;
-  throw new Error("Not implemented: validateNewItem");
+  const body: Record<string, unknown> =
+    typeof payload === "object" && payload !== null && !Array.isArray(payload)
+      ? (payload as Record<string, unknown>)
+      : {};
+  const name = typeof body.name === "string" ? body.name : "";
+  const purchaseDate = typeof body.purchaseDate === "string" ? body.purchaseDate.trim() : "";
+  const purchaseError = purchaseDateError(purchaseDate, today);
+  const validPurchaseDate = purchaseError ? null : purchaseDate;
+  const returnDeadline = optionalDate(body.returnDeadline);
+  const warrantyExpiration = optionalDate(body.warrantyExpiration);
+  const price = centsResult(body.priceCents);
+
+  const errors: NewItemFieldErrors = {
+    name: nameError(name),
+    purchaseDate: purchaseError,
+    priceCents: price.ok ? undefined : PRICE_ERRORS[price.code],
+    returnDeadline:
+      returnDeadline === undefined
+        ? INVALID_OPTIONAL_DATE_MESSAGE
+        : deadlineError("returnDeadline", returnDeadline ?? "", validPurchaseDate),
+    warrantyExpiration:
+      warrantyExpiration === undefined
+        ? INVALID_OPTIONAL_DATE_MESSAGE
+        : deadlineError("warrantyExpiration", warrantyExpiration ?? "", validPurchaseDate),
+  };
+  const fieldErrors = Object.fromEntries(
+    Object.entries(errors).filter(([, message]) => message !== undefined),
+  ) as NewItemFieldErrors;
+  if (Object.keys(fieldErrors).length > 0 || !price.ok) return { success: false, fieldErrors };
+
+  return {
+    success: true,
+    data: {
+      name: name.trim(),
+      purchaseDate,
+      priceCents: price.cents,
+      returnDeadline: returnDeadline || null,
+      warrantyExpiration: warrantyExpiration || null,
+    },
+  };
+}
+
+/** A trimmed date string, null when absent or blank, or undefined when the value is not a string. */
+function optionalDate(value: unknown): string | null | undefined {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "string") return undefined;
+  return value.trim() || null;
+}
+
+/** Checks stored cents the way parseUsdToCents checks typed text. */
+function centsResult(value: unknown): MoneyParseResult {
+  if (value === null || value === undefined) return { ok: true, cents: null };
+  if (typeof value !== "number" || !Number.isFinite(value)) return { ok: false, code: "format" };
+  if (value < 0) return { ok: false, code: "negative" };
+  if (!Number.isInteger(value)) return { ok: false, code: "format" };
+  if (!Number.isSafeInteger(value)) return { ok: false, code: "too_large" };
+  return { ok: true, cents: value };
 }
