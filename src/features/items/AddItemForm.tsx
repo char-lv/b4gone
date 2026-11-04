@@ -15,8 +15,11 @@ import {
 } from "./item-schema";
 
 type AddItemFormProps = {
-  /** The user's local calendar date (YYYY-MM-DD); purchase dates cannot be later. */
-  today: string;
+  /**
+   * Returns the user's local calendar date (YYYY-MM-DD); purchase dates cannot be later. The form
+   * calls it at every validation, so a page left open past midnight uses the new date.
+   */
+  getToday: () => string;
   /** Receives the validated item. A rejected promise keeps the draft and shows a retry message. */
   onSubmit: (item: NewItemInput) => void | Promise<void>;
   onCancel?: () => void;
@@ -41,7 +44,7 @@ function fieldInput(form: HTMLFormElement | null, field: ItemField): HTMLInputEl
   return element instanceof HTMLInputElement ? element : null;
 }
 
-export function AddItemForm({ today, onSubmit, onCancel, labelledBy }: AddItemFormProps) {
+export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddItemFormProps) {
   const [draft, setDraft] = useState<ItemDraft>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<ItemFieldErrors>({});
   const [attempted, setAttempted] = useState(false);
@@ -50,7 +53,7 @@ export function AddItemForm({ today, onSubmit, onCancel, labelledBy }: AddItemFo
   const savingRef = useRef(false);
 
   function check(next: ItemDraft, form: HTMLFormElement | null): FormCheck {
-    const result = validateItemDraft(next, today);
+    const result = validateItemDraft(next, getToday());
     const fieldErrors: ItemFieldErrors = result.success ? {} : { ...result.fieldErrors };
     // Browsers report a partly typed date as an empty value; call it incomplete, not missing.
     for (const field of DATE_FIELDS) {
@@ -137,7 +140,7 @@ export function AddItemForm({ today, onSubmit, onCancel, labelledBy }: AddItemFo
         required
         type="date"
         size="date"
-        max={today}
+        max={getToday()}
         hint="Today or earlier."
       />
       <FormField

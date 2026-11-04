@@ -8,10 +8,22 @@ import { formatUsd } from "@/lib/money";
 import { AddItemForm } from "./AddItemForm";
 import type { NewItemInput } from "./item-schema";
 
-function subscribeToNothing() {
-  return () => {};
+// How often an open page checks whether the local date has changed, such as at midnight.
+const DATE_CHECK_INTERVAL_MS = 30_000;
+
+function subscribeToLocalDate(onChange: () => void): () => void {
+  const interval = setInterval(onChange, DATE_CHECK_INTERVAL_MS);
+  // Timers pause while a laptop sleeps, so also check when the page becomes visible again.
+  window.addEventListener("focus", onChange);
+  document.addEventListener("visibilitychange", onChange);
+  return () => {
+    clearInterval(interval);
+    window.removeEventListener("focus", onChange);
+    document.removeEventListener("visibilitychange", onChange);
+  };
 }
 
+/** The user's current local calendar date, read from the clock each time it is called. */
 function getLocalToday(): string {
   return todayInTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone, new Date());
 }
@@ -33,7 +45,8 @@ function describeItem(item: NewItemInput): string {
 
 export function NewItemPanel() {
   const router = useRouter();
-  const today = useSyncExternalStore(subscribeToNothing, getLocalToday, getServerToday);
+  // Re-renders when the local date changes so the purchase date limit follows the clock.
+  const today = useSyncExternalStore(subscribeToLocalDate, getLocalToday, getServerToday);
   const [submitted, setSubmitted] = useState<NewItemInput | null>(null);
 
   return (
@@ -62,7 +75,7 @@ export function NewItemPanel() {
 
       {today ? (
         <AddItemForm
-          today={today}
+          getToday={getLocalToday}
           labelledBy="add-item-title"
           onSubmit={setSubmitted}
           onCancel={() => router.push("/")}

@@ -6,7 +6,7 @@ const today = "2026-10-23";
 
 function renderForm(onSubmit = vi.fn(), onCancel = vi.fn()) {
   const user = userEvent.setup();
-  render(<AddItemForm today={today} onSubmit={onSubmit} onCancel={onCancel} />);
+  render(<AddItemForm getToday={() => today} onSubmit={onSubmit} onCancel={onCancel} />);
   return { user, onSubmit, onCancel };
 }
 
