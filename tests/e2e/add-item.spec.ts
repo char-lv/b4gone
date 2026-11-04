@@ -7,11 +7,10 @@ test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-10-24T02:30:00Z"));
 });
 
-test("adds an item from the homepage, fixing field errors first", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("link", { name: "Add item" }).click();
+// The homepage link from HW3 Run B was not imported; the Items list (#4) will link here.
+test("adds an item, fixing field errors first", async ({ page }) => {
+  await page.goto("/items/new");
 
-  await expect(page).toHaveURL(/\/items\/new$/);
   await expect(page.getByRole("heading", { level: 1, name: "Add item" })).toBeVisible();
   await expect(page.getByLabel(/^Purchase date/)).toHaveAttribute("max", "2026-10-23");
 
