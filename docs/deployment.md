@@ -52,6 +52,8 @@ Vercel can require a Vercel sign-in before anyone opens a preview deployment. Th
 - Keep protection and create a **Protection Bypass for Automation** secret in the Vercel project's Deployment Protection settings. Add it to GitHub (repository **Settings → Secrets and variables → Actions**) as `VERCEL_AUTOMATION_BYPASS_SECRET`. The smoke check sends it as a header and never prints it.
 - Or turn off Vercel Authentication for previews so both partners can open them. Previews must then never contain real personal data or production credentials.
 
+Chosen on 2026-11-04: keep protection with an automation bypass token, stored as `VERCEL_AUTOMATION_BYPASS_SECRET` ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6645202973)). Never put the token in a URL, and never forward the bypass header or cookies to another origin.
+
 Do not authorize deployments of pull requests from forks.
 
 ## Environment variables (later issues)
@@ -72,6 +74,6 @@ In Vercel, open **Deployments**, pick the last good production deployment, and p
 - Confirm the production domain (Domains) and the deployed commit (deployment Source) in the Vercel dashboard. The first successful deployment and an anonymous smoke check are recorded above.
 - Confirm one pull request preview deployment and its automated smoke check.
 - Confirm that a reviewed merge to `main` deploys to production automatically.
-- Preview and production databases and secrets: the four Vercel variables were added on 2026-11-04 ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6644843797)). Still to verify: sign-in on a preview, then on production after #20 merges.
+- Preview and production databases and secrets: the four Vercel variables were added on 2026-11-04 ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6644843797)). Preview sign-in passed HTTP/API checks on the #20 preview ([record](https://github.com/char-lv/b4gone/issues/11#issuecomment-6645202973)). Still to verify: production sign-in after #20 merges.
 - Run end-to-end tests against an isolated test database and environment once sign-in and item flows exist.
 - Make `deployment-smoke.yml` run (see [Automated smoke check](#automated-smoke-check)). On 2026-10-28 and 2026-11-04 Vercel reported commit statuses, but the GitHub deployments API listed no deployments, and this workflow starts only from `deployment_status` events.
