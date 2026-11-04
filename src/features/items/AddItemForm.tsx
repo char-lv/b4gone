@@ -11,6 +11,7 @@ import {
   type ItemField,
   type ItemFieldErrors,
   type NewItemInput,
+  fieldErrorsFromRejection,
   validateItemDraft,
 } from "./item-schema";
 
@@ -20,7 +21,12 @@ type AddItemFormProps = {
    * calls it at every validation, so a page left open past midnight uses the new date.
    */
   getToday: () => string;
-  /** Receives the validated item. A rejected promise keeps the draft and shows a retry message. */
+  /**
+   * Receives the validated item; the form waits for the returned promise. While it is pending the
+   * fields are read-only and further submissions are ignored. Resolving clears the form. Rejecting
+   * keeps the draft: an ItemSubmitError (or any error with fieldErrors) shows its messages next to
+   * the fields, and any other error shows a retry message.
+   */
   onSubmit: (item: NewItemInput) => void | Promise<void>;
   onCancel?: () => void;
   /** The id of the heading that names the form. */
@@ -65,6 +71,12 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
     return { item: valid ? result.data : null, errors: fieldErrors };
   }
 
+  function showErrors(fieldErrors: ItemFieldErrors, form: HTMLFormElement) {
+    setErrors(fieldErrors);
+    const firstInvalid = ITEM_FIELDS.find((field) => fieldErrors[field]);
+    if (firstInvalid) fieldInput(form, firstInvalid)?.focus();
+  }
+
   function handleChange(field: ItemField) {
     return (event: ChangeEvent<HTMLInputElement>) => {
       const next = { ...draft, [field]: event.target.value };
@@ -81,12 +93,8 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
     setSaveFailed(false);
     const form = event.currentTarget;
     const { item, errors: fieldErrors } = check(draft, form);
-    setErrors(fieldErrors);
-    if (!item) {
-      const firstInvalid = ITEM_FIELDS.find((field) => fieldErrors[field]);
-      if (firstInvalid) fieldInput(form, firstInvalid)?.focus();
-      return;
-    }
+    showErrors(fieldErrors, form);
+    if (!item) return;
 
     savingRef.current = true;
     setSaving(true);
@@ -94,8 +102,10 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
       await onSubmit(item);
       setDraft(EMPTY_DRAFT);
       setAttempted(false);
-    } catch {
-      setSaveFailed(true);
+    } catch (error) {
+      const rejected = fieldErrorsFromRejection(error);
+      if (rejected) showErrors(rejected, form);
+      else setSaveFailed(true);
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -108,6 +118,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
       name: field,
       value: draft[field],
       error: errors[field],
+      readOnly: saving,
       onChange: handleChange(field),
     };
   }

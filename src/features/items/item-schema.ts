@@ -142,3 +142,31 @@ export function validateItemDraft(draft: ItemDraft, today: string): ItemValidati
   }
   return { success: false, fieldErrors };
 }
+
+/**
+ * Reject an AddItemForm onSubmit with this error to show messages next to form fields, for example
+ * when the item API rejects a value. Other rejections show the generic retry message.
+ */
+export class ItemSubmitError extends Error {
+  readonly fieldErrors: ItemFieldErrors;
+
+  constructor(fieldErrors: ItemFieldErrors, message = "The item was not saved.") {
+    super(message);
+    this.name = "ItemSubmitError";
+    this.fieldErrors = fieldErrors;
+  }
+}
+
+/** Field messages carried by a rejected save, or null. Only known fields with text are kept. */
+export function fieldErrorsFromRejection(error: unknown): ItemFieldErrors | null {
+  if (typeof error !== "object" || error === null || !("fieldErrors" in error)) return null;
+  const candidate = (error as { fieldErrors: unknown }).fieldErrors;
+  if (typeof candidate !== "object" || candidate === null) return null;
+
+  const fieldErrors: ItemFieldErrors = {};
+  for (const field of ITEM_FIELDS) {
+    const message = (candidate as Record<string, unknown>)[field];
+    if (typeof message === "string" && message.trim() !== "") fieldErrors[field] = message;
+  }
+  return Object.keys(fieldErrors).length > 0 ? fieldErrors : null;
+}
