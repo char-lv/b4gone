@@ -2,11 +2,29 @@
 
 @theme {
   --color-canvas: #f7f6f2;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f6f7f5;
   --color-ink: #1f2421;
+  --color-muted: #5f6669;
+  --color-line: #e3e5e2;
+  --color-line-button: #cdd1ce;
+  --color-line-strong: #858b88;
   --color-accent: #1f5f45;
+  --color-accent-hover: #174a3c;
+  --color-accent-soft: #e8f0ec;
+  --color-accent-line: #c9ddd3;
+  --color-urgent: #b42318;
+  --color-urgent-soft: #fdecea;
+  --color-urgent-line: #f1c3bd;
+  --shadow-card: 0 1px 2px rgb(36 41 43 / 0.04), 0 2px 8px rgb(36 41 43 / 0.03);
 }
 
 body {
   background-color: var(--color-canvas);
   color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }
