@@ -72,6 +72,6 @@ In Vercel, open **Deployments**, pick the last good production deployment, and p
 - Confirm the production domain (Domains) and the deployed commit (deployment Source) in the Vercel dashboard. The first successful deployment and an anonymous smoke check are recorded above.
 - Confirm one pull request preview deployment and its automated smoke check.
 - Confirm that a reviewed merge to `main` deploys to production automatically.
-- Add preview and production databases and secrets when #2 and #4 need them.
+- Preview and production databases and secrets: the four Vercel variables were added on 2026-11-04 ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6644843797)). Still to verify: sign-in on a preview, then on production after #20 merges.
 - Run end-to-end tests against an isolated test database and environment once sign-in and item flows exist.
 - Make `deployment-smoke.yml` run (see [Automated smoke check](#automated-smoke-check)). On 2026-10-28 and 2026-11-04 Vercel reported commit statuses, but the GitHub deployments API listed no deployments, and this workflow starts only from `deployment_status` events.
