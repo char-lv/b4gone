@@ -64,3 +64,20 @@ test("cancel returns to the homepage", async ({ page }) => {
   await page.getByRole("button", { name: "Cancel" }).click();
   await expect(page).toHaveURL(/\/$/);
 });
+
+test("accepts a purchase from the new day after the page stays open past midnight", async ({ page }) => {
+  // 23:59 on Nov 4, 2026 in New York; the clock then runs past midnight without a reload.
+  await page.clock.install({ time: new Date("2026-11-05T04:59:00Z") });
+  await page.goto("/items/new");
+  await expect(page.getByLabel(/^Purchase date/)).toHaveAttribute("max", "2026-11-04");
+
+  await page.clock.fastForward("02:00");
+
+  await expect(page.getByLabel(/^Purchase date/)).toHaveAttribute("max", "2026-11-05");
+  await page.getByLabel(/^Name/).fill("Night bus ticket");
+  await page.getByLabel(/^Purchase date/).fill("2026-11-05");
+  await page.getByRole("button", { name: "Save item" }).click();
+
+  await expect(page.getByText("Purchase date can’t be in the future.")).toHaveCount(0);
+  await expect(page.getByRole("status")).toContainText("Night bus ticket");
+});

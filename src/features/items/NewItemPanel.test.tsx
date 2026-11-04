@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NewItemPanel } from "./NewItemPanel";
 
@@ -65,5 +65,53 @@ describe("NewItemPanel", () => {
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(push).toHaveBeenCalledWith("/");
+  });
+
+  describe("while the page stays open across local midnight", () => {
+    // 23:59 on Nov 4, 2026 in New York (UTC-5 after daylight saving time ends on Nov 1).
+    const beforeMidnight = new Date("2026-11-05T04:59:00Z");
+    const afterMidnight = new Date("2026-11-05T05:01:00Z");
+
+    it("accepts a purchase made on the new day without a reload", async () => {
+      vi.setSystemTime(beforeMidnight);
+      const user = userEvent.setup();
+      render(<NewItemPanel />);
+
+      await user.type(screen.getByLabelText(/^Name/), "Night bus ticket");
+      vi.setSystemTime(afterMidnight);
+      await user.type(screen.getByLabelText(/^Purchase date/), "2026-11-05");
+      await user.click(screen.getByRole("button", { name: "Save item" }));
+
+      expect(screen.queryByText("Purchase date can’t be in the future.")).not.toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent("“Night bus ticket” is ready");
+      expect(screen.getByRole("status")).toHaveTextContent("Purchased Nov 5, 2026");
+    });
+
+    it("moves the purchase date limit to the new day", async () => {
+      vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval", "setTimeout", "clearTimeout"] });
+      vi.setSystemTime(beforeMidnight);
+      render(<NewItemPanel />);
+      expect(screen.getByLabelText(/^Purchase date/)).toHaveAttribute("max", "2026-11-04");
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2 * 60 * 1000);
+      });
+
+      expect(screen.getByLabelText(/^Purchase date/)).toHaveAttribute("max", "2026-11-05");
+    });
+
+    it("still rejects a purchase dated after the new day", async () => {
+      vi.setSystemTime(beforeMidnight);
+      const user = userEvent.setup();
+      render(<NewItemPanel />);
+
+      await user.type(screen.getByLabelText(/^Name/), "Night bus ticket");
+      vi.setSystemTime(afterMidnight);
+      await user.type(screen.getByLabelText(/^Purchase date/), "2026-11-06");
+      await user.click(screen.getByRole("button", { name: "Save item" }));
+
+      expect(screen.getByText("Purchase date can’t be in the future.")).toBeInTheDocument();
+      expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    });
   });
 });
