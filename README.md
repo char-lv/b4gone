@@ -20,6 +20,7 @@ The product requirements, user stories, acceptance criteria, and prototype URL a
 - [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) tracks every P2 requirement with its status, related issue or pull request, evidence, and remaining action.
 - Sprint notes, standups, retrospectives, the contribution log, and the AI workflow record are in [docs/process/](docs/process/README.md).
 - Work is planned on the [project board](https://github.com/users/char-lv/projects/1).
+- Production: https://b4gone.vercel.app, deployed by Vercel from `main`. On 2026-11-04 it served the scaffold homepage; accounts and the other features are not deployed yet. See [docs/deployment.md](docs/deployment.md).
 
 ## Planned stack
 
