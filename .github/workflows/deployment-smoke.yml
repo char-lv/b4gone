@@ -1,21 +1,26 @@
-# Smoke-checks each successful deployment reported to GitHub (issue #11). Vercel's GitHub
-# integration reports a preview deployment for each pull request and a production deployment
-# for each push to main. Until that integration is connected (docs/deployment.md), nothing
-# triggers this workflow.
+# Smoke-checks each successful Vercel deployment (issue #11). Vercel's GitHub integration sends a
+# repository_dispatch event of type vercel.deployment.success when a deployment is ready
+# (https://vercel.com/docs/git/vercel-for-github#repository-dispatch-events). The project must have
+# repository dispatch events enabled in Vercel's Git settings; until then nothing triggers this
+# workflow. GitHub runs repository_dispatch workflows only from the default branch.
+# Every unique deployment URL, production included, is behind Vercel Authentication, so production is
+# checked on its public domain and previews need VERCEL_AUTOMATION_BYPASS_SECRET.
 name: Deployment smoke check
 
 on:
-  deployment_status:
+  repository_dispatch:
+    types: [vercel.deployment.success]
 
 permissions:
   contents: read
 
 jobs:
   smoke:
-    name: Smoke check (${{ github.event.deployment.environment }})
-    if: github.event.deployment_status.state == 'success'
+    name: Smoke check (${{ github.event.client_payload.environment }})
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      PRODUCTION_URL: https://b4gone.vercel.app
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -24,10 +29,30 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Check the deployed site
+        # Payload values arrive through environment variables, never interpolated into the script.
         env:
-          DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url }}
-          DEPLOYED_SHA: ${{ github.event.deployment.sha }}
+          DEPLOYMENT_URL: ${{ github.event.client_payload.url }}
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event.client_payload.environment }}
+          DEPLOYED_SHA: ${{ github.event.client_payload.git.sha }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
+          case "$DEPLOYMENT_URL" in
+            https://*) url="$DEPLOYMENT_URL" ;;
+            *) url="https://$DEPLOYMENT_URL" ;;
+          esac
+          host="${url#https://}"
+          host="${host%%/*}"
+          case "$host" in
+            *.vercel.app) ;;
+            *) echo "Refusing to check a host outside vercel.app: $host"; exit 1 ;;
+          esac
+          echo "Environment: $DEPLOYMENT_ENVIRONMENT"
           echo "Deployed commit: $DEPLOYED_SHA"
-          npm run smoke -- "$DEPLOYMENT_URL"
+          echo "Deployment URL: $url"
+          if [ "$DEPLOYMENT_ENVIRONMENT" = "production" ]; then
+            url="$PRODUCTION_URL"
+          elif [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::notice::Skipped: previews are behind Vercel Authentication and VERCEL_AUTOMATION_BYPASS_SECRET is not set."
+            exit 0
+          fi
+          npm run smoke -- "$url"
