@@ -27,7 +27,7 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 
 ## Current stage
 
-The project scaffold, test tooling, and database connection configuration are in place (issue #1). The homepage shows only a heading and a setup message. Authentication, item and subscription features, the dashboard, the database schema and data access, and receipt features are not implemented yet.
+The project scaffold, test tooling, and database connection configuration are in place (issue #1). The Add item form at `/items/new` validates input and hands the item to an `onSubmit` callback (issue #3); items are not saved yet, because persistence and the Items list belong to issue #4. The homepage shows only a heading and a setup message. Authentication, item persistence, subscription features, the dashboard, the database schema and data access, and receipt features are not implemented yet.
 
 ## Local setup
 

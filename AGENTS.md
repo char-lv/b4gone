@@ -16,7 +16,7 @@ https://claude.ai/artifact/CPRyvxx7bDpjMWau2JmddM?sk=1KRqQph1BLUcx5C4NxUw-g
 
 ## Stack and dependency policy
 
-The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form was evaluated separately and has not yet been integrated into this branch; its extra validation dependency is not installed in this scaffold. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. pg 8.23.1 is installed for database access, which so far covers connection configuration only; authentication dependencies remain planned.
+The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form (#3) is imported from the HW3 Run B copy with zod 4.6.7 for its shared item schema. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. pg 8.23.1 is installed for database access, which so far covers connection configuration only; authentication dependencies remain planned.
 
 | Area | Baseline |
 | --- | --- |

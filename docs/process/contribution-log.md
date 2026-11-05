@@ -32,5 +32,6 @@ Targets for P2: at least 5 genuine reviews per partner, substantial commits from
 | 2026-10-28 | Chengling (AI-assisted) | Connected Vercel (Hobby). The first production build failed in `npm ci`; diagnosed the npm 11.19.1 lockfile error and opened the lockfile fix, whose preview build succeeded (#11) | [#11 comment](https://github.com/char-lv/b4gone/issues/11#issuecomment-6482116957), [#18](https://github.com/char-lv/b4gone/pull/18) |
 | 2026-10-28 | Chengling (AI-assisted) | Team names and confirmed owners in the process notes; added the P2 completion tracker (#12) | [#17](https://github.com/char-lv/b4gone/pull/17), [P2_CHECKLIST.md](../P2_CHECKLIST.md) |
 | 2026-10-28 | Chengling (AI-assisted) | Issue and pull request templates (#12) | [#19](https://github.com/char-lv/b4gone/pull/19) |
+| 2026-11-04 | Chengling (AI-assisted) | Add-item form (#3): imported the HW3 Run B form as labeled existing code and added three red/green fixes (midnight date, locked fields during a save with server field errors, item API payload validation) | [#24](https://github.com/char-lv/b4gone/pull/24) |
 | Pending | Jiaying | Wrote the formal project proposal | Location **Pending**: add the link or the Canvas submission reference |
 | Pending | Jiaying | | |

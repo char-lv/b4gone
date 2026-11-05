@@ -78,12 +78,12 @@ No existing issue covers DESIGN.md. Decide at the next standup whether to open a
 | Item | Status | Issue / PR | Evidence | Remaining action |
 | --- | --- | --- | --- | --- |
 | Thin vertical slice: one page → one API route → one table | Not started | #2, #3, #4 | — | First slice: sign-in (#2, users table) or Items (#3 form, #4 API and items table) |
-| Failing test committed first (red), then code (green), then refactor | Partial | #1 | #1 homepage: red [`960aa11`](https://github.com/char-lv/b4gone/commit/960aa11) → green [`54b2916`](https://github.com/char-lv/b4gone/commit/54b2916) on `main`. The original failing output was not kept; on 2026-10-27 a re-run failed at `960aa11` and passed at `54b2916`. #1 database configuration in [#16](https://github.com/char-lv/b4gone/pull/16): red `24e2633` and `ec5761d`, green `1f6b8eb`, with failing output | Every feature issue keeps its red command, output, and SHA. Run B code reused in #3 is labeled as existing code; its midnight-date fix gets new red/green commits |
+| Failing test committed first (red), then code (green), then refactor | Partial | #1, #3 | #1 homepage: red [`960aa11`](https://github.com/char-lv/b4gone/commit/960aa11) → green [`54b2916`](https://github.com/char-lv/b4gone/commit/54b2916) on `main`. The original failing output was not kept; on 2026-10-27 a re-run failed at `960aa11` and passed at `54b2916`. #1 database configuration in [#16](https://github.com/char-lv/b4gone/pull/16): red `24e2633` and `ec5761d`, green `1f6b8eb`, with failing output. #3 in [#24](https://github.com/char-lv/b4gone/pull/24): imported Run B code is labeled existing (`4361f1e`); three new red/green pairs with failing output in the commit messages: `6931ca0` → `c7268fe`, `023517f` → `aadba5a`, `258312d` → `419896c` | Every feature issue keeps its red command, output, and SHA |
 | Schema in a migration file | Not started | #2, #4 | `db/migrations/` is planned in AGENTS.md | Add versioned SQL migrations with the first tables (users in #2, items in #4) |
 | Seed script for partner and CI data | Not started | #4 | — | Add a seed with invented sample data only, never real records |
-| Error paths: empty input, bad input, database down | Partial | #1, #4, #6 | `npm run db:check` exits 1 with a clear message for a missing variable, wrong scheme, refused connection, or unsafe test database (#16, run locally) | Feature tests for empty or bad input and an unreachable database (#4, #6) |
+| Error paths: empty input, bad input, database down | Partial | #1, #3, #4, #6 | `npm run db:check` exits 1 with a clear message for a missing variable, wrong scheme, refused connection, or unsafe test database (#16, run locally). #3 ([#24](https://github.com/char-lv/b4gone/pull/24)): unit and E2E tests for empty and invalid fields, a failed save, and server field errors | Unreachable-database and API error tests (#4, #6) |
 | Endpoint documented in `docs/api/openapi.yaml` | Not started | #12 with #2, #4, #7 | — | Document each endpoint in the pull request that adds it |
-| Page checked against the mockup in a browser; schema read through a database MCP server | Not started | #3, #4 | The prototype is available for comparison | Compare in the browser during #3. A database MCP server is optional tooling; record it in [ai-workflow.md](process/ai-workflow.md) if used |
+| Page checked against the mockup in a browser; schema read through a database MCP server | Partial | #3, #4 | #3 ([#24](https://github.com/char-lv/b4gone/pull/24)): the add-item page was checked in a browser at 375 px and desktop width on 2026-11-04, using the prototype's color, radius, and shadow tokens (the same values as #20). This was not a side-by-side visual comparison with the prototype artifact | Side-by-side comparison with the prototype; a database MCP server is optional tooling, to be recorded in [ai-workflow.md](process/ai-workflow.md) if used |
 
 ## Step 7: Deploy
 
@@ -105,7 +105,7 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 | Requirement | Status | Issue / PR | Evidence | Remaining action |
 | --- | --- | --- | --- | --- |
 | Authentication (JWT or OAuth) | Not started | #2 (Jiaying) | — | bcryptjs hashing, jose JWT in HttpOnly cookies, CSRF origin checks, two-user isolation tests |
-| 3+ distinct features | Not started | #3–#5, #7–#9 | — | Items, Subscriptions, and Dashboard |
+| 3+ distinct features | Not started | #3–#5, #7–#9 | The add-item form ([#24](https://github.com/char-lv/b4gone/pull/24)) is in review; nothing is saved until #4 | Items, Subscriptions, and Dashboard |
 | Real-time updates or complex state management | Not started | #5, #7, #9, #10 | — | B4Gone's candidate is complex state: derived reminders, return/undo, cancel/reactivate, and synchronized lists, details, dashboard, and totals. Confirm the choice and describe it in the README |
 | Public API with documentation | Not started | #4, #7, #12 | — | Item, subscription, and dashboard routes plus OpenAPI |
 | Professional UI/UX | Not started | #9, #10, DESIGN.md | Prototype approved | DESIGN.md tokens, responsive and accessible pages |
@@ -171,7 +171,7 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 
 ## Issue work carried by existing code
 
-- **#3 add-item form:** the frozen HW3 Run B copy is outside this repository, on Chengling's machine. Its add-item commits (`5c4ffb9` test → `6f507f3` feat → `1d832d7` test → `fa53822` feat) touch `src/features/items/` (AddItemForm, NewItemPanel, item-schema, and their tests), `src/lib/dates.ts`, `src/lib/money.ts`, `src/components/ui/Button.tsx` and `FormField.tsx`, `src/app/items/new/page.tsx`, and `tests/e2e/add-item.spec.ts`, and add `zod` 4.6.7 and `@testing-library/user-event` 14.6.7. The #3 pull request labels these as imported existing code and adds new red/green commits for the midnight-date fix. The frozen copy stays unchanged.
+- **#3 add-item form:** the frozen HW3 Run B copy is outside this repository, on Chengling's machine. Its add-item commits (`5c4ffb9` test → `6f507f3` feat → `1d832d7` test → `fa53822` feat) touch `src/features/items/` (AddItemForm, NewItemPanel, item-schema, and their tests), `src/lib/dates.ts`, `src/lib/money.ts`, `src/components/ui/Button.tsx` and `FormField.tsx`, `src/app/items/new/page.tsx`, and `tests/e2e/add-item.spec.ts`, and add `zod` 4.6.7 and `@testing-library/user-event` 14.6.7. [#24](https://github.com/char-lv/b4gone/pull/24) imports them in `4361f1e`, labeled as existing code, except the homepage link and README line, which conflict with #20. New red/green commits follow for the midnight-date fix and two gaps found in review. The frozen copy stays unchanged.
 
 ## Optional
 
