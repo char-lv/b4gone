@@ -131,7 +131,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
       onSubmit={handleSubmit}
       aria-labelledby={labelledBy}
       aria-busy={saving}
-      className="max-w-[46rem] rounded-[10px] border border-line bg-surface p-[1.125rem] shadow-card sm:p-6"
+      className="max-w-[46rem] rounded-card border border-line bg-surface p-[1.125rem] shadow-card sm:p-6"
     >
       {errorCount > 0 ? (
         <p className="mb-4 font-semibold text-urgent">
@@ -139,7 +139,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
         </p>
       ) : null}
       {saveFailed ? (
-        <div role="alert" className="mb-4 rounded-md border border-urgent-line bg-urgent-soft px-4 py-3">
+        <div role="alert" className="mb-4 rounded-control border border-urgent-line bg-urgent-soft px-4 py-3">
           Couldn’t save this item. Your entries are still here. Select “Save item” to try again.
         </div>
       ) : null}

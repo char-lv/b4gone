@@ -65,7 +65,7 @@ export function NewItemPanel() {
 
       <div role="status" aria-live="polite">
         {submitted ? (
-          <div className="mb-5 rounded-md border border-accent-line bg-accent-soft px-4 py-3 text-[0.9375rem]">
+          <div className="mb-5 rounded-control border border-accent-line bg-accent-soft px-4 py-3 text-[0.9375rem]">
             <p className="font-semibold">“{submitted.name}” is ready.</p>
             <p>{describeItem(submitted)}</p>
             <p className="mt-1 text-muted">Saving items to your account isn’t available yet.</p>

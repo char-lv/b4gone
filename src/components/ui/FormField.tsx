@@ -41,7 +41,7 @@ export function FormField({ id, label, hint, error, required, size = "text", ref
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy || undefined}
           autoComplete="off"
-          className={`h-[2.625rem] w-full min-w-0 rounded-md border border-line-strong bg-surface px-3 py-2 focus-visible:border-accent focus-visible:outline-offset-1 aria-invalid:border-urgent aria-invalid:shadow-[inset_0_0_0_1px_var(--color-urgent)] ${WIDTHS[size]}`}
+          className={`h-[2.625rem] w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2 focus-visible:border-accent focus-visible:outline-offset-1 aria-invalid:border-urgent aria-invalid:shadow-[inset_0_0_0_1px_var(--color-urgent)] ${WIDTHS[size]}`}
           {...inputProps}
         />
         {error ? (
