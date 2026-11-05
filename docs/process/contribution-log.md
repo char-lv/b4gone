@@ -33,5 +33,6 @@ Targets for P2: at least 5 genuine reviews per partner, substantial commits from
 | 2026-10-28 | Chengling (AI-assisted) | Team names and confirmed owners in the process notes; added the P2 completion tracker (#12) | [#17](https://github.com/char-lv/b4gone/pull/17), [P2_CHECKLIST.md](../P2_CHECKLIST.md) |
 | 2026-10-28 | Chengling (AI-assisted) | Issue and pull request templates (#12) | [#19](https://github.com/char-lv/b4gone/pull/19) |
 | 2026-11-04 | Chengling (AI-assisted) | Add-item form (#3): imported the HW3 Run B form as labeled existing code and added three red/green fixes (midnight date, locked fields during a save with server field errors, item API payload validation) | [#24](https://github.com/char-lv/b4gone/pull/24) |
+| 2026-11-05 | Chengling (AI-assisted) | Reviewed Jiaying's accounts pull request (#2) at `3d09579`: re-ran its three new red/green pairs, the full local suite, and extra redirect probes, then approved and merged it. Merged `main` into the add-item branch (#3) and moved the form into the signed-in layout with a new red/green pair | [#20 review](https://github.com/char-lv/b4gone/pull/20#pullrequestreview-5790377098), [#24](https://github.com/char-lv/b4gone/pull/24) |
 | Pending | Jiaying | Wrote the formal project proposal | Location **Pending**: add the link or the Canvas submission reference |
 | Pending | Jiaying | | |

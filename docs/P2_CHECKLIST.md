@@ -2,7 +2,7 @@
 
 This tracker follows John Guerra's CS 6983 handout [Building P2 from Zero — Checklist](https://github.com/john-guerra/ai-coding-class/blob/main/course/handouts/p2-from-zero-checklist.md) (version `86523f4`) and the additional requirements and rubric in the [P2 specification](https://github.com/john-guerra/ai-coding-class/blob/main/course/projects/project2-full-stack.md) (version `76f0787`). The item wording is condensed from those documents.
 
-**Last checked: 2026-10-28** by Chengling against the repository, the GitHub API (issues, board, pull requests, reviews, Actions runs, and repository settings), and local command runs. Update a row in the same pull request that changes its status, and mark something Done only after checking the actual files, results, or links.
+**Last checked: 2026-11-05** by Chengling against the repository, the GitHub API (issues, board, pull requests, reviews, Actions runs, and repository settings), and local command runs. Update a row in the same pull request that changes its status, and mark something Done only after checking the actual files, results, or links.
 
 Statuses:
 
@@ -105,7 +105,7 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 | Requirement | Status | Issue / PR | Evidence | Remaining action |
 | --- | --- | --- | --- | --- |
 | Authentication (JWT or OAuth) | Done | #2, [#20](https://github.com/char-lv/b4gone/pull/20) (Jiaying) | bcryptjs hashing with the 72-byte limit enforced, jose HS256 JWT (expiry required) in an HttpOnly SameSite=Lax cookie (Secure in production), origin checks and JSON-only bodies on every auth mutation, a proxy plus server-side check for private pages, and two-user session isolation tests. Approved by Chengling at `3d09579` ([review](https://github.com/char-lv/b4gone/pull/20#pullrequestreview-5790377098)) and merged on 2026-11-05 | Production check after merge: see Step 7 |
-| 3+ distinct features | Not started | #3–#5, #7–#9 | The add-item form ([#24](https://github.com/char-lv/b4gone/pull/24)) is in review; nothing is saved until #4 | Items, Subscriptions, and Dashboard |
+| 3+ distinct features | Not started | #3–#5, #7–#9 | The add-item form ([#24](https://github.com/char-lv/b4gone/pull/24)) is approved and now renders inside the signed-in layout; nothing is saved until #4 | Items, Subscriptions, and Dashboard |
 | Real-time updates or complex state management | Not started | #5, #7, #9, #10 | — | B4Gone's candidate is complex state: derived reminders, return/undo, cancel/reactivate, and synchronized lists, details, dashboard, and totals. Confirm the choice and describe it in the README |
 | Public API with documentation | Not started | #4, #7, #12 | — | Item, subscription, and dashboard routes plus OpenAPI |
 | Professional UI/UX | Not started | #9, #10, DESIGN.md | Prototype approved | DESIGN.md tokens, responsive and accessible pages |
@@ -171,7 +171,7 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 
 ## Issue work carried by existing code
 
-- **#3 add-item form:** the frozen HW3 Run B copy is outside this repository, on Chengling's machine. Its add-item commits (`5c4ffb9` test → `6f507f3` feat → `1d832d7` test → `fa53822` feat) touch `src/features/items/` (AddItemForm, NewItemPanel, item-schema, and their tests), `src/lib/dates.ts`, `src/lib/money.ts`, `src/components/ui/Button.tsx` and `FormField.tsx`, `src/app/items/new/page.tsx`, and `tests/e2e/add-item.spec.ts`, and add `zod` 4.6.7 and `@testing-library/user-event` 14.6.7. [#24](https://github.com/char-lv/b4gone/pull/24) imports them in `4361f1e`, labeled as existing code, except the homepage link and README line, which conflict with #20. New red/green commits follow for the midnight-date fix and two gaps found in review. The frozen copy stays unchanged.
+- **#3 add-item form:** the frozen HW3 Run B copy is outside this repository, on Chengling's machine. Its add-item commits (`5c4ffb9` test → `6f507f3` feat → `1d832d7` test → `fa53822` feat) touch `src/features/items/` (AddItemForm, NewItemPanel, item-schema, and their tests), `src/lib/dates.ts`, `src/lib/money.ts`, `src/components/ui/Button.tsx` and `FormField.tsx`, `src/app/items/new/page.tsx`, and `tests/e2e/add-item.spec.ts`, and add `zod` 4.6.7 and `@testing-library/user-event` 14.6.7. [#24](https://github.com/char-lv/b4gone/pull/24) imports them in `4361f1e`, labeled as existing code, except the homepage link and README line, which conflict with #20. New red/green commits follow for the midnight-date fix and two gaps found in review. The frozen copy stays unchanged. After #2 merged, the page moved to `src/app/(app)/items/new/page.tsx` in `625c858` (red `e002e27`).
 
 ## Optional
 
