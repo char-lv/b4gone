@@ -211,6 +211,21 @@ describe("POST /api/auth/login", () => {
     expect(response.status).toBe(403);
     expect(sessionCookie(response)).toBeUndefined();
   });
+
+  it("refuses a text/plain form post that carries no Origin header", async () => {
+    await registerUser("jane");
+    const formPost = new NextRequest(`${SITE}/api/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "text/plain" },
+      body: JSON.stringify({ email: `jane@${DOMAIN}`, password: PASSWORD }),
+    });
+
+    const { response, body } = await call(login, formPost);
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({ error: { code: "invalid_json", message: "Send the request body as JSON." } });
+    expect(sessionCookie(response)).toBeUndefined();
+  });
 });
 
 describe("GET /api/auth/me", () => {

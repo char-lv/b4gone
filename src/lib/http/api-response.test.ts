@@ -42,11 +42,25 @@ describe("API error responses", () => {
 });
 
 describe("readJson", () => {
-  it("returns the parsed body, or undefined when it is not JSON", async () => {
-    const post = (body: string) => new Request("https://b4gone.example/api", { method: "POST", body });
+  const post = (body: string, contentType: string | null = "application/json") =>
+    new Request("https://b4gone.example/api", {
+      method: "POST",
+      body,
+      headers: contentType === null ? {} : { "content-type": contentType },
+    });
 
+  it("returns the parsed body, or undefined when it is not JSON", async () => {
     await expect(readJson(post('{"a":1}'))).resolves.toEqual({ a: 1 });
+    await expect(readJson(post('{"a":1}', "Application/JSON; charset=utf-8"))).resolves.toEqual({ a: 1 });
     await expect(readJson(post("{nope"))).resolves.toBeUndefined();
     await expect(readJson(post(""))).resolves.toBeUndefined();
   });
+
+  // An HTML form can post text/plain across sites without a preflight; JSON requests cannot.
+  it.each(["text/plain", "application/x-www-form-urlencoded", "multipart/form-data; boundary=x", null])(
+    "ignores a JSON-looking body sent as %s",
+    async (contentType) => {
+      await expect(readJson(post('{"a":1}', contentType))).resolves.toBeUndefined();
+    },
+  );
 });
