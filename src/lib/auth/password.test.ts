@@ -1,5 +1,6 @@
 // @vitest-environment node
-import { BCRYPT_MAX_BYTES, PasswordTooLongError, hashPassword, verifyPassword } from "./password";
+import { PasswordTooLongError, hashPassword, verifyPassword } from "./password";
+import { PASSWORD_MAX_BYTES } from "./password-limits";
 
 // Low cost keeps the suite fast; production uses the default cost.
 const TEST_ROUNDS = 4;
@@ -19,14 +20,14 @@ describe("hashPassword and verifyPassword", () => {
     await expect(verifyPassword("correct horse batterY", hash)).resolves.toBe(false);
   });
 
-  it(`hashes a password of exactly ${BCRYPT_MAX_BYTES} bytes`, async () => {
-    const hash = await hashPassword("a".repeat(BCRYPT_MAX_BYTES), TEST_ROUNDS);
+  it(`hashes a password of exactly ${PASSWORD_MAX_BYTES} bytes`, async () => {
+    const hash = await hashPassword("a".repeat(PASSWORD_MAX_BYTES), TEST_ROUNDS);
 
-    await expect(verifyPassword("a".repeat(BCRYPT_MAX_BYTES), hash)).resolves.toBe(true);
+    await expect(verifyPassword("a".repeat(PASSWORD_MAX_BYTES), hash)).resolves.toBe(true);
   });
 
   it("refuses to hash a password longer than bcrypt's byte limit instead of truncating it", async () => {
-    await expect(hashPassword("a".repeat(BCRYPT_MAX_BYTES + 1), TEST_ROUNDS)).rejects.toBeInstanceOf(
+    await expect(hashPassword("a".repeat(PASSWORD_MAX_BYTES + 1), TEST_ROUNDS)).rejects.toBeInstanceOf(
       PasswordTooLongError,
     );
     // 37 two-byte characters are 74 bytes even though the string has only 37 characters.
@@ -34,9 +35,9 @@ describe("hashPassword and verifyPassword", () => {
   });
 
   it("does not match a longer password whose first 72 bytes equal a stored password", async () => {
-    const hash = await hashPassword("a".repeat(BCRYPT_MAX_BYTES), TEST_ROUNDS);
+    const hash = await hashPassword("a".repeat(PASSWORD_MAX_BYTES), TEST_ROUNDS);
 
-    await expect(verifyPassword("a".repeat(BCRYPT_MAX_BYTES + 1), hash)).resolves.toBe(false);
+    await expect(verifyPassword("a".repeat(PASSWORD_MAX_BYTES + 1), hash)).resolves.toBe(false);
   });
 
   it("returns false for a malformed stored hash", async () => {
