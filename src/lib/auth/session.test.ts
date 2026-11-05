@@ -95,6 +95,12 @@ describe("session tokens", () => {
     await expect(verifySessionToken(token, key(), NOW)).resolves.toBeNull();
   });
 
+  it("rejects a signed token without an expiry", async () => {
+    const token = await new SignJWT({}).setProtectedHeader({ alg: "HS256" }).setSubject(USER_ID).setIssuedAt(NOW).sign(key());
+
+    await expect(verifySessionToken(token, key(), NOW)).resolves.toBeNull();
+  });
+
   it.each(["", "not-a-token", "a.b.c"])("rejects the malformed value %j", async (value) => {
     await expect(verifySessionToken(value, key(), NOW)).resolves.toBeNull();
   });
