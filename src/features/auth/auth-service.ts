@@ -6,7 +6,8 @@ import type { Credentials } from "./auth-schema";
 import { createUser, findUserByEmail, type User } from "./user-repository";
 
 // Compared against when the email is unknown, so a wrong email takes as long as a wrong password.
-let dummyHash: Promise<string> | undefined;
+// Precomputed (bcrypt cost 12, same as stored passwords) so the first unknown email does not also hash.
+export const DUMMY_PASSWORD_HASH = "$2b$12$y28/zqegfN3RCZwi6q1sNug1lAZozZzQo4gIYKU4ER5/lq/Pn4AS6";
 
 export async function registerUser(db: Pool, { email, password }: Credentials): Promise<User> {
   return createUser(db, email, await hashPassword(password));
@@ -16,8 +17,7 @@ export async function registerUser(db: Pool, { email, password }: Credentials): 
 export async function authenticate(db: Pool, { email, password }: Credentials): Promise<User | null> {
   const user = await findUserByEmail(db, email);
   if (!user) {
-    dummyHash ??= hashPassword("b4gone-timing-placeholder");
-    await verifyPassword(password, await dummyHash);
+    await verifyPassword(password, DUMMY_PASSWORD_HASH);
     return null;
   }
   return (await verifyPassword(password, user.passwordHash)) ? { id: user.id, email: user.email } : null;
