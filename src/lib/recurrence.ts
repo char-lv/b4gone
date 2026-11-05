@@ -1,26 +1,12 @@
 // Next billing date for monthly and yearly subscriptions (issue #8). Dates are "YYYY-MM-DD"
 // strings handled as calendar numbers, never through UTC timestamps.
+import { daysInMonth, isValidDateOnly } from "./dates";
+
 export type BillingCycle = "monthly" | "yearly";
 
-const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
-
-function isLeapYear(year: number): boolean {
-  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-}
-
-function daysInMonth(year: number, month: number): number {
-  if (month === 2) return isLeapYear(year) ? 29 : 28;
-  return [4, 6, 9, 11].includes(month) ? 30 : 31;
-}
-
 function parseDate(value: string, label: string): { year: number; month: number; day: number } {
-  const match = DATE_ONLY_PATTERN.exec(value);
-  const year = Number(match?.[1]);
-  const month = Number(match?.[2]);
-  const day = Number(match?.[3]);
-  if (!match || month < 1 || month > 12 || day < 1 || day > daysInMonth(year, month)) {
-    throw new RangeError(`${label} must be a valid YYYY-MM-DD date.`);
-  }
+  if (!isValidDateOnly(value)) throw new RangeError(`${label} must be a valid YYYY-MM-DD date.`);
+  const [year, month, day] = value.split("-").map(Number);
   return { year, month, day };
 }
 
