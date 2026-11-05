@@ -9,7 +9,10 @@ process.env.TZ = "America/New_York";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "server-only": fileURLToPath(new URL("./tests/support/server-only.ts", import.meta.url)),
+    },
   },
   test: {
     environment: "jsdom",
