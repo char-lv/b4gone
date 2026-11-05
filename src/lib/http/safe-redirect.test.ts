@@ -4,7 +4,7 @@ import { DEFAULT_SIGNED_IN_PATH, safeNextPath } from "./safe-redirect";
 const SITE = "https://b4gone.example";
 
 describe("safeNextPath", () => {
-  it.each(["/dashboard", "/items/42", "/subscriptions?view=all", "/items?sort=date#top", "/items#details"])(
+  it.each(["/", "/dashboard", "/items/42", "/subscriptions?view=all", "/items?sort=date#top", "/items#details"])(
     "keeps the in-site path %s",
     (path) => {
       expect(safeNextPath(path)).toBe(path);
@@ -29,6 +29,7 @@ describe("safeNextPath", () => {
     "/\\/evil.example",
     "https://evil.example/dashboard",
     "http:evil.example",
+    "//[",
     "javascript:alert(1)",
     "/sign-in",
     "/register",
