@@ -4,7 +4,7 @@ This guide sets up B4Gone for local development and explains how local, test, CI
 
 ## Prerequisites
 
-- Node.js 24.11.0 (see `.nvmrc`) and npm 11.x.
+- The Node.js version in `.nvmrc` (24.22.2) and npm 11.19.1 or a later 11.x. `.npmrc` sets `engine-strict=true`, so `npm ci` stops with `EBADENGINE` on an older Node or npm; switch versions (for example `nvm install` then `nvm use` in the repository) instead of overriding the check. Older npm 11 releases drop lockfile entries that Vercel requires.
 - A PostgreSQL 17 server with two databases: one for development (for example `b4gone_dev`) and one for integration tests whose name ends in `_test` (for example `b4gone_test`). A managed database or a local server both work; Docker and Homebrew are optional.
 - On macOS 13, Google Chrome for end-to-end tests (see the README).
 

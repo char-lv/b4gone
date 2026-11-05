@@ -16,7 +16,7 @@ Only the repository owner can let Vercel read `char-lv/b4gone`, so the owner (Ch
 2. Choose **Add New → Project**, then import `char-lv/b4gone`. When GitHub asks which repositories the Vercel app can access, choose **Only select repositories** and select `b4gone`.
 3. Keep the detected **Next.js** framework preset and the repository root. Set **Install Command** to `npm ci`; keep the default build command (`npm run build` / `next build`). No environment variables are needed for the scaffold.
 4. Select **Deploy** and wait for the first production deployment to finish.
-5. In the project settings, confirm the Node.js version is **24.x** (matching `.nvmrc`) and the production branch is `main`.
+5. In the project settings, confirm the Node.js version is **24.x** and the production branch is `main`. Vercel selects only the major version, so after each deployment compare the Node and npm versions in the build log with `.nvmrc` and the package.json engines; update both through a pull request when Vercel moves to a new patch.
 6. Record the evidence below.
 
 ## Evidence to record after the first deployment

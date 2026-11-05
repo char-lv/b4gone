@@ -31,7 +31,7 @@ The project scaffold, test tooling, and database configuration are in place (iss
 
 ## Local setup
 
-Requirements: Node.js 24.11.0 (see `.nvmrc`), npm 11.x, and access to a PostgreSQL 17 server with separate development and test databases. [docs/setup.md](docs/setup.md) explains how to create them and how local, test, CI, preview, and production settings stay separate.
+Requirements: the Node.js version in `.nvmrc` (24.22.2) with its bundled npm (11.19.1 or a later 11.x), and access to a PostgreSQL 17 server with separate development and test databases. [docs/setup.md](docs/setup.md) explains how to create them and how local, test, CI, preview, and production settings stay separate.
 
 ```bash
 npm ci
