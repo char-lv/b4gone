@@ -27,7 +27,7 @@ const SITE = "https://b4gone.example";
 const CREDENTIALS = { email: "jane@example.com", password: "correct horse" };
 
 function post(path: string, body: string): NextRequest {
-  return new NextRequest(`${SITE}${path}`, { method: "POST", headers: { origin: SITE }, body });
+  return new NextRequest(`${SITE}${path}`, { method: "POST", headers: { "content-type": "application/json", origin: SITE }, body });
 }
 
 describe("auth route handlers", () => {
