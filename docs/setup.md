@@ -25,7 +25,7 @@ Each partner uses their own development and test databases: a shared test databa
 
 1. Sign in at https://console.neon.tech and create a project named `b4gone` with PostgreSQL 17 in the region closest to you.
 2. On the project's default branch, add two databases named `b4gone_dev` and `b4gone_test` (the console lists databases under the branch).
-3. Use **Connect** on the project dashboard, select each database in turn, and copy its connection string. Keep the `sslmode=require` option at the end.
+3. Use **Connect** on the project dashboard, select each database in turn, turn **Connection pooling** off, and copy its direct connection string (the host has no `-pooler`). Keep the `sslmode=require` option at the end. `npm run db:migrate` and the integration suite hold a session-level advisory lock, which Neon's transaction-mode pooler does not reliably keep.
 
 ### Option B: Local PostgreSQL 17
 

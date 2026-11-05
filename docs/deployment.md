@@ -55,17 +55,37 @@ Registration and sign-in need a migrated database and a session-signing secret i
 ### 1. Neon (database owner)
 
 1. In the Neon project `b4gone`, keep the default `production` branch and create a branch named `preview` from it, with auto-delete set to **Never**.
-2. Open **Connect**, turn on **Connection pooling**, and copy the connection string for each branch. Keep them private: never paste them into chat, issues, pull requests, commits, or screenshots.
-3. From a checkout of `main` that includes `npm run db:migrate`, apply the migrations to each branch in your own terminal. The shell value takes priority over `.env.local`:
+2. Each branch needs two connection strings, both from **Connect** with that branch selected. Keep them private: never paste them into chat, issues, pull requests, commits, or screenshots.
+
+   | Used by | Connection pooling | Host looks like |
+   | --- | --- | --- |
+   | `npm run db:migrate` (run by a person) | Off (direct) | `ep-<name>.<region>.aws.neon.tech` |
+   | Vercel `DATABASE_URL` (the running site) | On (pooled) | `ep-<name>-pooler.<region>.aws.neon.tech` |
+
+   The migration runner holds a session-level `pg_advisory_lock` across several transactions so two runs cannot apply the same file at once. Neon's pooler runs in transaction mode and may move each transaction to a different server session, so the lock is not reliably held or released there. Always migrate through the direct string.
+
+3. From a checkout of `main` that includes `npm run db:migrate`, apply the migrations to one branch at a time in your own terminal. `read -rs` keeps the connection string out of the command line, shell history, and screen, and the shell value takes priority over `.env.local`:
 
    ```bash
-   DATABASE_URL='<production connection string>' npm run db:migrate
-   DATABASE_URL='<preview connection string>' npm run db:migrate
+   # Production: paste the production branch's direct (unpooled) string, then press Enter.
+   read -rs NEON_DIRECT_URL && DATABASE_URL="$NEON_DIRECT_URL" npm run db:migrate; unset NEON_DIRECT_URL
+
+   # Preview: run the same line again and paste the preview branch's direct string.
+   read -rs NEON_DIRECT_URL && DATABASE_URL="$NEON_DIRECT_URL" npm run db:migrate; unset NEON_DIRECT_URL
    ```
 
-   Each command prints the versions it applied, or that the database is up to date. Run both again whenever a merged pull request adds a file to `db/migrations/`.
+   Each run prints the versions it applied, or that the database is up to date, and names only the database. Check the host you pasted before pressing Enter: a production string must never be used for the preview step or the other way round. Run both again whenever a merged pull request adds a file to `db/migrations/`. To confirm what a branch has without changing it, list the applied versions read-only:
 
-4. Generate two different session secrets with `openssl rand -base64 36`, one for Production and one for Preview, and send the four values to the Vercel owner privately.
+   ```bash
+   read -rs NEON_DIRECT_URL && psql "$NEON_DIRECT_URL" -c "select version, applied_at from schema_migrations order by version"; unset NEON_DIRECT_URL
+
+   # Without psql, the same query through the project's pg package:
+   read -rs NEON_DIRECT_URL && NEON_DIRECT_URL="$NEON_DIRECT_URL" node -e 'const { Client } = require("pg"); const c = new Client({ connectionString: process.env.NEON_DIRECT_URL }); c.connect().then(() => c.query("select version, applied_at from schema_migrations order by version")).then((r) => console.table(r.rows)).finally(() => c.end())'; unset NEON_DIRECT_URL
+   ```
+
+   Never run `npm run test:integration` or other test setup against either Neon branch; it uses only `TEST_DATABASE_URL`, which must name a separate `_test` database.
+
+4. Generate two different session secrets with `openssl rand -base64 36`, one for Production and one for Preview, and send the four values (two pooled connection strings, two secrets) to the Vercel owner privately.
 
 ### 2. Vercel (repository owner)
 
