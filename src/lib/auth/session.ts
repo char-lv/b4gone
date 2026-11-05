@@ -52,7 +52,12 @@ export async function verifySessionToken(
   now = new Date(),
 ): Promise<{ userId: string } | null> {
   try {
-    const { payload } = await jwtVerify(token, secret, { algorithms: [ALGORITHM], currentDate: now });
+    // jose checks exp only when it is present, so require it.
+    const { payload } = await jwtVerify(token, secret, {
+      algorithms: [ALGORITHM],
+      currentDate: now,
+      requiredClaims: ["exp"],
+    });
     return payload.sub ? { userId: payload.sub } : null;
   } catch {
     return null;
