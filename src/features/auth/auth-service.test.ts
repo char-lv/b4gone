@@ -1,6 +1,8 @@
 // @vitest-environment node
+import bcrypt from "bcryptjs";
 import type { Pool } from "pg";
-import { authenticate, registerUser } from "./auth-service";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { DUMMY_PASSWORD_HASH, authenticate, registerUser } from "./auth-service";
 
 const USER = { id: "4b3f3f0c-6a51-4c39-9a64-2f0f6f1d8e21", email: "jane@example.com" };
 
@@ -21,6 +23,8 @@ describe("auth service", () => {
   beforeEach(() => {
     repository.createUser.mockReset();
     repository.findUserByEmail.mockReset();
+    vi.mocked(hashPassword).mockClear();
+    vi.mocked(verifyPassword).mockClear();
   });
 
   it("stores the hash, not the password, when registering", async () => {
@@ -42,7 +46,19 @@ describe("auth service", () => {
 
     repository.findUserByEmail.mockResolvedValue(null);
     await expect(authenticate(db, { email: "nobody@example.com", password: "anything" })).resolves.toBeNull();
-    // The placeholder hash is computed once and reused for later unknown emails.
+  });
+
+  // Hashing on the first unknown email would make that request twice as slow as a wrong password.
+  it("compares an unknown email against a precomputed hash without hashing anything", async () => {
+    repository.findUserByEmail.mockResolvedValue(null);
+
     await expect(authenticate(db, { email: "nobody@example.com", password: "anything" })).resolves.toBeNull();
+
+    expect(hashPassword).not.toHaveBeenCalled();
+    expect(verifyPassword).toHaveBeenCalledWith("anything", DUMMY_PASSWORD_HASH);
+  });
+
+  it("uses a real bcrypt hash with the same cost as stored passwords", () => {
+    expect(bcrypt.getRounds(DUMMY_PASSWORD_HASH)).toBe(12);
   });
 });
