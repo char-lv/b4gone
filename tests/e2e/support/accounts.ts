@@ -14,6 +14,7 @@ export async function registerAndSignIn(page: Page, label: string): Promise<stri
   await page.getByLabel(/^Email/).fill(email);
   await page.getByLabel(/^Password/).fill(E2E_PASSWORD);
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  // Hashing at bcrypt cost 12 can take several seconds on a loaded machine, beyond the 5-second default.
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15_000 });
   return email;
 }
