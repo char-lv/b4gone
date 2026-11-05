@@ -1,10 +1,31 @@
 import { expect, test } from "@playwright/test";
+import { registerAndSignIn } from "./support/accounts";
 
 // Fix the user's time zone and clock so "today" is deterministic: Oct 23, 2026 in New York.
 test.use({ timezoneId: "America/New_York" });
 
+// /items/* is private since #2, so every flow starts signed in to a new account.
 test.beforeEach(async ({ page }) => {
+  await registerAndSignIn(page, "items");
   await page.clock.setFixedTime(new Date("2026-10-24T02:30:00Z"));
+});
+
+test("opens inside the signed-in layout, with one main landmark", async ({ page }) => {
+  await page.goto("/items/new");
+
+  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await expect(page.getByRole("main")).toHaveCount(1);
+  await expect(page.getByRole("main").getByRole("heading", { level: 1, name: "Add item" })).toBeVisible();
+});
+
+test("sends a signed-out visitor to sign in and back to the form", async ({ page }) => {
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+
+  await page.goto("/items/new");
+
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fitems%2Fnew$/);
 });
 
 // The homepage link from HW3 Run B was not imported; the Items list (#4) will link here.
