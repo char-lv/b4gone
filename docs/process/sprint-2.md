@@ -13,7 +13,7 @@ Joint planning record: **Pending.** Plan Sprint 2 together after the Sprint 1 re
 | Issue | Points | Priority | Suggested owner (unconfirmed) | Board status on 2026-10-28 | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | [#7](https://github.com/char-lv/b4gone/issues/7) Subscription CRUD, cancel, reactivate | 5 | high | Jiaying | Backlog | Not started |
-| [#8](https://github.com/char-lv/b4gone/issues/8) Billing dates and average monthly cost | 3 | high | Chengling | Backlog | Not started |
+| [#8](https://github.com/char-lv/b4gone/issues/8) Billing dates and average monthly cost | 3 | high | Chengling (assigned to `char-lv` on 2026-11-05) | In Review (2026-11-05) | `nextBillingDate`, `nextRenewals`, and `averageMonthlyCostCents` with two red/green pairs; contract in [subscription-calculations.md](../subscription-calculations.md) |
 | [#9](https://github.com/char-lv/b4gone/issues/9) Dashboard | 5 | high | Chengling | Backlog | Not started |
 | [#10](https://github.com/char-lv/b4gone/issues/10) Synchronized views, accessibility, failure states | 3 | medium | Jiaying | Backlog | Not started |
 | [#11](https://github.com/char-lv/b4gone/issues/11) CI checks, PR previews, automated deployment | 5 | high | Chengling (only the repository owner can connect Vercel) | In Progress | CI, security scanning, and deployment preparation in [#15](https://github.com/char-lv/b4gone/pull/15), open with review requested; nothing deployed yet |

@@ -15,6 +15,8 @@ Receipt uploads and AI receipt extraction are optional additions after the core 
 
 The product requirements, user stories, acceptance criteria, and prototype URL are in [docs/PRD.md](docs/PRD.md).
 
+The billing-date and monthly-cost rules shared by subscriptions and the dashboard are documented in [docs/subscription-calculations.md](docs/subscription-calculations.md).
+
 ## Project status
 
 - [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) tracks every P2 requirement with its status, related issue or pull request, evidence, and remaining action.
