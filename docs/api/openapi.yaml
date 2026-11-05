@@ -200,7 +200,7 @@ components:
 
   responses:
     BadRequest:
-      description: The body is not JSON (`invalid_json`) or a field is invalid (`validation_failed`).
+      description: The body is not JSON or not sent as `application/json` (`invalid_json`), or a field is invalid (`validation_failed`).
       content:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }

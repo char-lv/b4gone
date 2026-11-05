@@ -39,8 +39,13 @@ export function serverError(context: string, error: unknown): NextResponse<ApiEr
   return apiError(500, "server_error", "Something went wrong. Please try again.");
 }
 
-/** Parses a JSON body, returning undefined when it is missing or malformed. */
+/**
+ * Parses a JSON body, returning undefined when it is missing, malformed, or not sent as
+ * application/json. Cross-site forms can post text/plain without a preflight; JSON requests cannot.
+ */
 export async function readJson(request: Request): Promise<unknown> {
+  const mediaType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
+  if (mediaType !== "application/json") return undefined;
   try {
     return await request.json();
   } catch {
