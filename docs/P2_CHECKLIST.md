@@ -161,7 +161,7 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 | API documentation (OpenAPI/Swagger) | Partial | #12, #2, [#20](https://github.com/char-lv/b4gone/pull/20) | `docs/api/openapi.yaml` covers the auth endpoints with the cookie security scheme, examples, validation rules, and errors | Add the remaining endpoints as they are implemented |
 | Architecture diagram | Not started | #12 | — | Draw it from the implemented structure |
 | Database schema diagram | Not started | #12 | — | Draw it from the migrations |
-| Setup/deployment guide | Awaiting merge | #1, #11, [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16) | `docs/setup.md` (Docker option verified locally on 2026-10-28) and `docs/deployment.md` | Merge; add migration and production steps |
+| Setup/deployment guide | Awaiting merge | #1, #11, [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), #2, [#20](https://github.com/char-lv/b4gone/pull/20) | `docs/setup.md` (Docker option verified locally on 2026-10-28) and `docs/deployment.md`, which in #20 adds Neon migration steps (direct connections, production and preview separately) and the Vercel variables | Merge #20; record the first production sign-in check in #11 |
 | Sprint retrospectives | Not started | #12 | — | See Agile process |
 | Partner contribution log | Awaiting merge | #12, [#17](https://github.com/char-lv/b4gone/pull/17) | [contribution-log.md](process/contribution-log.md) | Each partner adds their own entries |
 | 10-minute demo video | Not started | #12 | — | Record after the core features are deployed |
