@@ -71,6 +71,26 @@ describe("AuthForm in sign-in mode", () => {
     expect(router.refresh).toHaveBeenCalled();
   });
 
+  // The form receives next as a prop, so it must not trust it even if a page passes it through unchecked.
+  it.each([
+    ["/\t/evil.example", "/dashboard"],
+    ["/\r/evil.example", "/dashboard"],
+    ["/\n/evil.example", "/dashboard"],
+    ["/.//evil.example", "/dashboard"],
+    ["/./register", "/dashboard"],
+    ["/items/../subscriptions?view=all#top", "/subscriptions?view=all#top"],
+  ])("after signing in with next=%j it opens %j", async (next, expected) => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { user: { id: "u1", email: "jane@example.com" } }));
+    const user = userEvent.setup();
+    render(<AuthForm mode="sign-in" next={next} />);
+
+    await user.type(screen.getByLabelText(/^email/i), "jane@example.com");
+    await user.type(screen.getByLabelText(/^password/i), "correct horse");
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith(expected));
+  });
+
   it("keeps what the user typed and shows an alert for wrong credentials", async () => {
     fetchMock.mockResolvedValue(
       jsonResponse(401, { error: { code: "invalid_credentials", message: "Invalid email or password." } }),

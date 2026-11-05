@@ -49,6 +49,35 @@ test("a private page sends a visitor to sign in and back after signing in", asyn
   await expect(page.getByText(email)).toBeVisible();
 });
 
+// URL parsing drops tab, CR, and LF, so these next values would otherwise point at another site.
+for (const encoded of ["%09", "%0D", "%0A"]) {
+  test(`next=/${encoded}/example.com stays on B4Gone after signing in and when already signed in`, async ({
+    page,
+    baseURL,
+  }) => {
+    const email = uniqueEmail("next");
+    await register(page, email);
+    await signOut(page);
+
+    await page.goto(`/sign-in?next=/${encoded}/example.com`);
+    await page.getByLabel(/^Email/).fill(email);
+    await page.getByLabel(/^Password/).fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(`${baseURL}/dashboard`);
+
+    const response = await page.goto(`/sign-in?next=/${encoded}/example.com`);
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveURL(`${baseURL}/dashboard`);
+  });
+}
+
+test("a signed-in user opening an account page with a safe next value lands on that page", async ({ page, baseURL }) => {
+  await register(page, uniqueEmail("safe-next"));
+
+  await page.goto("/register?next=/dashboard?view=week");
+  await expect(page).toHaveURL(`${baseURL}/dashboard?view=week`);
+});
+
 test("wrong credentials show an error and keep the typed email", async ({ page }) => {
   const email = uniqueEmail("wrong");
   await register(page, email);
