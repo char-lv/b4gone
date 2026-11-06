@@ -1,6 +1,8 @@
 -- Purchases with return and warranty deadlines (issue #4). Each item belongs to one account and is
--- deleted with it. The checks repeat the shared item validation so an application bug cannot store
--- an impossible record; prices stop at 99999999 cents to match MAX_AMOUNT_CENTS.
+-- deleted with it. The checks back up the shared item validation for the limits a database can
+-- state simply: name length, price range (0 to 99999999 cents, matching MAX_AMOUNT_CENTS), deadlines
+-- not before the purchase date, and the two statuses. Trimming and the visible-character and one-line
+-- name rules stay in validateNewItem, which every write goes through.
 create table items (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null references users (id) on delete cascade,
