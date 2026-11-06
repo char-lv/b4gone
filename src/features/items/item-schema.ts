@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { formatDateOnly, isValidDateOnly } from "@/lib/dates";
-import { type MoneyErrorCode, type MoneyParseResult, parseUsdToCents } from "@/lib/money";
+import { MAX_AMOUNT_CENTS, type MoneyErrorCode, type MoneyParseResult, parseUsdToCents } from "@/lib/money";
 
 export const ITEM_NAME_MAX = 100;
 
@@ -239,6 +239,6 @@ function centsResult(value: unknown): MoneyParseResult {
   if (typeof value !== "number" || !Number.isFinite(value)) return { ok: false, code: "format" };
   if (value < 0) return { ok: false, code: "negative" };
   if (!Number.isInteger(value)) return { ok: false, code: "format" };
-  if (!Number.isSafeInteger(value)) return { ok: false, code: "too_large" };
+  if (value > MAX_AMOUNT_CENTS) return { ok: false, code: "too_large" };
   return { ok: true, cents: value };
 }
