@@ -5,6 +5,7 @@ import { formatDateOnly } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import type { Item } from "./item-repository";
 import { ItemStatusTag } from "./ItemStatusTag";
+import { SavedNotice } from "./SavedNotice";
 
 function NotSet({ children }: { children: string }) {
   return <span className="text-muted">{children}</span>;
@@ -31,13 +32,7 @@ export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
         Back to items
       </Link>
 
-      <div role="status" aria-live="polite">
-        {saved ? (
-          <p className="mb-5 max-w-[46rem] rounded-control border border-accent-line bg-accent-soft px-4 py-3 text-[0.9375rem]">
-            Item saved.
-          </p>
-        ) : null}
-      </div>
+      <SavedNotice saved={saved} />
 
       <div className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2">
         <h1 className="min-w-0 text-[1.375rem] font-semibold tracking-tight break-words sm:text-[1.625rem]">

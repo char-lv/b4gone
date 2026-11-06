@@ -58,6 +58,8 @@ function nameError(raw: string): string | undefined {
   // Count code points so an emoji counts as one character.
   const length = Array.from(raw.trim()).length;
   if (length === 0) return "Enter a name.";
+  // A name is one line, and PostgreSQL text cannot store U+0000.
+  if (/\p{Cc}/u.test(raw.trim())) return "Remove tabs, line breaks, and other control characters.";
   if (length > ITEM_NAME_MAX) {
     return `Use ${ITEM_NAME_MAX} characters or fewer. This one has ${length}.`;
   }

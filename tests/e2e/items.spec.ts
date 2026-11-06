@@ -5,7 +5,7 @@ import { registerAndSignIn } from "./support/accounts";
 // account, so the list only shows what the test adds.
 test.use({ timezoneId: "America/New_York" });
 
-const ITEM_URL = /\/items\/[0-9a-f-]{36}(\?saved=1)?$/;
+const ITEM_URL = /\/items\/[0-9a-f-]{36}$/;
 
 async function addItem(page: Page, item: { name: string; purchaseDate: string; price?: string; returnDeadline?: string }) {
   await page.goto("/items/new");

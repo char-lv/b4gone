@@ -20,7 +20,8 @@ export function isValidDateOnly(value: string): boolean {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
-  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
+  // PostgreSQL DATE has no year 0, so the earliest date it can store from this format is 0001-01-01.
+  return year >= 1 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
 }
 
 /** True for an IANA time zone name that Intl accepts, such as "America/New_York". */

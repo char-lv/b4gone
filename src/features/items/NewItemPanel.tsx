@@ -36,10 +36,13 @@ function getServerToday(): null {
   return null;
 }
 
+const SIGNED_OUT_MESSAGE =
+  "You’ve been signed out. Your entries are still here. Sign in again in a new tab, then select “Save item”.";
+
 /**
  * Saves the item for the signed-in user (issue #4) and resolves with its id. A rejection with
- * fieldErrors shows the server's messages next to the fields; any other rejection keeps the draft
- * and shows the form's retry message.
+ * fieldErrors shows the server's messages next to the fields, one with formMessage shows that text
+ * (a 401, or a time zone the server rejected), and any other rejection shows the retry message.
  */
 async function saveItem(item: NewItemInput): Promise<string> {
   const response = await fetch("/api/items", {
@@ -49,11 +52,13 @@ async function saveItem(item: NewItemInput): Promise<string> {
     body: JSON.stringify({ ...item, timeZone: localTimeZone() }),
   });
   const body: unknown = await response.json().catch(() => null);
-  const result = (body ?? {}) as { item?: { id?: unknown }; error?: { fields?: unknown } };
+  const result = (body ?? {}) as { item?: { id?: unknown }; error?: { fields?: { timeZone?: unknown } } };
 
   if (response.status === 201 && typeof result.item?.id === "string") return result.item.id;
+  const fields = response.status === 400 ? result.error?.fields : undefined;
   throw Object.assign(new Error(`The item was not saved (HTTP ${response.status}).`), {
-    fieldErrors: response.status === 400 ? result.error?.fields : undefined,
+    fieldErrors: fields,
+    formMessage: response.status === 401 ? SIGNED_OUT_MESSAGE : fields?.timeZone,
   });
 }
 
@@ -65,6 +70,10 @@ export function NewItemPanel() {
   async function handleSubmit(item: NewItemInput): Promise<void> {
     const id = await saveItem(item);
     router.push(`/items/${id}?saved=1`);
+    // The router keeps pages it has shown, so without this Back would return to a list without the item.
+    router.refresh();
+    // Stay in the saving state until the details page replaces this form, so it never shows empty.
+    await new Promise<never>(() => {});
   }
 
   return (

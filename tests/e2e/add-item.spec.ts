@@ -28,7 +28,8 @@ test("sends a signed-out visitor to sign in and back to the form", async ({ page
   await expect(page).toHaveURL(/\/sign-in\?next=%2Fitems%2Fnew$/);
 });
 
-const SAVED_ITEM_URL = /\/items\/[0-9a-f-]{36}\?saved=1$/;
+// The details page drops ?saved=1 once it shows "Item saved.".
+const SAVED_ITEM_URL = /\/items\/[0-9a-f-]{36}$/;
 
 // Since #4 a successful save stores the item and opens its details.
 test("adds an item, fixing field errors first", async ({ page }) => {
