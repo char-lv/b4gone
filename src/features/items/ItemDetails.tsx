@@ -4,7 +4,7 @@ import { BackLink } from "@/components/ui/BackLink";
 import { formatDateOnly } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import type { Item } from "./item-repository";
-import { ItemStatusTag } from "./ItemStatusTag";
+import { ITEM_STATUS_LABELS, ItemStatusTag } from "./ItemStatusTag";
 import { SavedNotice } from "./SavedNotice";
 
 function NotSet({ children }: { children: string }) {
@@ -46,7 +46,7 @@ export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
         <Row term="Warranty expiration">
           {item.warrantyExpiration ? formatDateOnly(item.warrantyExpiration) : <NotSet>Not set</NotSet>}
         </Row>
-        <Row term="Status">{item.status === "active" ? "Active" : "Returned"}</Row>
+        <Row term="Status">{ITEM_STATUS_LABELS[item.status]}</Row>
       </dl>
     </>
   );
