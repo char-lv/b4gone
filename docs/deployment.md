@@ -74,7 +74,7 @@ Registration and sign-in need a migrated database and a session-signing secret i
    read -rs NEON_DIRECT_URL && DATABASE_URL="$NEON_DIRECT_URL" npm run db:migrate; unset NEON_DIRECT_URL
    ```
 
-   Each run prints the versions it applied, or that the database is up to date, and names only the database. Check the host you pasted before pressing Enter: a production string must never be used for the preview step or the other way round. Run both again whenever a merged pull request adds a file to `db/migrations/`. To confirm what a branch has without changing it, list the applied versions read-only:
+   Each run prints the versions it applied, or that the database is up to date, and names only the database. Check the host you pasted before pressing Enter: a production string must never be used for the preview step or the other way round. When a pull request adds a file to `db/migrations/` (for example `002_create_items.sql` in #4), apply it to the preview branch so the pull request preview works, and to the production branch before the pull request merges, because the new code needs the table as soon as it deploys. This order is safe while migrations only add tables or columns, as `001` and `002` do: the code already on `main` keeps working with them. To confirm what a branch has without changing it, list the applied versions read-only:
 
    ```bash
    read -rs NEON_DIRECT_URL && psql "$NEON_DIRECT_URL" -c "select version, applied_at from schema_migrations order by version"; unset NEON_DIRECT_URL
