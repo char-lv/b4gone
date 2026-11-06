@@ -49,6 +49,13 @@ describe("ItemDetails", () => {
       expect(screen.getByRole("status")).toHaveTextContent("Item saved.");
     });
 
+    it("moves focus to the item's name so keyboard and screen reader users know where they are", async () => {
+      render(<ItemDetails item={COAT} saved />);
+
+      await screen.findByText("Item saved.");
+      expect(screen.getByRole("heading", { level: 1, name: "Wool coat" })).toHaveFocus();
+    });
+
     it("drops ?saved=1 from the address so a reload does not confirm it again", async () => {
       render(<ItemDetails item={COAT} saved />);
 

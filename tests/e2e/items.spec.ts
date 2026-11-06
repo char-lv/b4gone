@@ -37,6 +37,8 @@ test("saved items appear in the list, newest purchases first, and open their det
   await addItem(page, { name: "Wool coat", purchaseDate: "2026-10-09", price: "189.50", returnDeadline: "2026-11-08" });
 
   await expect(page.getByRole("status")).toHaveText("Item saved.");
+  await expect(page).toHaveTitle("Wool coat · B4Gone");
+  await expect(page.getByRole("heading", { level: 1, name: "Wool coat" })).toBeFocused();
   await page.getByRole("link", { name: "Back to items" }).click();
 
   await expect(page.getByText("2 items: 2 active, 0 returned. Newest purchases first.")).toBeVisible();
@@ -117,6 +119,7 @@ test("another account cannot open the item by its address", async ({ page }) => 
   const response = await page.goto(address);
   expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { level: 1, name: "Item not found" })).toBeVisible();
+  await expect(page).toHaveTitle("Item not found · B4Gone");
   await expect(page.getByText("Wool coat")).toHaveCount(0);
 
   await page.goto("/items");

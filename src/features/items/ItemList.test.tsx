@@ -46,8 +46,10 @@ describe("ItemList", () => {
       "Status",
     ]);
     const [, coatRow, lampRow] = within(table).getAllByRole("row");
+    // The name heads its row, so a screen reader names the item with every cell it reads.
+    expect(within(coatRow).getByRole("rowheader")).toHaveTextContent("Wool coat");
+    expect(within(lampRow).getByRole("rowheader")).toHaveTextContent("Desk lamp");
     expect(within(coatRow).getAllByRole("cell").map((cell) => cell.textContent)).toEqual([
-      "Wool coat",
       "Oct 9, 2026",
       "$189.50",
       "Nov 8, 2026",
@@ -55,7 +57,6 @@ describe("ItemList", () => {
       "Active",
     ]);
     expect(within(lampRow).getAllByRole("cell").map((cell) => cell.textContent)).toEqual([
-      "Desk lamp",
       "Oct 9, 2026",
       "Not entered",
       "Not set",
