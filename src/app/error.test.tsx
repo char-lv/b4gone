@@ -15,4 +15,12 @@ describe("Application error state", () => {
     await userEvent.setup().click(screen.getByRole("button", { name: "Try again" }));
     expect(retry).toHaveBeenCalledTimes(1);
   });
+
+  // It also catches errors on public pages such as /sign-in, where the visitor may have no account.
+  it("uses text that fits a signed-out visitor", () => {
+    render(<AppError error={new Error("boom")} retry={vi.fn()} />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("This page couldn’t be loaded. Try again in a moment.");
+    expect(screen.queryByText(/saved items/)).not.toBeInTheDocument();
+  });
 });
