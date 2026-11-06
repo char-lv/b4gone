@@ -246,8 +246,9 @@ describe("GET /api/items/:id", () => {
 
     expect(foreign.status).toBe(404);
     expect(missing.status).toBe(404);
-    expect(await json(foreign)).toEqual({ error: { code: "not_found", message: "Item not found." } });
-    expect(await json(missing)).toEqual(await json(await detail("00000000-0000-4000-8000-000000000000", sam.cookie)));
+    const foreignBody = await json(foreign);
+    expect(foreignBody).toEqual({ error: { code: "not_found", message: "Item not found." } });
+    expect(await json(missing)).toEqual(foreignBody);
   });
 
   it.each(["not-a-uuid", "1 or 1=1"])("returns 404 for the malformed id %j", async (id) => {
