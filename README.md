@@ -29,7 +29,7 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 
 ## Current stage
 
-The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private and currently shows an empty state. The Add item form at `/items/new` is private too; it validates input and hands the item to an `onSubmit` callback (issue #3). Items are not saved yet, because persistence and the Items list belong to issue #4. Subscription features, the dashboard's deadlines, and receipt features are not implemented yet.
+The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private and currently shows an empty state. Signed-in users can add items at `/items/new` (issue #3), and the items are saved to their account and shown in the Items list and on each item's page (issue #4). Editing, returning, and deleting items come with issue #5. Subscription features, the dashboard's deadlines, and receipt features are not implemented yet.
 
 ## Local setup
 
