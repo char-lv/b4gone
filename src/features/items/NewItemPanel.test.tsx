@@ -5,9 +5,27 @@ import { NewItemPanel } from "./NewItemPanel";
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
+const fetchMock = vi.fn<typeof fetch>();
+const ITEM_ID = "9d7a1c52-0d6f-4f4e-8a9b-3c1e2f4a5b6c";
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+}
+
+const created = () => jsonResponse(201, { item: { id: ITEM_ID } });
+
+async function fillCoat(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByLabelText(/^Name/), "Wool coat");
+  await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
+  await user.type(screen.getByLabelText(/^Price/), "189.5");
+  await user.type(screen.getByLabelText(/^Warranty expiration/), "2027-10-09");
+}
+
 describe("NewItemPanel", () => {
   beforeEach(() => {
     push.mockClear();
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
     vi.useFakeTimers({ toFake: ["Date"] });
     // 02:30 UTC on Oct 24 is still Oct 23 in the test time zone (America/New_York).
     vi.setSystemTime(new Date("2026-10-24T02:30:00Z"));
@@ -15,6 +33,7 @@ describe("NewItemPanel", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("limits the purchase date to the user's local today", () => {
@@ -23,48 +42,103 @@ describe("NewItemPanel", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Add item" })).toBeInTheDocument();
     expect(screen.getByRole("form", { name: "Add item" })).toBeInTheDocument();
     expect(screen.getByLabelText(/^Purchase date/)).toHaveAttribute("max", "2026-10-23");
-    expect(screen.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Back to items" })).toHaveAttribute("href", "/items");
   });
 
-  it("confirms the submitted item without claiming it was saved to an account", async () => {
+  it("saves the item as JSON with the browser's time zone, then opens its details", async () => {
+    fetchMock.mockResolvedValue(created());
     const user = userEvent.setup();
     render(<NewItemPanel />);
 
-    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
-    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
-    await user.type(screen.getByLabelText(/^Price/), "189.5");
-    await user.type(screen.getByLabelText(/^Warranty expiration/), "2027-10-09");
+    await fillCoat(user);
     await user.click(screen.getByRole("button", { name: "Save item" }));
 
-    const status = screen.getByRole("status");
-    expect(status).toHaveTextContent("“Wool coat” is ready");
-    expect(status).toHaveTextContent("Purchased Oct 9, 2026");
-    expect(status).toHaveTextContent("$189.50");
-    expect(status).toHaveTextContent("Warranty until Oct 9, 2027");
-    expect(status).toHaveTextContent("Saving items to your account isn’t available yet.");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith("/api/items", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "Wool coat",
+        purchaseDate: "2026-10-09",
+        priceCents: 18950,
+        returnDeadline: null,
+        warrantyExpiration: "2027-10-09",
+        timeZone: "America/New_York",
+      }),
+    });
+    expect(push).toHaveBeenCalledWith(`/items/${ITEM_ID}?saved=1`);
   });
 
-  it("describes a blank price as not entered", async () => {
+  it("does not navigate before the save finishes, and sends one request for repeated clicks", async () => {
+    let finish: (response: Response) => void = () => {};
+    fetchMock.mockReturnValue(new Promise((resolve) => (finish = resolve)));
     const user = userEvent.setup();
     render(<NewItemPanel />);
 
-    await user.type(screen.getByLabelText(/^Name/), "Phone case");
-    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-15");
-    await user.type(screen.getByLabelText(/^Return deadline/), "2026-11-14");
+    await fillCoat(user);
     await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.click(screen.getByRole("button", { name: "Saving…" }));
 
-    const status = screen.getByRole("status");
-    expect(status).toHaveTextContent("Price not entered");
-    expect(status).toHaveTextContent("Return by Nov 14, 2026");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(push).not.toHaveBeenCalled();
+
+    await act(async () => finish(created()));
+    expect(push).toHaveBeenCalledTimes(1);
   });
 
-  it("returns home on cancel", async () => {
+  it("shows the server's field errors next to the fields and keeps the draft", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(400, {
+        error: { code: "validation_failed", message: "Check the highlighted fields.", fields: { priceCents: "Enter a smaller amount." } },
+      }),
+    );
+    const user = userEvent.setup();
+    render(<NewItemPanel />);
+
+    await fillCoat(user);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    expect(screen.getByLabelText(/^Price/)).toHaveAccessibleDescription(expect.stringContaining("Enter a smaller amount."));
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["the network fails", () => fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))],
+    ["the server fails", () => fetchMock.mockResolvedValue(jsonResponse(500, { error: { code: "server_error", message: "x" } }))],
+    ["the session has ended", () => fetchMock.mockResolvedValue(jsonResponse(401, { error: { code: "unauthenticated", message: "x" } }))],
+    ["the reply is not JSON", () => fetchMock.mockResolvedValue(new Response("<html>", { status: 502 }))],
+  ])("keeps the draft and offers a retry when %s", async (_label, arrange) => {
+    arrange();
+    const user = userEvent.setup();
+    render(<NewItemPanel />);
+
+    await fillCoat(user);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Couldn’t save this item.");
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+    expect(screen.getByLabelText(/^Price/)).toHaveValue("189.5");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("does not send an invalid item", async () => {
+    const user = userEvent.setup();
+    render(<NewItemPanel />);
+
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    expect(screen.getByText("Enter a name.")).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns to the item list on cancel", async () => {
     const user = userEvent.setup();
     render(<NewItemPanel />);
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
-    expect(push).toHaveBeenCalledWith("/");
+    expect(push).toHaveBeenCalledWith("/items");
   });
 
   describe("while the page stays open across local midnight", () => {
@@ -73,6 +147,7 @@ describe("NewItemPanel", () => {
     const afterMidnight = new Date("2026-11-05T05:01:00Z");
 
     it("accepts a purchase made on the new day without a reload", async () => {
+      fetchMock.mockResolvedValue(created());
       vi.setSystemTime(beforeMidnight);
       const user = userEvent.setup();
       render(<NewItemPanel />);
@@ -83,8 +158,7 @@ describe("NewItemPanel", () => {
       await user.click(screen.getByRole("button", { name: "Save item" }));
 
       expect(screen.queryByText("Purchase date can’t be in the future.")).not.toBeInTheDocument();
-      expect(screen.getByRole("status")).toHaveTextContent("“Night bus ticket” is ready");
-      expect(screen.getByRole("status")).toHaveTextContent("Purchased Nov 5, 2026");
+      expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({ purchaseDate: "2026-11-05" });
     });
 
     it("moves the purchase date limit to the new day", async () => {
@@ -111,7 +185,7 @@ describe("NewItemPanel", () => {
       await user.click(screen.getByRole("button", { name: "Save item" }));
 
       expect(screen.getByText("Purchase date can’t be in the future.")).toBeInTheDocument();
-      expect(screen.getByRole("status")).toBeEmptyDOMElement();
+      expect(fetchMock).not.toHaveBeenCalled();
     });
   });
 });
