@@ -55,6 +55,13 @@ describe("validateNewItem", () => {
     expect(errorsFor({ ...valid, priceCents: Number.MAX_SAFE_INTEGER + 1 })).toEqual({ priceCents: "Enter a smaller amount." });
   });
 
+  // Larger values would overflow the integer price_cents column and fail with a server error (#4).
+  it("accepts at most 99999999 cents ($999,999.99)", () => {
+    expect(validateNewItem({ ...valid, priceCents: 99_999_999 }, today).success).toBe(true);
+    expect(errorsFor({ ...valid, priceCents: 100_000_000 })).toEqual({ priceCents: "Enter a smaller amount." });
+    expect(errorsFor({ ...valid, priceCents: 2_147_483_648 })).toEqual({ priceCents: "Enter a smaller amount." });
+  });
+
   it("rejects a body that is not an object, naming every required field", () => {
     expect(Object.keys(errorsFor(null)).sort()).toEqual(["name", "purchaseDate"]);
     expect(Object.keys(errorsFor([])).sort()).toEqual(["name", "purchaseDate"]);

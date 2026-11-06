@@ -95,12 +95,20 @@ describe("validateItemDraft", () => {
   });
 
   describe("price", () => {
+    it("accepts the largest amount, $999,999.99", () => {
+      expect(validateItemDraft(draft({ price: "999999.99" }), today)).toMatchObject({
+        success: true,
+        data: { priceCents: 99999999 },
+      });
+    });
+
     it.each([
       ["-5", "Price can’t be negative."],
       ["$5", "Use digits only, like 1299.99, without $ or commas."],
       ["5.999", "Use no more than two decimal places."],
       ["five", "Enter a price like 49.99, or leave it blank."],
       ["99999999999999999", "Enter a smaller amount."],
+      ["1000000", "Enter a smaller amount."],
     ])("rejects %j", (price, message) => {
       expect(errorsFor({ price }).price).toBe(message);
     });
