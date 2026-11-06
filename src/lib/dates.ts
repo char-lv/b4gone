@@ -23,8 +23,15 @@ export function isValidDateOnly(value: string): boolean {
   return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
 }
 
-export function isValidTimeZone(_value: unknown): _value is string {
-  throw new Error("Not implemented: isValidTimeZone");
+/** True for an IANA time zone name that Intl accepts, such as "America/New_York". */
+export function isValidTimeZone(value: unknown): value is string {
+  if (typeof value !== "string" || value.trim() === "") return false;
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** The calendar date at `now` in an IANA time zone, such as "America/New_York". */
