@@ -52,6 +52,33 @@ test("saved items appear in the list, newest purchases first, and open their det
   await expect(page.getByRole("status")).toBeEmpty();
 });
 
+test("going back to the list after a save shows the new item", async ({ page }) => {
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Items" }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "No items yet" })).toBeVisible();
+  await page.getByRole("link", { name: "Add item" }).click();
+  await page.getByLabel(/^Name/).fill("Desk lamp");
+  await page.getByLabel(/^Purchase date/).fill("2026-09-30");
+  await page.getByRole("button", { name: "Save item" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Desk lamp" })).toBeVisible();
+
+  // Back twice: details -> add form -> the list that was showing the empty state.
+  await page.goBack();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/items$/);
+  await expect(page.getByRole("link", { name: "Desk lamp" })).toBeVisible();
+  await expect(page.getByText("No items yet")).toHaveCount(0);
+});
+
+test("reloading the details page does not confirm the save again", async ({ page }) => {
+  await addItem(page, { name: "Desk lamp", purchaseDate: "2026-09-30" });
+  await expect(page.getByRole("status")).toHaveText("Item saved.");
+  await expect(page).toHaveURL(/\/items\/[0-9a-f-]{36}$/);
+
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: "Desk lamp" })).toBeVisible();
+  await expect(page.getByRole("status")).toBeEmpty();
+});
+
 test("a failed save keeps the draft, and trying again saves exactly one item", async ({ page }) => {
   await page.goto("/items/new");
   await page.getByLabel(/^Name/).fill("Wool coat");

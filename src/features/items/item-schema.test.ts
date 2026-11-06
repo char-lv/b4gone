@@ -69,6 +69,15 @@ describe("validateItemDraft", () => {
     it("counts an emoji as one character", () => {
       expect(validateItemDraft(draft({ name: "🎁".repeat(100) }), today).success).toBe(true);
     });
+
+    // PostgreSQL text cannot hold U+0000, and a name is a single line.
+    it.each(["Coat\u0000", "Wool\tcoat", "Wool\ncoat", "Wool\u007fcoat"])("rejects the control character in %j", (name) => {
+      expect(errorsFor({ name }).name).toBe("Remove tabs, line breaks, and other control characters.");
+    });
+
+    it("still trims surrounding whitespace such as a trailing line break", () => {
+      expect(validateItemDraft(draft({ name: "Wool coat\n" }), today).success).toBe(true);
+    });
   });
 
   describe("purchase date", () => {

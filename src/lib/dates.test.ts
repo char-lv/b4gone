@@ -17,6 +17,9 @@ describe("isValidDateOnly", () => {
     "10/23/2026",
     "2026-10-23T00:00:00Z",
     " 2026-10-23",
+    // PostgreSQL DATE has no year 0, so these would fail on insert instead of as a field error.
+    "0000-01-01",
+    "0000-02-29",
   ])("rejects %j", (value) => {
     expect(isValidDateOnly(value)).toBe(false);
   });

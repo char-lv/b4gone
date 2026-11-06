@@ -37,11 +37,29 @@ describe("ItemDetails", () => {
     expect(detailValue("Status")).toBe("Returned");
   });
 
-  it("confirms a save in a status message only right after saving", () => {
-    const { rerender } = render(<ItemDetails item={COAT} saved />);
-    expect(screen.getByRole("status")).toHaveTextContent("Item saved.");
+  describe("after a save", () => {
+    beforeEach(() => window.history.replaceState(null, "", `/items/${COAT.id}?saved=1`));
+    afterEach(() => window.history.replaceState(null, "", "/"));
 
-    rerender(<ItemDetails item={COAT} saved={false} />);
+    it("confirms it in a status region that is already on the page", async () => {
+      render(<ItemDetails item={COAT} saved />);
+
+      // The region exists before its text, so screen readers announce the change.
+      expect(await screen.findByText("Item saved.")).toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent("Item saved.");
+    });
+
+    it("drops ?saved=1 from the address so a reload does not confirm it again", async () => {
+      render(<ItemDetails item={COAT} saved />);
+
+      await screen.findByText("Item saved.");
+      expect(window.location.pathname + window.location.search).toBe(`/items/${COAT.id}`);
+    });
+  });
+
+  it("shows no confirmation when the item is opened later", () => {
+    render(<ItemDetails item={COAT} saved={false} />);
+
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 });

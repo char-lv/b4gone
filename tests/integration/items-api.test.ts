@@ -170,6 +170,20 @@ describe("POST /api/items", () => {
     expect(await countItems(jane.id)).toBe(0);
   });
 
+  // Both values used to pass validation and then fail in PostgreSQL with a 500.
+  it.each([
+    ["a year-0 purchase date", { purchaseDate: "0000-01-01", returnDeadline: null }, "purchaseDate"],
+    ["a NUL character in the name", { name: "Coat\u0000" }, "name"],
+  ])("answers %s with a field error and saves nothing", async (_label, change, field) => {
+    const jane = await createAccount("jane");
+
+    const response = await createItem(post({ ...COAT, ...change }, { cookie: jane.cookie }));
+
+    expect(response.status).toBe(400);
+    expect(await json(response)).toMatchObject({ error: { code: "validation_failed", fields: { [field]: expect.any(String) } } });
+    expect(await countItems(jane.id)).toBe(0);
+  });
+
   it("refuses a body that is not sent as JSON", async () => {
     const jane = await createAccount("jane");
 

@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { NewItemPanel } from "./NewItemPanel";
 
 const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+const refresh = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push, refresh }) }));
 
 const fetchMock = vi.fn<typeof fetch>();
 const ITEM_ID = "9d7a1c52-0d6f-4f4e-8a9b-3c1e2f4a5b6c";
@@ -24,6 +25,7 @@ async function fillCoat(user: ReturnType<typeof userEvent.setup>) {
 describe("NewItemPanel", () => {
   beforeEach(() => {
     push.mockClear();
+    refresh.mockClear();
     fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
     vi.useFakeTimers({ toFake: ["Date"] });
@@ -67,6 +69,21 @@ describe("NewItemPanel", () => {
       }),
     });
     expect(push).toHaveBeenCalledWith(`/items/${ITEM_ID}?saved=1`);
+    // Pages the router already cached, such as the list reached with Back, are fetched again.
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("stays in its saving state with the entries in place while the details page opens", async () => {
+    fetchMock.mockResolvedValue(created());
+    const user = userEvent.setup();
+    render(<NewItemPanel />);
+
+    await fillCoat(user);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    expect(push).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Saving…" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
   });
 
   it("does not navigate before the save finishes, and sends one request for repeated clicks", async () => {
@@ -106,7 +123,6 @@ describe("NewItemPanel", () => {
   it.each([
     ["the network fails", () => fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))],
     ["the server fails", () => fetchMock.mockResolvedValue(jsonResponse(500, { error: { code: "server_error", message: "x" } }))],
-    ["the session has ended", () => fetchMock.mockResolvedValue(jsonResponse(401, { error: { code: "unauthenticated", message: "x" } }))],
     ["the reply is not JSON", () => fetchMock.mockResolvedValue(new Response("<html>", { status: 502 }))],
   ])("keeps the draft and offers a retry when %s", async (_label, arrange) => {
     arrange();
@@ -120,6 +136,36 @@ describe("NewItemPanel", () => {
     expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
     expect(screen.getByLabelText(/^Price/)).toHaveValue("189.5");
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("tells a signed-out user to sign in again and keeps the draft", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(401, { error: { code: "unauthenticated", message: "Sign in to continue." } }));
+    const user = userEvent.setup();
+    render(<NewItemPanel />);
+
+    await fillCoat(user);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "You’ve been signed out. Your entries are still here. Sign in again in a new tab, then select “Save item”.",
+    );
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("shows the server's time zone message, which has no field of its own", async () => {
+    const message = "Your browser’s time zone could not be read. Reload the page and try again.";
+    fetchMock.mockResolvedValue(
+      jsonResponse(400, { error: { code: "validation_failed", message: "Check the highlighted fields.", fields: { timeZone: message } } }),
+    );
+    const user = userEvent.setup();
+    render(<NewItemPanel />);
+
+    await fillCoat(user);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(message);
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
   });
 
   it("does not send an invalid item", async () => {
