@@ -7,6 +7,7 @@ export type ApiErrorCode =
   | "email_taken"
   | "invalid_credentials"
   | "unauthenticated"
+  | "not_found"
   | "forbidden_origin"
   | "server_error";
 

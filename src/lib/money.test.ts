@@ -16,6 +16,7 @@ describe("parseUsdToCents", () => {
     ["1299.99", 129999],
     ["0.01", 1],
     ["007.5", 750],
+    ["999999.99", 99999999],
   ])("converts %j to %i cents", (raw, cents) => {
     expect(parseUsdToCents(raw)).toEqual({ ok: true, cents });
   });
@@ -33,6 +34,10 @@ describe("parseUsdToCents", () => {
     ["1e3", "format"],
     ["1 000", "format"],
     ["99999999999999999", "too_large"],
+    // A PostgreSQL integer column holds at most 2147483647, so amounts stop at $999,999.99 (#4).
+    ["1000000", "too_large"],
+    ["1000000.00", "too_large"],
+    ["21474836.48", "too_large"],
   ])("rejects %j as %s", (raw, code) => {
     expect(parseUsdToCents(raw)).toEqual({ ok: false, code });
   });

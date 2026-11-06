@@ -25,7 +25,8 @@ type AddItemFormProps = {
    * Receives the validated item; the form waits for the returned promise. While it is pending the
    * fields are read-only and further submissions are ignored. Resolving clears the form. Rejecting
    * keeps the draft: an ItemSubmitError (or any error with fieldErrors) shows its messages next to
-   * the fields, and any other error shows a retry message.
+   * the fields, an error with a formMessage string shows that text, and any other error shows a
+   * retry message.
    */
   onSubmit: (item: NewItemInput) => void | Promise<void>;
   onCancel?: () => void;
@@ -43,6 +44,14 @@ const EMPTY_DRAFT: ItemDraft = {
 
 const DATE_FIELDS = ["purchaseDate", "returnDeadline", "warrantyExpiration"] as const;
 
+const RETRY_MESSAGE = "Couldn’t save this item. Your entries are still here. Select “Save item” to try again.";
+
+function formMessageFromRejection(error: unknown): string | null {
+  if (typeof error !== "object" || error === null || !("formMessage" in error)) return null;
+  const message = (error as { formMessage: unknown }).formMessage;
+  return typeof message === "string" && message.trim() !== "" ? message : null;
+}
+
 type FormCheck = { item: NewItemInput | null; errors: ItemFieldErrors };
 
 function fieldInput(form: HTMLFormElement | null, field: ItemField): HTMLInputElement | null {
@@ -55,7 +64,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
   const [errors, setErrors] = useState<ItemFieldErrors>({});
   const [attempted, setAttempted] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveFailed, setSaveFailed] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const savingRef = useRef(false);
 
   function check(next: ItemDraft, form: HTMLFormElement | null): FormCheck {
@@ -90,7 +99,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
     if (savingRef.current) return;
 
     setAttempted(true);
-    setSaveFailed(false);
+    setSaveError(null);
     const form = event.currentTarget;
     const { item, errors: fieldErrors } = check(draft, form);
     showErrors(fieldErrors, form);
@@ -105,7 +114,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
     } catch (error) {
       const rejected = fieldErrorsFromRejection(error);
       if (rejected) showErrors(rejected, form);
-      else setSaveFailed(true);
+      else setSaveError(formMessageFromRejection(error) ?? RETRY_MESSAGE);
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -138,9 +147,9 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
           Fix {errorCount} {errorCount === 1 ? "field" : "fields"} to save this item.
         </p>
       ) : null}
-      {saveFailed ? (
+      {saveError ? (
         <div role="alert" className="mb-4 rounded-control border border-urgent-line bg-urgent-soft px-4 py-3">
-          Couldn’t save this item. Your entries are still here. Select “Save item” to try again.
+          {saveError}
         </div>
       ) : null}
 
@@ -181,7 +190,10 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
         <Button type="submit" variant="primary" aria-disabled={saving || undefined}>
           {saving ? "Saving…" : "Save item"}
         </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+        {/* The item is saved whatever happens next, so Cancel waits for the save like Save item does. */}
+        <Button aria-disabled={saving || undefined} onClick={() => !savingRef.current && onCancel?.()}>
+          Cancel
+        </Button>
       </div>
     </form>
   );

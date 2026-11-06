@@ -160,6 +160,20 @@ describe("AddItemForm", () => {
     await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
   });
 
+  it("ignores Cancel while a save is pending, because the item is being saved anyway", async () => {
+    const onSubmit = vi.fn(() => new Promise<void>(() => {}));
+    const { user, onCancel } = renderForm(onSubmit);
+    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
+    await user.type(screen.getByLabelText(/^Purchase date/), today);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    await user.click(cancel);
+
+    expect(cancel).toHaveAttribute("aria-disabled", "true");
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
   it("calls onCancel without submitting", async () => {
     const { user, onSubmit, onCancel } = renderForm();
 

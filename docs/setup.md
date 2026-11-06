@@ -1,6 +1,6 @@
 # Setup and environments
 
-This guide sets up B4Gone for local development and explains how local, test, CI, preview, and production settings stay separate. The current application does not read from the database yet; the steps below prepare the connection that authentication (#2) and the item API (#4) will use.
+This guide sets up B4Gone for local development and explains how local, test, CI, preview, and production settings stay separate. Accounts (#2) and items (#4) are stored in PostgreSQL through this connection.
 
 ## Prerequisites
 
