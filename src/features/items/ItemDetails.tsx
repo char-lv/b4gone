@@ -1,6 +1,6 @@
 // One saved item (issue #4). Edit, return, undo, and delete actions are added here by #5.
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { BackLink } from "@/components/ui/BackLink";
 import { formatDateOnly } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import type { Item } from "./item-repository";
@@ -25,12 +25,7 @@ function Row({ term, children }: { term: string; children: ReactNode }) {
 export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
   return (
     <>
-      <Link
-        href="/items"
-        className="mb-4 inline-block text-[0.9375rem] font-semibold text-accent underline decoration-accent-line underline-offset-[3px] hover:text-accent-hover hover:decoration-current"
-      >
-        Back to items
-      </Link>
+      <BackLink href="/items">Back to items</BackLink>
 
       <SavedNotice saved={saved} />
 

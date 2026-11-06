@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
 import { findUserById, type User } from "@/features/auth/user-repository";
 import { getPool } from "@/lib/db/pool";
+import { isUuid } from "@/lib/uuid";
 import {
   SESSION_COOKIE_NAME,
   createSessionToken,
@@ -12,8 +13,6 @@ import {
   sessionCookieOptions,
   verifySessionToken,
 } from "./session";
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isProduction(): boolean {
   return process.env.NODE_ENV === "production";
@@ -23,7 +22,7 @@ function isProduction(): boolean {
 export async function userFromToken(token: string | undefined): Promise<User | null> {
   if (!token) return null;
   const session = await verifySessionToken(token, readSessionSecret(process.env));
-  if (!session || !UUID.test(session.userId)) return null;
+  if (!session || !isUuid(session.userId)) return null;
   return findUserById(getPool(), session.userId);
 }
 

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
+import { BackLink } from "@/components/ui/BackLink";
 import { todayInTimeZone } from "@/lib/dates";
 import { AddItemForm } from "./AddItemForm";
 import type { NewItemInput } from "./item-schema";
@@ -78,12 +78,7 @@ export function NewItemPanel() {
 
   return (
     <>
-      <Link
-        href="/items"
-        className="mb-4 inline-block text-[0.9375rem] font-semibold text-accent underline decoration-accent-line underline-offset-[3px] hover:text-accent-hover hover:decoration-current"
-      >
-        Back to items
-      </Link>
+      <BackLink href="/items">Back to items</BackLink>
       <div className="mb-6">
         <h1 id="add-item-title" className="text-[1.375rem] font-semibold tracking-tight sm:text-[1.625rem]">
           Add item

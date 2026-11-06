@@ -2,6 +2,7 @@
 // map from snake_case columns to the camelCase Item type here, at the server boundary.
 import "server-only";
 import type { Pool, PoolClient } from "pg";
+import { isUuid } from "@/lib/uuid";
 import type { NewItemInput } from "./item-schema";
 
 export type ItemStatus = "active" | "returned";
@@ -9,8 +10,6 @@ export type ItemStatus = "active" | "returned";
 export type Item = NewItemInput & { id: string; status: ItemStatus };
 
 type Db = Pool | PoolClient;
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // to_char keeps DATE columns as YYYY-MM-DD text; pg would otherwise build JavaScript Dates at local
 // midnight, and the session DateStyle would change a plain ::text cast.
@@ -44,7 +43,7 @@ export async function listItems(db: Db, ownerId: string): Promise<Item[]> {
 
 /** The item with this id if the owner has it; another owner's id looks the same as a missing one. */
 export async function findItem(db: Db, ownerId: string, id: string): Promise<Item | null> {
-  if (!UUID.test(id)) return null;
+  if (!isUuid(id)) return null;
   const result = await db.query<Item>(`select ${ITEM_COLUMNS} from items where id = $1 and owner_id = $2`, [
     id,
     ownerId,
