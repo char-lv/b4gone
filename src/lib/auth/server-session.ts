@@ -32,7 +32,6 @@ export async function getRequestUser(request: NextRequest): Promise<User | null>
   return userFromToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
 }
 
-/** The signed-in user for a Server Component or page. */
 /** The signed-in user for a Server Component; the layout and the page share one lookup per request. */
 export const getCurrentUser = cache(async (): Promise<User | null> => {
   const cookieStore = await cookies();
