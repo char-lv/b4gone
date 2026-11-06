@@ -71,7 +71,7 @@ describe("validateItemDraft", () => {
     });
 
     // PostgreSQL text cannot hold U+0000, and a name is a single line.
-    it.each(["Coat\u0000", "Wool\tcoat", "Wool\ncoat", "Wool\u007fcoat"])("rejects the control character in %j", (name) => {
+    it.each(["Coat\u0000", "Wool\tcoat", "Wool\ncoat", "Wool\u007fcoat", "Wool\u2028coat", "Wool\u2029coat"])("rejects the control character in %j", (name) => {
       expect(errorsFor({ name }).name).toBe("Remove tabs, line breaks, and other control characters.");
     });
 

@@ -178,6 +178,23 @@ describe("NewItemPanel", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("stays where the user went if they leave before the save finishes, and still refreshes", async () => {
+    let finish: (response: Response) => void = () => {};
+    fetchMock.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    const user = userEvent.setup();
+    const { unmount } = render(<NewItemPanel />);
+
+    await fillCoat(user);
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+    // For example, the user selects Items in the navigation while the request is pending.
+    unmount();
+    await act(async () => finish(created()));
+
+    expect(push).not.toHaveBeenCalled();
+    // The page they opened may have loaded before the item existed.
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
   it("returns to the item list on cancel", async () => {
     const user = userEvent.setup();
     render(<NewItemPanel />);
