@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { BackLink } from "@/components/ui/BackLink";
 import { todayInTimeZone } from "@/lib/dates";
 import { AddItemForm } from "./AddItemForm";
@@ -66,12 +66,22 @@ export function NewItemPanel() {
   const router = useRouter();
   // Re-renders when the local date changes so the purchase date limit follows the clock.
   const today = useSyncExternalStore(subscribeToLocalDate, getLocalToday, getServerToday);
+  // False once the user has left this page, for example through the navigation while a save is pending.
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   async function handleSubmit(item: NewItemInput): Promise<void> {
     const id = await saveItem(item);
-    router.push(`/items/${id}?saved=1`);
     // The router keeps pages it has shown, so without this Back would return to a list without the item.
+    // It also updates a page the user opened while the save was pending.
     router.refresh();
+    if (!mounted.current) return;
+    router.push(`/items/${id}?saved=1`);
     // Stay in the saving state until the details page replaces this form, so it never shows empty.
     await new Promise<never>(() => {});
   }

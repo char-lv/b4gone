@@ -59,8 +59,8 @@ function nameError(raw: string): string | undefined {
   const length = Array.from(raw.trim()).length;
   // trim() keeps format characters such as U+200B, so a name needs at least one visible character.
   if (!/[^\p{Cf}\p{Z}\s]/u.test(raw)) return "Enter a name.";
-  // A name is one line, and PostgreSQL text cannot store U+0000.
-  if (/\p{Cc}/u.test(raw.trim())) return "Remove tabs, line breaks, and other control characters.";
+  // A name is one line (no Cc controls or U+2028/U+2029 separators), and PostgreSQL text cannot store U+0000.
+  if (/[\p{Cc}\p{Zl}\p{Zp}]/u.test(raw.trim())) return "Remove tabs, line breaks, and other control characters.";
   if (length > ITEM_NAME_MAX) {
     return `Use ${ITEM_NAME_MAX} characters or fewer. This one has ${length}.`;
   }

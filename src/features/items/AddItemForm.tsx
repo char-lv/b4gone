@@ -190,7 +190,10 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
         <Button type="submit" variant="primary" aria-disabled={saving || undefined}>
           {saving ? "Saving…" : "Save item"}
         </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+        {/* The item is saved whatever happens next, so Cancel waits for the save like Save item does. */}
+        <Button aria-disabled={saving || undefined} onClick={() => !savingRef.current && onCancel?.()}>
+          Cancel
+        </Button>
       </div>
     </form>
   );
