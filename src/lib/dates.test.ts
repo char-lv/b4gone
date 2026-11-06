@@ -1,4 +1,4 @@
-import { formatDateOnly, isValidDateOnly, todayInTimeZone } from "./dates";
+import { formatDateOnly, isValidDateOnly, isValidTimeZone, todayInTimeZone } from "./dates";
 
 describe("isValidDateOnly", () => {
   it.each(["2026-10-23", "2024-02-29", "2026-01-31", "2000-02-29"])("accepts %s", (value) => {
@@ -34,6 +34,17 @@ describe("todayInTimeZone", () => {
 
   it("rejects an unknown time zone", () => {
     expect(() => todayInTimeZone("Not/AZone", now)).toThrow(RangeError);
+  });
+});
+
+// The item API (#4) receives the browser's IANA time zone and must refuse anything Intl cannot use.
+describe("isValidTimeZone", () => {
+  it.each(["America/New_York", "Asia/Tokyo", "UTC", "Pacific/Kiritimati"])("accepts %s", (timeZone) => {
+    expect(isValidTimeZone(timeZone)).toBe(true);
+  });
+
+  it.each([undefined, null, 42, "", "  ", "Mars/Olympus_Mons", "America/New York"])("rejects %j", (timeZone) => {
+    expect(isValidTimeZone(timeZone)).toBe(false);
   });
 });
 

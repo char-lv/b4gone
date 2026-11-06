@@ -23,6 +23,10 @@ export function isValidDateOnly(value: string): boolean {
   return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
 }
 
+export function isValidTimeZone(_value: unknown): _value is string {
+  throw new Error("Not implemented: isValidTimeZone");
+}
+
 /** The calendar date at `now` in an IANA time zone, such as "America/New_York". */
 export function todayInTimeZone(timeZone: string, now: Date): string {
   // The en-CA locale formats dates as YYYY-MM-DD.
