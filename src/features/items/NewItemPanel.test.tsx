@@ -106,7 +106,7 @@ describe("NewItemPanel", () => {
   it("shows the server's field errors next to the fields and keeps the draft", async () => {
     fetchMock.mockResolvedValue(
       jsonResponse(400, {
-        error: { code: "validation_failed", message: "Check the highlighted fields.", fields: { priceCents: "Enter a smaller amount." } },
+        error: { code: "validation_failed", message: "Check the highlighted fields.", fields: { priceCents: "Enter an amount up to $999,999.99." } },
       }),
     );
     const user = userEvent.setup();
@@ -115,7 +115,7 @@ describe("NewItemPanel", () => {
     await fillCoat(user);
     await user.click(screen.getByRole("button", { name: "Save item" }));
 
-    expect(screen.getByLabelText(/^Price/)).toHaveAccessibleDescription(expect.stringContaining("Enter a smaller amount."));
+    expect(screen.getByLabelText(/^Price/)).toHaveAccessibleDescription(expect.stringContaining("Enter an amount up to $999,999.99."));
     expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
     expect(push).not.toHaveBeenCalled();
   });

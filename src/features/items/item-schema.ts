@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { formatDateOnly, isValidDateOnly } from "@/lib/dates";
-import { MAX_AMOUNT_CENTS, type MoneyErrorCode, type MoneyParseResult, parseUsdToCents } from "@/lib/money";
+import { MAX_AMOUNT_CENTS, type MoneyErrorCode, type MoneyParseResult, formatUsd, parseUsdToCents } from "@/lib/money";
 
 export const ITEM_NAME_MAX = 100;
 
@@ -42,7 +42,7 @@ const PRICE_ERRORS: Record<MoneyErrorCode, string> = {
   negative: "Price can’t be negative.",
   symbols: "Use digits only, like 1299.99, without $ or commas.",
   decimals: "Use no more than two decimal places.",
-  too_large: "Enter a smaller amount.",
+  too_large: `Enter an amount up to ${formatUsd(MAX_AMOUNT_CENTS)}.`,
   format: "Enter a price like 49.99, or leave it blank.",
 };
 
@@ -57,7 +57,8 @@ export const INVALID_OPTIONAL_DATE_MESSAGE = "Enter a complete, real date, or cl
 function nameError(raw: string): string | undefined {
   // Count code points so an emoji counts as one character.
   const length = Array.from(raw.trim()).length;
-  if (length === 0) return "Enter a name.";
+  // trim() keeps format characters such as U+200B, so a name needs at least one visible character.
+  if (!/[^\p{Cf}\p{Z}\s]/u.test(raw)) return "Enter a name.";
   // A name is one line, and PostgreSQL text cannot store U+0000.
   if (/\p{Cc}/u.test(raw.trim())) return "Remove tabs, line breaks, and other control characters.";
   if (length > ITEM_NAME_MAX) {

@@ -176,7 +176,7 @@ paths:
                       fields:
                         name: Enter a name.
                         purchaseDate: Purchase date can’t be in the future.
-                        priceCents: Enter a smaller amount.
+                        priceCents: Enter an amount up to $999,999.99.
                 timeZone:
                   value:
                     error:
@@ -298,7 +298,7 @@ components:
       properties:
         name:
           type: string
-          description: 1–100 characters after trimming; the trimmed name is stored.
+          description: 1–100 characters after trimming, with at least one visible character and no control characters such as tabs or line breaks; the trimmed name is stored.
         purchaseDate:
           allOf: [{ $ref: "#/components/schemas/DateOnly" }]
           description: On or before today in `timeZone`.
