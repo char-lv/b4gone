@@ -3,6 +3,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
+import { cache } from "react";
 import { findUserById, type User } from "@/features/auth/user-repository";
 import { getPool } from "@/lib/db/pool";
 import { isUuid } from "@/lib/uuid";
@@ -32,10 +33,11 @@ export async function getRequestUser(request: NextRequest): Promise<User | null>
 }
 
 /** The signed-in user for a Server Component or page. */
-export async function getCurrentUser(): Promise<User | null> {
+/** The signed-in user for a Server Component; the layout and the page share one lookup per request. */
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const cookieStore = await cookies();
   return userFromToken(cookieStore.get(SESSION_COOKIE_NAME)?.value);
-}
+});
 
 export async function startSession(response: NextResponse, userId: string): Promise<void> {
   const token = await createSessionToken(userId, readSessionSecret(process.env));

@@ -27,10 +27,11 @@ export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
     <>
       <BackLink href="/items">Back to items</BackLink>
 
-      <SavedNotice saved={saved} />
+      <SavedNotice saved={saved} focusId="item-title" />
 
       <div className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2">
-        <h1 className="min-w-0 text-[1.375rem] font-semibold tracking-tight break-words sm:text-[1.625rem]">
+        {/* tabIndex lets the save confirmation move focus here; the heading is not a tab stop. */}
+        <h1 id="item-title" tabIndex={-1} className="min-w-0 outline-none text-[1.375rem] font-semibold tracking-tight break-words sm:text-[1.625rem]">
           {item.name}
         </h1>
         <ItemStatusTag status={item.status} />

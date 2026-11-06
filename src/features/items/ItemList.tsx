@@ -81,12 +81,13 @@ export function ItemList({ items }: { items: Item[] }) {
                   <tr
                     key={item.id}
                     role="row"
-                    className="max-sm:mb-3 max-sm:block max-sm:rounded-card max-sm:border max-sm:border-line max-sm:bg-surface max-sm:p-4 max-sm:shadow-card [&:last-child>td]:border-b-0"
+                    className="max-sm:mb-3 max-sm:block max-sm:rounded-card max-sm:border max-sm:border-line max-sm:bg-surface max-sm:p-4 max-sm:shadow-card [&:last-child>*]:border-b-0"
                   >
-                    <td
-                      role="cell"
+                    <th
+                      scope="row"
+                      role="rowheader"
                       data-label="Name"
-                      className="border-b border-line px-4 py-3.5 align-top max-sm:block max-sm:border-0 max-sm:px-0 max-sm:pt-0 max-sm:pb-2 max-sm:text-[1.0625rem]"
+                      className="border-b border-line px-4 py-3.5 text-left align-top font-normal max-sm:block max-sm:border-0 max-sm:px-0 max-sm:pt-0 max-sm:pb-2 max-sm:text-[1.0625rem]"
                     >
                       <Link
                         href={`/items/${item.id}`}
@@ -94,7 +95,7 @@ export function ItemList({ items }: { items: Item[] }) {
                       >
                         {item.name}
                       </Link>
-                    </td>
+                    </th>
                     <td role="cell" data-label="Purchased" className={CELL}>
                       {formatDateOnly(item.purchaseDate)}
                     </td>

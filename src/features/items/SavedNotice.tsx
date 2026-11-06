@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 
 /**
  * "Item saved." after the add form opens the details page with ?saved=1 (issue #4). The live region
- * renders empty first so screen readers announce the text, and the parameter is dropped from the
- * address so a reload or a later visit does not confirm the save again.
+ * renders empty first so screen readers announce the text, focus moves to the element with focusId
+ * (the item's heading), and the parameter is dropped from the address so a reload or a later visit
+ * does not confirm the save again.
  */
-export function SavedNotice({ saved }: { saved: boolean }) {
+export function SavedNotice({ saved, focusId }: { saved: boolean; focusId: string }) {
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -16,9 +17,12 @@ export function SavedNotice({ saved }: { saved: boolean }) {
     url.searchParams.delete("saved");
     window.history.replaceState(null, "", url.pathname + url.search + url.hash);
     // Add the text after the empty region is on the page; text present at mount is often not read.
-    const timer = window.setTimeout(() => setShown(true), 0);
+    const timer = window.setTimeout(() => {
+      setShown(true);
+      document.getElementById(focusId)?.focus();
+    }, 0);
     return () => window.clearTimeout(timer);
-  }, [saved]);
+  }, [saved, focusId]);
 
   return (
     <div role="status" aria-live="polite">
