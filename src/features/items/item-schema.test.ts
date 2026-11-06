@@ -75,6 +75,16 @@ describe("validateItemDraft", () => {
       expect(errorsFor({ name }).name).toBe("Remove tabs, line breaks, and other control characters.");
     });
 
+    // trim() keeps format characters such as U+200B, so these names would show as blank.
+    it.each(["\u200B", "\u200B\u200D\u2060", " \uFEFF ", "\u00A0\u200B"])("treats the invisible name %j as empty", (name) => {
+      expect(errorsFor({ name }).name).toBe("Enter a name.");
+    });
+
+    it("keeps names that contain visible characters next to format characters", () => {
+      expect(validateItemDraft(draft({ name: "👩\u200D💻 laptop" }), today).success).toBe(true);
+      expect(validateItemDraft(draft({ name: "Wool\u200Bcoat" }), today).success).toBe(true);
+    });
+
     it("still trims surrounding whitespace such as a trailing line break", () => {
       expect(validateItemDraft(draft({ name: "Wool coat\n" }), today).success).toBe(true);
     });
@@ -116,8 +126,8 @@ describe("validateItemDraft", () => {
       ["$5", "Use digits only, like 1299.99, without $ or commas."],
       ["5.999", "Use no more than two decimal places."],
       ["five", "Enter a price like 49.99, or leave it blank."],
-      ["99999999999999999", "Enter a smaller amount."],
-      ["1000000", "Enter a smaller amount."],
+      ["99999999999999999", "Enter an amount up to $999,999.99."],
+      ["1000000", "Enter an amount up to $999,999.99."],
     ])("rejects %j", (price, message) => {
       expect(errorsFor({ price }).price).toBe(message);
     });

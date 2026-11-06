@@ -36,6 +36,7 @@ describe("validateNewItem", () => {
 
   it("applies the same name and date rules as the form", () => {
     expect(errorsFor({ ...valid, name: "   " })).toEqual({ name: "Enter a name." });
+    expect(errorsFor({ ...valid, name: "\u200B\u200D" })).toEqual({ name: "Enter a name." });
     expect(errorsFor({ ...valid, name: "x".repeat(101) })).toEqual({
       name: "Use 100 characters or fewer. This one has 101.",
     });
@@ -52,14 +53,14 @@ describe("validateNewItem", () => {
     expect(errorsFor({ ...valid, priceCents: 49.99 })).toEqual({ priceCents: "Enter a price like 49.99, or leave it blank." });
     expect(errorsFor({ ...valid, priceCents: -1 })).toEqual({ priceCents: "Price can’t be negative." });
     expect(errorsFor({ ...valid, priceCents: "1899" })).toEqual({ priceCents: "Enter a price like 49.99, or leave it blank." });
-    expect(errorsFor({ ...valid, priceCents: Number.MAX_SAFE_INTEGER + 1 })).toEqual({ priceCents: "Enter a smaller amount." });
+    expect(errorsFor({ ...valid, priceCents: Number.MAX_SAFE_INTEGER + 1 })).toEqual({ priceCents: "Enter an amount up to $999,999.99." });
   });
 
   // Larger values would overflow the integer price_cents column and fail with a server error (#4).
   it("accepts at most 99999999 cents ($999,999.99)", () => {
     expect(validateNewItem({ ...valid, priceCents: 99_999_999 }, today).success).toBe(true);
-    expect(errorsFor({ ...valid, priceCents: 100_000_000 })).toEqual({ priceCents: "Enter a smaller amount." });
-    expect(errorsFor({ ...valid, priceCents: 2_147_483_648 })).toEqual({ priceCents: "Enter a smaller amount." });
+    expect(errorsFor({ ...valid, priceCents: 100_000_000 })).toEqual({ priceCents: "Enter an amount up to $999,999.99." });
+    expect(errorsFor({ ...valid, priceCents: 2_147_483_648 })).toEqual({ priceCents: "Enter an amount up to $999,999.99." });
   });
 
   it("rejects a body that is not an object, naming every required field", () => {

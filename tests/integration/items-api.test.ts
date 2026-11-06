@@ -162,7 +162,7 @@ describe("POST /api/items", () => {
         fields: {
           name: "Enter a name.",
           purchaseDate: "Enter a complete, real date.",
-          priceCents: "Enter a smaller amount.",
+          priceCents: "Enter an amount up to $999,999.99.",
           returnDeadline: "Enter a complete, real date, or clear the field.",
         },
       },
