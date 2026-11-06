@@ -13,7 +13,7 @@ info:
     Every error uses the same shape: `{ "error": { "code", "message", "fields"? } }`, where
     `fields` maps a request field to the message to show next to it.
 
-    Item, subscription, and dashboard endpoints are added by issues #4, #7, and #9.
+    Subscription and dashboard endpoints are added by issues #7 and #9.
 servers:
   - url: https://b4gone.vercel.app
     description: Production
@@ -22,6 +22,8 @@ servers:
 tags:
   - name: Accounts
     description: Registration, sign-in, sign-out, and the current session (issue #2).
+  - name: Items
+    description: Purchases with return and warranty deadlines, private to the signed-in user (issue #4).
 
 paths:
   /api/auth/register:
@@ -131,6 +133,111 @@ paths:
               example: { error: { code: unauthenticated, message: Sign in to continue. } }
         "500": { $ref: "#/components/responses/ServerError" }
 
+  /api/items:
+    post:
+      tags: [Items]
+      summary: Save a purchase
+      description: |
+        Saves one item for the signed-in user; any owner field in the body is ignored. The purchase
+        date may not be later than today in the request's `timeZone`, so the check follows the
+        user's calendar rather than the server's. New items start as `active`.
+      operationId: createItem
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewItemRequest" }
+            example:
+              name: Wool coat
+              purchaseDate: "2026-10-09"
+              priceCents: 18950
+              returnDeadline: "2026-11-08"
+              warrantyExpiration: null
+              timeZone: America/New_York
+      responses:
+        "201":
+          description: The saved item.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemResponse" }
+        "400":
+          description: The body is not JSON or not sent as `application/json` (`invalid_json`), or a field is invalid (`validation_failed`). Every invalid field is reported at once; a missing or unknown `timeZone` is reported on its own.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              examples:
+                validation:
+                  value:
+                    error:
+                      code: validation_failed
+                      message: Check the highlighted fields.
+                      fields:
+                        name: Enter a name.
+                        purchaseDate: Purchase date can’t be in the future.
+                        priceCents: Enter a smaller amount.
+                timeZone:
+                  value:
+                    error:
+                      code: validation_failed
+                      message: Check the highlighted fields.
+                      fields: { timeZone: Your browser’s time zone could not be read. Reload the page and try again. }
+                json:
+                  value: { error: { code: invalid_json, message: Send the request body as JSON. } }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    get:
+      tags: [Items]
+      summary: List the signed-in user's items
+      description: Newest purchase date first, then by name (ignoring case), then in the order the items were added.
+      operationId: listItems
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: The user's items; an empty array for a new account.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Item" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/items/{id}:
+    get:
+      tags: [Items]
+      summary: Get one of the signed-in user's items
+      description: Another user's item, a missing item, and a malformed id all return the same `404`.
+      operationId: getItem
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: The item.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemResponse" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404":
+          description: The user has no item with this id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: { code: not_found, message: Item not found. } }
+        "500": { $ref: "#/components/responses/ServerError" }
+
 components:
   securitySchemes:
     sessionCookie:
@@ -181,6 +288,60 @@ components:
       required: [user]
       properties:
         user: { $ref: "#/components/schemas/User" }
+    DateOnly:
+      type: string
+      format: date
+      description: A calendar date as `YYYY-MM-DD`, with no time or time zone.
+    NewItemRequest:
+      type: object
+      required: [name, purchaseDate, timeZone]
+      properties:
+        name:
+          type: string
+          description: 1–100 characters after trimming; the trimmed name is stored.
+        purchaseDate:
+          allOf: [{ $ref: "#/components/schemas/DateOnly" }]
+          description: On or before today in `timeZone`.
+        priceCents:
+          type: [integer, "null"]
+          minimum: 0
+          maximum: 99999999
+          description: Price in US cents, up to $999,999.99. `null` or omitted means not entered; `0` means free.
+        returnDeadline:
+          oneOf: [{ $ref: "#/components/schemas/DateOnly" }, { type: "null" }]
+          description: On or after the purchase date. `null` or omitted means not set.
+        warrantyExpiration:
+          oneOf: [{ $ref: "#/components/schemas/DateOnly" }, { type: "null" }]
+          description: On or after the purchase date. `null` or omitted means not set.
+        timeZone:
+          type: string
+          description: The user's IANA time zone, such as `America/New_York`, used to find today's date.
+    Item:
+      type: object
+      required: [id, name, purchaseDate, priceCents, returnDeadline, warrantyExpiration, status]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        purchaseDate: { $ref: "#/components/schemas/DateOnly" }
+        priceCents: { type: [integer, "null"] }
+        returnDeadline:
+          oneOf: [{ $ref: "#/components/schemas/DateOnly" }, { type: "null" }]
+        warrantyExpiration:
+          oneOf: [{ $ref: "#/components/schemas/DateOnly" }, { type: "null" }]
+        status: { type: string, enum: [active, returned] }
+      example:
+        id: 9d7a1c52-0d6f-4f4e-8a9b-3c1e2f4a5b6c
+        name: Wool coat
+        purchaseDate: "2026-10-09"
+        priceCents: 18950
+        returnDeadline: "2026-11-08"
+        warrantyExpiration: null
+        status: active
+    ItemResponse:
+      type: object
+      required: [item]
+      properties:
+        item: { $ref: "#/components/schemas/Item" }
     Error:
       type: object
       required: [error]
@@ -191,7 +352,7 @@ components:
           properties:
             code:
               type: string
-              enum: [validation_failed, invalid_json, email_taken, invalid_credentials, unauthenticated, forbidden_origin, server_error]
+              enum: [validation_failed, invalid_json, email_taken, invalid_credentials, unauthenticated, not_found, forbidden_origin, server_error]
             message: { type: string }
             fields:
               type: object
@@ -215,6 +376,12 @@ components:
                     password: Password must be at least 8 characters.
             json:
               value: { error: { code: invalid_json, message: Send the request body as JSON. } }
+    Unauthenticated:
+      description: No valid session.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { error: { code: unauthenticated, message: Sign in to continue. } }
     ForbiddenOrigin:
       description: The request came from another site.
       content:

@@ -89,6 +89,20 @@ describe("item route handlers", () => {
     expect(String(logged.mock.calls[0][0])).not.toContain(USER.email);
   });
 
+  it("answers 401 without a session and 404 for an item the user does not have", async () => {
+    mocks.getRequestUser.mockResolvedValue(null);
+    expect((await create(post(BODY))).status).toBe(401);
+    expect((await list(new NextRequest(`${SITE}/api/items`))).status).toBe(401);
+    expect((await detail(new NextRequest(`${SITE}/api/items/${ITEM_ID}`), params)).status).toBe(401);
+    expect(mocks.createItem).not.toHaveBeenCalled();
+
+    mocks.getRequestUser.mockResolvedValue(USER);
+    mocks.findItem.mockResolvedValue(null);
+    const missing = await detail(new NextRequest(`${SITE}/api/items/${ITEM_ID}`), params);
+    expect(missing.status).toBe(404);
+    expect(mocks.findItem).toHaveBeenCalledWith({}, USER.id, ITEM_ID);
+  });
+
   it("answers a failing session lookup with a 500 too", async () => {
     mocks.getRequestUser.mockRejectedValue(new Error("SESSION_SECRET is not set"));
 
