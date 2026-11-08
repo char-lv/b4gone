@@ -1,4 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Item } from "./item-repository";
 import { ItemDetails } from "./ItemDetails";
 
@@ -41,7 +42,29 @@ describe("ItemDetails", () => {
 
   describe("after a save", () => {
     beforeEach(() => window.history.replaceState(null, "", `/items/${COAT.id}?saved=1`));
-    afterEach(() => window.history.replaceState(null, "", "/"));
+    afterEach(() => {
+      window.history.replaceState(null, "", "/");
+      vi.unstubAllGlobals();
+    });
+
+    // Issue #5: only one confirmation at a time, so the newer message is not read next to a stale one.
+    it.each([
+      ["a status change succeeds", 200, "Marked “Wool coat” as returned."],
+      ["a status change fails", 500, "Couldn’t mark this item as returned. Try again."],
+    ])("hides “Item saved.” when %s", async (_label, status, message) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => new Response(JSON.stringify({ item: { ...COAT, status: "returned" } }), { status })),
+      );
+      const user = userEvent.setup();
+      render(<ItemDetails item={COAT} saved />);
+      await screen.findByText("Item saved.");
+
+      await user.click(screen.getByRole("button", { name: "Mark as returned" }));
+
+      expect(await screen.findByText(message, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByText("Item saved.")).not.toBeInTheDocument();
+    });
 
     it("confirms it in a status region that is already on the page", async () => {
       render(<ItemDetails item={COAT} saved />);
