@@ -16,3 +16,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return serverError("Item lookup", error);
   }
 }
+
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<Response> {
+  throw new Error("Not implemented");
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<Response> {
+  throw new Error("Not implemented");
+}
