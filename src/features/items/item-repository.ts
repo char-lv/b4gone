@@ -50,3 +50,18 @@ export async function findItem(db: Db, ownerId: string, id: string): Promise<Ite
   ]);
   return result.rows[0] ?? null;
 }
+
+/** Replaces every editable field of the owner's item; the status stays as it is. Null when not found. */
+export async function updateItem(db: Db, ownerId: string, id: string, input: NewItemInput): Promise<Item | null> {
+  throw new Error("Not implemented");
+}
+
+/** Sets the owner's item to active or returned. Null when not found. */
+export async function setItemStatus(db: Db, ownerId: string, id: string, status: ItemStatus): Promise<Item | null> {
+  throw new Error("Not implemented");
+}
+
+/** Deletes the owner's item; false when there was nothing to delete. */
+export async function deleteItem(db: Db, ownerId: string, id: string): Promise<boolean> {
+  throw new Error("Not implemented");
+}

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import type { Pool } from "pg";
-import { createItem, findItem, listItems } from "./item-repository";
+import { createItem, deleteItem, findItem, listItems, setItemStatus, updateItem } from "./item-repository";
 
 // The database behavior is covered in tests/integration/item-repository.test.ts. These checks pin the
 // owner predicate and parameters of each query without a database.
@@ -51,5 +51,43 @@ describe("item repository", () => {
     expect(malformed.query).not.toHaveBeenCalled();
 
     await expect(findItem(fakeDb([]).db, OWNER, ITEM_ID)).resolves.toBeNull();
+  });
+
+  it("edits, sets the status, and deletes only through the owner predicate", async () => {
+    const edit = fakeDb([ITEM]);
+    await expect(updateItem(edit.db, OWNER, ITEM_ID, INPUT)).resolves.toEqual(ITEM);
+    expect(edit.query).toHaveBeenCalledWith(expect.stringMatching(/^update items[\s\S]*where id = \$1 and owner_id = \$2/), [
+      ITEM_ID,
+      OWNER,
+      "Wool coat",
+      "2026-10-09",
+      null,
+      "2026-11-08",
+      null,
+    ]);
+
+    const status = fakeDb([ITEM]);
+    await expect(setItemStatus(status.db, OWNER, ITEM_ID, "returned")).resolves.toEqual(ITEM);
+    expect(status.query).toHaveBeenCalledWith(expect.stringContaining("where id = $1 and owner_id = $2"), [
+      ITEM_ID,
+      OWNER,
+      "returned",
+    ]);
+
+    const removal = fakeDb([{ id: ITEM_ID }]);
+    await expect(deleteItem(removal.db, OWNER, ITEM_ID)).resolves.toBe(true);
+    expect(removal.query).toHaveBeenCalledWith(expect.stringMatching(/^delete from items where id = \$1 and owner_id = \$2/), [
+      ITEM_ID,
+      OWNER,
+    ]);
+  });
+
+  it("changes nothing without querying for a malformed id", async () => {
+    const { db, query } = fakeDb([ITEM]);
+
+    await expect(updateItem(db, OWNER, "42", INPUT)).resolves.toBeNull();
+    await expect(setItemStatus(db, OWNER, "42", "active")).resolves.toBeNull();
+    await expect(deleteItem(db, OWNER, "42")).resolves.toBe(false);
+    expect(query).not.toHaveBeenCalled();
   });
 });
