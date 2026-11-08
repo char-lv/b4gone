@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const SECTIONS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/items", label: "Items" },
+  { href: "/subscriptions", label: "Subscriptions" },
 ] as const;
 
 function isCurrent(pathname: string, href: string): boolean {

@@ -158,7 +158,8 @@ test("a failed save keeps the draft, and trying again saves it once", async ({ p
   });
 
   await page.getByRole("button", { name: "Save subscription" }).click();
-  await expect(page.getByRole("alert")).toHaveText(
+  // Next.js also renders an empty role="alert" route announcer, so look inside the form.
+  await expect(page.getByRole("form", { name: "Add subscription" }).getByRole("alert")).toHaveText(
     "Couldn’t save this subscription. Your entries are still here. Select “Save subscription” to try again.",
   );
   await expect(page.getByLabel(/^Service name/)).toHaveValue("News plan");
