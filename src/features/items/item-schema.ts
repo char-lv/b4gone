@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { formatDateOnly, isValidDateOnly } from "@/lib/dates";
-import { MAX_AMOUNT_CENTS, type MoneyErrorCode, type MoneyParseResult, formatUsd, parseUsdToCents } from "@/lib/money";
+import {
+  MAX_AMOUNT_CENTS,
+  type MoneyErrorCode,
+  type MoneyParseResult,
+  centsToInput,
+  formatUsd,
+  parseUsdToCents,
+} from "@/lib/money";
 
 export const ITEM_NAME_MAX = 100;
 
@@ -134,7 +141,13 @@ export function createItemDraftSchema(today: string) {
 
 /** A saved item as edit-form text (issue #5). */
 export function draftFromItem(item: NewItemInput): ItemDraft {
-  throw new Error("Not implemented");
+  return {
+    name: item.name,
+    purchaseDate: item.purchaseDate,
+    price: centsToInput(item.priceCents),
+    returnDeadline: item.returnDeadline ?? "",
+    warrantyExpiration: item.warrantyExpiration ?? "",
+  };
 }
 
 export function validateItemDraft(draft: ItemDraft, today: string): ItemValidationResult {

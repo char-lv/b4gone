@@ -4,33 +4,22 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { BackLink } from "@/components/ui/BackLink";
 import { AddItemForm } from "./AddItemForm";
+import { formRejection, sendItemRequest } from "./item-client";
 import type { NewItemInput } from "./item-schema";
 import { getLocalToday, localTimeZone, useLocalToday } from "./local-today";
 
-const SIGNED_OUT_MESSAGE =
-  "You’ve been signed out. Your entries are still here. Sign in again in a new tab, then select “Save item”.";
-
-/**
- * Saves the item for the signed-in user (issue #4) and resolves with its id. A rejection with
- * fieldErrors shows the server's messages next to the fields, one with formMessage shows that text
- * (a 401, or a time zone the server rejected), and any other rejection shows the retry message.
- */
+/** Saves the item for the signed-in user (issue #4) and resolves with its id. */
 async function saveItem(item: NewItemInput): Promise<string> {
-  const response = await fetch("/api/items", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
+  try {
     // The server checks the purchase date against today in this time zone.
-    body: JSON.stringify({ ...item, timeZone: localTimeZone() }),
-  });
-  const body: unknown = await response.json().catch(() => null);
-  const result = (body ?? {}) as { item?: { id?: unknown }; error?: { fields?: { timeZone?: unknown } } };
-
-  if (response.status === 201 && typeof result.item?.id === "string") return result.item.id;
-  const fields = response.status === 400 ? result.error?.fields : undefined;
-  throw Object.assign(new Error(`The item was not saved (HTTP ${response.status}).`), {
-    fieldErrors: fields,
-    formMessage: response.status === 401 ? SIGNED_OUT_MESSAGE : fields?.timeZone,
-  });
+    const reply = (await sendItemRequest("/api/items", "POST", { ...item, timeZone: localTimeZone() })) as {
+      item?: { id?: unknown };
+    } | null;
+    if (typeof reply?.item?.id === "string") return reply.item.id;
+    throw new Error("The item was saved without an id in the reply.");
+  } catch (error) {
+    throw formRejection(error);
+  }
 }
 
 export function NewItemPanel() {
