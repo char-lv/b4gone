@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { itemNotFound } from "@/features/items/item-api";
 import { setItemStatus, type ItemStatus } from "@/features/items/item-repository";
 import { getRequestUser } from "@/lib/auth/server-session";
 import { getPool } from "@/lib/db/pool";
@@ -27,7 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!status) return apiError(400, "validation_failed", FIELD_ERRORS_MESSAGE, { status: "Choose active or returned." });
 
     const item = await setItemStatus(getPool(), user.id, (await params).id, status);
-    return item ? NextResponse.json({ item }) : apiError(404, "not_found", "Item not found.");
+    return item ? NextResponse.json({ item }) : itemNotFound();
   } catch (error) {
     return serverError("Item status change", error);
   }
