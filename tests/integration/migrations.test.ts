@@ -120,3 +120,130 @@ describe("applyMigrations", () => {
     }
   });
 });
+
+// The items table (issue #4): one owner per item, date-only columns, and the item rules repeated as
+// constraints so a bug in the application cannot store an impossible record.
+describe("items table", () => {
+  let client: Client | undefined;
+
+  beforeAll(async () => {
+    client = new Client({ connectionString: readDatabaseUrl(process.env, "test") });
+    await client.connect();
+    await applyMigrations(client, MIGRATIONS_DIR);
+  });
+
+  afterAll(async () => {
+    await client?.end();
+  });
+
+  function db(): Client {
+    if (!client) throw new Error("The test database connection was not opened.");
+    return client;
+  }
+
+  /** Runs the statements inside a transaction that is always rolled back. */
+  async function inRollback(run: (ownerId: string) => Promise<void>): Promise<void> {
+    await db().query("begin");
+    try {
+      const owner = await db().query<{ id: string }>(
+        "insert into users (email, password_hash) values ($1, $2) returning id",
+        ["items-owner@example.test", "hash"],
+      );
+      await run(owner.rows[0].id);
+    } finally {
+      await db().query("rollback");
+    }
+  }
+
+  async function insertItem(ownerId: string, values: Record<string, unknown>): Promise<void> {
+    const row = { owner_id: ownerId, name: "Wool coat", purchase_date: "2026-10-09", ...values };
+    const columns = Object.keys(row);
+    const placeholders = columns.map((_, index) => `$${index + 1}`);
+    await db().query(
+      `insert into items (${columns.join(", ")}) values (${placeholders.join(", ")})`,
+      Object.values(row),
+    );
+  }
+
+  async function expectRejected(values: Record<string, unknown>, code: string): Promise<void> {
+    await inRollback(async (ownerId) => {
+      await expect(insertItem(ownerId, values)).rejects.toMatchObject({ code });
+    });
+  }
+
+  it("has the item columns with date-only deadlines and integer cents", async () => {
+    const columns = await db().query<{ column_name: string; data_type: string; is_nullable: string }>(
+      `select column_name, data_type, is_nullable from information_schema.columns
+       where table_schema = 'public' and table_name = 'items' order by ordinal_position`,
+    );
+
+    expect(columns.rows).toEqual([
+      { column_name: "id", data_type: "uuid", is_nullable: "NO" },
+      { column_name: "owner_id", data_type: "uuid", is_nullable: "NO" },
+      { column_name: "name", data_type: "text", is_nullable: "NO" },
+      { column_name: "purchase_date", data_type: "date", is_nullable: "NO" },
+      { column_name: "price_cents", data_type: "integer", is_nullable: "YES" },
+      { column_name: "return_deadline", data_type: "date", is_nullable: "YES" },
+      { column_name: "warranty_expiration", data_type: "date", is_nullable: "YES" },
+      { column_name: "status", data_type: "text", is_nullable: "NO" },
+      { column_name: "created_at", data_type: "timestamp with time zone", is_nullable: "NO" },
+      { column_name: "updated_at", data_type: "timestamp with time zone", is_nullable: "NO" },
+    ]);
+  });
+
+  it("starts new items as active and keeps a blank price distinct from zero", async () => {
+    await inRollback(async (ownerId) => {
+      await insertItem(ownerId, { name: "Gift card", price_cents: 0 });
+      await insertItem(ownerId, { name: "Receipt lost" });
+
+      const rows = await db().query<{ name: string; price_cents: number | null; status: string }>(
+        "select name, price_cents, status from items where owner_id = $1 order by name",
+        [ownerId],
+      );
+      expect(rows.rows).toEqual([
+        { name: "Gift card", price_cents: 0, status: "active" },
+        { name: "Receipt lost", price_cents: null, status: "active" },
+      ]);
+    });
+  });
+
+  it("accepts deadlines on the purchase date and the largest price", async () => {
+    await inRollback(async (ownerId) => {
+      await insertItem(ownerId, {
+        price_cents: 99_999_999,
+        return_deadline: "2026-10-09",
+        warranty_expiration: "2026-10-09",
+        status: "returned",
+      });
+    });
+  });
+
+  it.each([
+    ["an owner that does not exist", { owner_id: "00000000-0000-4000-8000-000000000000" }, "23503"],
+    ["an empty name", { name: "" }, "23514"],
+    ["a name over 100 characters", { name: "x".repeat(101) }, "23514"],
+    ["a negative price", { price_cents: -1 }, "23514"],
+    ["a price over $999,999.99", { price_cents: 100_000_000 }, "23514"],
+    ["a return deadline before the purchase", { return_deadline: "2026-10-08" }, "23514"],
+    ["a warranty expiration before the purchase", { warranty_expiration: "2026-10-08" }, "23514"],
+    ["an unknown status", { status: "lost" }, "23514"],
+  ])("rejects %s", async (_label, values, code) => {
+    await expectRejected(values, code);
+  });
+
+  it("counts characters, not bytes, toward the 100-character name limit", async () => {
+    await inRollback(async (ownerId) => {
+      await insertItem(ownerId, { name: "é".repeat(100) });
+    });
+  });
+
+  it("deletes a user's items with the account", async () => {
+    await inRollback(async (ownerId) => {
+      await insertItem(ownerId, {});
+      await db().query("delete from users where id = $1", [ownerId]);
+
+      const left = await db().query("select count(*)::int as count from items where owner_id = $1", [ownerId]);
+      expect(left.rows[0].count).toBe(0);
+    });
+  });
+});

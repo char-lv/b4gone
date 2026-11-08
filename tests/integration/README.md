@@ -10,4 +10,7 @@ Current suites:
 - `migrations.test.ts` checks migration order, idempotence, rollback of a failing file, and the `users` table constraints. Its scratch cases use a separate schema and history table.
 - `auth-api.test.ts` covers registration, sign-in, sign-out, and session lookup, including field errors, duplicate emails, cross-origin requests, tampered or orphaned sessions, two-user isolation, and that passwords and tokens never reach the logs (#2). It deletes only the `@auth-test.example` accounts it creates.
 
-Item and subscription API suites (issues #4, #6, and #7) are not written yet. Each suite must create and clean up its own data in the test database and never connect to `DATABASE_URL`.
+- `item-repository.test.ts` and `items-api.test.ts` cover item persistence and the item API: null versus zero prices, date-only values that do not shift with the session time zone, list order, validation against today in the sent time zone, and two-user ownership (#4). They delete only the `@items-test.example` and `@items-api-test.example` accounts they create; items go with them.
+- `migrations.test.ts` also checks the `items` table constraints (#4), inside transactions that are rolled back.
+
+Subscription API suites (#7) are not written yet. Each suite must create and clean up its own data in the test database and never connect to `DATABASE_URL`.

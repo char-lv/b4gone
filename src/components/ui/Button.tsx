@@ -14,8 +14,11 @@ const VARIANTS: Record<ButtonVariant, string> = {
   secondary: "border-line-button bg-surface text-ink hover:bg-surface-hover",
 };
 
+/** Button styles for other elements, such as a link that starts an action like "Add item". */
+export function buttonClassName(variant: ButtonVariant = "secondary", className?: string): string {
+  return [BASE, VARIANTS[variant], className].filter(Boolean).join(" ");
+}
+
 export function Button({ variant = "secondary", className, type = "button", ...props }: ButtonProps) {
-  return (
-    <button type={type} className={[BASE, VARIANTS[variant], className].filter(Boolean).join(" ")} {...props} />
-  );
+  return <button type={type} className={buttonClassName(variant, className)} {...props} />;
 }

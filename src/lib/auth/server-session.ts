@@ -3,8 +3,10 @@
 import "server-only";
 import { cookies } from "next/headers";
 import type { NextRequest, NextResponse } from "next/server";
+import { cache } from "react";
 import { findUserById, type User } from "@/features/auth/user-repository";
 import { getPool } from "@/lib/db/pool";
+import { isUuid } from "@/lib/uuid";
 import {
   SESSION_COOKIE_NAME,
   createSessionToken,
@@ -12,8 +14,6 @@ import {
   sessionCookieOptions,
   verifySessionToken,
 } from "./session";
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isProduction(): boolean {
   return process.env.NODE_ENV === "production";
@@ -23,7 +23,7 @@ function isProduction(): boolean {
 export async function userFromToken(token: string | undefined): Promise<User | null> {
   if (!token) return null;
   const session = await verifySessionToken(token, readSessionSecret(process.env));
-  if (!session || !UUID.test(session.userId)) return null;
+  if (!session || !isUuid(session.userId)) return null;
   return findUserById(getPool(), session.userId);
 }
 
@@ -32,11 +32,11 @@ export async function getRequestUser(request: NextRequest): Promise<User | null>
   return userFromToken(request.cookies.get(SESSION_COOKIE_NAME)?.value);
 }
 
-/** The signed-in user for a Server Component or page. */
-export async function getCurrentUser(): Promise<User | null> {
+/** The signed-in user for a Server Component; the layout and the page share one lookup per request. */
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const cookieStore = await cookies();
   return userFromToken(cookieStore.get(SESSION_COOKIE_NAME)?.value);
-}
+});
 
 export async function startSession(response: NextResponse, userId: string): Promise<void> {
   const token = await createSessionToken(userId, readSessionSecret(process.env));
