@@ -128,8 +128,9 @@ export function validateNewSubscription(payload: unknown): NewSubscriptionValida
     firstBillingDate: typeof body.firstBillingDate === "string" ? body.firstBillingDate.trim() : "",
   });
   if (data) return { success: true, data };
-  const { amount, ...rest } = errors;
-  return { success: false, fieldErrors: definedOnly({ name: rest.name, amountCents: amount, billingCycle: rest.billingCycle, firstBillingDate: rest.firstBillingDate }) };
+  // The API names the amount field amountCents, after the JSON property it checks.
+  const { amount: amountCents, ...others } = errors;
+  return { success: false, fieldErrors: definedOnly({ name: others.name, amountCents, billingCycle: others.billingCycle, firstBillingDate: others.firstBillingDate }) };
 }
 
 /** A saved subscription as edit-form text. */
