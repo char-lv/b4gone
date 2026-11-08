@@ -23,7 +23,7 @@ tags:
   - name: Accounts
     description: Registration, sign-in, sign-out, and the current session (issue #2).
   - name: Items
-    description: Purchases with return and warranty deadlines, private to the signed-in user (issue #4).
+    description: Purchases with return and warranty deadlines, private to the signed-in user (issues #4 and #5).
 
 paths:
   /api/auth/register:
@@ -219,10 +219,7 @@ paths:
       security:
         - sessionCookie: []
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
+        - $ref: "#/components/parameters/ItemId"
       responses:
         "200":
           description: The item.
@@ -230,12 +227,107 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ItemResponse" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
-        "404":
-          description: The user has no item with this id.
+        "404": { $ref: "#/components/responses/ItemNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    put:
+      tags: [Items]
+      summary: Replace an item's fields
+      description: |
+        Replaces all five editable fields with the same rules as creating an item (issue #5). This
+        is a full replacement: every field must be sent, with `null` to clear an optional one. The
+        status is not changed; use `PUT /api/items/{id}/status` for that.
+      operationId: updateItem
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ItemReplacementRequest" }
+            example:
+              name: Navy wool coat
+              purchaseDate: "2026-10-09"
+              priceCents: null
+              returnDeadline: "2026-11-08"
+              warrantyExpiration: null
+              timeZone: America/New_York
+      responses:
+        "200":
+          description: The updated item.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemResponse" }
+        "400":
+          description: Same as creating an item, plus a field message for each optional field left out of the body.
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
-              example: { error: { code: not_found, message: Item not found. } }
+              example:
+                error:
+                  code: validation_failed
+                  message: Check the highlighted fields.
+                  fields: { warrantyExpiration: "Send this field, or null to leave it empty." }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "404": { $ref: "#/components/responses/ItemNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    delete:
+      tags: [Items]
+      summary: Delete an item
+      description: Deletes the item and, with it, its dashboard deadlines (issue #5). The website asks for confirmation first.
+      operationId: deleteItem
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ItemId"
+      responses:
+        "204":
+          description: Deleted. A second request for the same id returns `404`.
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "404": { $ref: "#/components/responses/ItemNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/items/{id}/status:
+    put:
+      tags: [Items]
+      summary: Mark an item returned, or active again
+      description: |
+        A returned item keeps its record but has no dashboard deadlines; setting it back to `active`
+        restores the deadlines that are still ahead (issue #5). Sending the status the item already
+        has returns `200` with the item and does not count as a change.
+      operationId: setItemStatus
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/ItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ItemStatusRequest" }
+            example: { status: returned }
+      responses:
+        "200":
+          description: The item with its new status.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemResponse" }
+        "400":
+          description: The body is not JSON (`invalid_json`), or `status` is not `active` or `returned` (`validation_failed`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: validation_failed
+                  message: Check the highlighted fields.
+                  fields: { status: Choose active or returned. }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "404": { $ref: "#/components/responses/ItemNotFound" }
         "500": { $ref: "#/components/responses/ServerError" }
 
 components:
@@ -245,6 +337,14 @@ components:
       in: cookie
       name: b4gone_session
       description: Signed HS256 JWT set by register or login. Valid for 7 days.
+
+  parameters:
+    ItemId:
+      name: id
+      in: path
+      required: true
+      description: Another user's item, a missing item, and a malformed id all return the same `404`.
+      schema: { type: string, format: uuid }
 
   headers:
     SessionCookie:
@@ -316,6 +416,16 @@ components:
         timeZone:
           type: string
           description: The user's IANA time zone, such as `America/New_York`, used to find today's date.
+    ItemReplacementRequest:
+      description: The same fields as a new item, all required; `null` clears an optional field.
+      allOf:
+        - $ref: "#/components/schemas/NewItemRequest"
+        - required: [name, purchaseDate, priceCents, returnDeadline, warrantyExpiration, timeZone]
+    ItemStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [active, returned] }
     Item:
       type: object
       required: [id, name, purchaseDate, priceCents, returnDeadline, warrantyExpiration, status]
@@ -388,6 +498,12 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
           example: { error: { code: forbidden_origin, message: This request must come from the B4Gone site. } }
+    ItemNotFound:
+      description: The user has no item with this id.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { error: { code: not_found, message: Item not found. } }
     ServerError:
       description: An unexpected failure, such as an unreachable database. Details are never returned.
       content:
