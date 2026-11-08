@@ -124,6 +124,12 @@ describe("validateItemDraft", () => {
     it.each([
       ["-5", "Price can’t be negative."],
       ["$5", "Use digits only, like 1299.99, without $ or commas."],
+      // Commas are refused, never stripped, so a mistyped separator cannot change the amount (#6).
+      ["1,,2", "Use digits only, like 1299.99, without $ or commas."],
+      ["1,2", "Use digits only, like 1299.99, without $ or commas."],
+      ["1,299.99", "Use digits only, like 1299.99, without $ or commas."],
+      ["1..2", "Enter a price like 49.99, or leave it blank."],
+      ["0.1.2", "Enter a price like 49.99, or leave it blank."],
       ["5.999", "Use no more than two decimal places."],
       ["five", "Enter a price like 49.99, or leave it blank."],
       ["99999999999999999", "Enter an amount up to $999,999.99."],

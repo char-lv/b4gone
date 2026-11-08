@@ -241,6 +241,20 @@ describe("ownership of changes", () => {
     expect(await updatedAt(janesCoat.id)).toEqual(before);
   });
 
+  // Issue #6: restoring is the same call with "active", so check it on a returned item.
+  it("never restores another owner's returned item", async () => {
+    const jane = await createOwner("jane");
+    const sam = await createOwner("sam");
+    const janesCoat = await createItem(getPool(), jane, COAT);
+    const returned = await setItemStatus(getPool(), jane, janesCoat.id, "returned");
+    const before = await ageItem(janesCoat.id);
+
+    expect(await setItemStatus(getPool(), sam, janesCoat.id, "active")).toBeNull();
+
+    expect(await findItem(getPool(), jane, janesCoat.id)).toEqual(returned);
+    expect(await updatedAt(janesCoat.id)).toEqual(before);
+  });
+
   it.each(["not-a-uuid", "00000000-0000-4000-8000-000000000000", "' or 1=1 --"])(
     "changes nothing for the id %j",
     async (id) => {
