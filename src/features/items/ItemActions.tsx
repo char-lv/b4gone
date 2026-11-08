@@ -14,7 +14,7 @@ import { useMountedRef } from "./use-mounted-ref";
 
 type ActionError = { message: string; link?: { href: string; label: string } };
 
-const SIGNED_OUT_MESSAGE = "You’ve been signed out. Sign in again in a new tab, then try again.";
+const ACTION_SIGNED_OUT_MESSAGE = "You’ve been signed out. Sign in again in a new tab, then try again.";
 
 function deadlines(count: number): string {
   return `${count} ${count === 1 ? "deadline" : "deadlines"}`;
@@ -33,7 +33,7 @@ function restoredMessage(name: string, count: number): string {
 }
 
 function actionError(error: unknown, fallback: string): ActionError {
-  if (error instanceof ItemRequestError && error.status === 401) return { message: SIGNED_OUT_MESSAGE };
+  if (error instanceof ItemRequestError && error.status === 401) return { message: ACTION_SIGNED_OUT_MESSAGE };
   if (error instanceof ItemRequestError && error.status === 404) return { message: ITEM_GONE_MESSAGE, link: ITEMS_LINK };
   return { message: fallback };
 }
