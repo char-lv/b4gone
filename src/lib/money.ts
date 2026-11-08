@@ -35,5 +35,6 @@ export function formatUsd(cents: number): string {
 
 /** Stored cents as edit-form text: 18950 becomes "189.50", zero stays "0.00", and no price is blank. */
 export function centsToInput(cents: number | null): string {
-  throw new Error("Not implemented");
+  if (cents === null) return "";
+  return `${Math.floor(cents / 100)}.${String(cents % 100).padStart(2, "0")}`;
 }

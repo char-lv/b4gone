@@ -20,7 +20,24 @@ export type ItemDeadline = {
   date: string;
 };
 
+const KIND_ORDER: Record<DeadlineKind, number> = { return: 0, warranty: 1 };
+
 /** Deadlines on or after `today` for active items; returned items have none (US-04). */
 export function itemDeadlines(items: readonly DeadlineItem[], today: string): ItemDeadline[] {
-  throw new Error("Not implemented");
+  const deadlines: ItemDeadline[] = [];
+  for (const item of items) {
+    if (item.status !== "active") continue;
+    if (item.returnDeadline && item.returnDeadline >= today) {
+      deadlines.push({ itemId: item.id, name: item.name, kind: "return", date: item.returnDeadline });
+    }
+    if (item.warrantyExpiration && item.warrantyExpiration >= today) {
+      deadlines.push({ itemId: item.id, name: item.name, kind: "warranty", date: item.warrantyExpiration });
+    }
+  }
+  return deadlines.sort(
+    (a, b) =>
+      a.date.localeCompare(b.date) ||
+      KIND_ORDER[a.kind] - KIND_ORDER[b.kind] ||
+      a.name.localeCompare(b.name, "en-US"),
+  );
 }

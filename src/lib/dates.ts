@@ -52,22 +52,42 @@ export function formatDateOnly(value: string): string {
   return `${MONTHS_SHORT[month - 1]} ${day}, ${year}`;
 }
 
+export const DASHBOARD_WINDOW_DAYS = 30;
+export const URGENT_DAYS = 7;
+
+/** Days since 1970-01-01 in the proleptic Gregorian calendar, without Date (which maps years 0-99 to 1900s). */
+function dayNumber(value: string): number {
+  const [year, month, day] = value.split("-").map(Number);
+  // Count March as the first month so the leap day falls at the end of the shifted year.
+  const y = month <= 2 ? year - 1 : year;
+  const era = Math.floor(y / 400);
+  const yearOfEra = y - era * 400;
+  const dayOfYear = Math.floor((153 * (month + (month > 2 ? -3 : 9)) + 2) / 5) + day - 1;
+  const dayOfEra = yearOfEra * 365 + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100) + dayOfYear;
+  return era * 146097 + dayOfEra - 719468;
+}
+
 /** Calendar days from `today` to `date`: 0 for today, negative for past dates. */
 export function daysUntil(date: string, today: string): number {
-  throw new Error("Not implemented");
+  return dayNumber(date) - dayNumber(today);
 }
 
 /** Dashboard reminders cover today through day 30 inclusive. */
 export function isInDashboardWindow(date: string, today: string): boolean {
-  throw new Error("Not implemented");
+  const days = daysUntil(date, today);
+  return days >= 0 && days <= DASHBOARD_WINDOW_DAYS;
 }
 
 /** Deadlines on days 0-7 inclusive are urgent. */
 export function isUrgent(days: number): boolean {
-  throw new Error("Not implemented");
+  return days >= 0 && days <= URGENT_DAYS;
 }
 
 /** Text for a deadline's distance from today, such as "Due today" or "In 3 days". */
 export function relativeDayText(days: number): string {
-  throw new Error("Not implemented");
+  if (days === 0) return "Due today";
+  if (days === 1) return "Due tomorrow";
+  if (days > 1) return `In ${days} days`;
+  if (days === -1) return "Passed yesterday";
+  return `Passed ${-days} days ago`;
 }
