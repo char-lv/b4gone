@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AddItemForm } from "./AddItemForm";
 
@@ -222,5 +222,44 @@ describe("AddItemForm", () => {
     expect(screen.getByText("Fix 1 field to save this item.")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+  });
+
+  // Issue #5: the same form edits a saved item.
+  it("starts from the given values when editing", () => {
+    render(
+      <AddItemForm
+        getToday={() => today}
+        onSubmit={vi.fn()}
+        initialDraft={{
+          name: "Wool coat",
+          purchaseDate: "2026-10-09",
+          price: "0.00",
+          returnDeadline: "",
+          warrantyExpiration: "2027-10-09",
+        }}
+      />,
+    );
+
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("Wool coat");
+    expect(screen.getByLabelText(/^Purchase date/)).toHaveValue("2026-10-09");
+    expect(screen.getByLabelText(/^Price/)).toHaveValue("0.00");
+    expect(screen.getByLabelText(/^Return deadline/)).toHaveValue("");
+    expect(screen.getByLabelText(/^Warranty expiration/)).toHaveValue("2027-10-09");
+  });
+
+  it("shows a link next to the message when a rejected save offers one", async () => {
+    const rejection = Object.assign(new Error("Not found"), {
+      formMessage: "This item no longer exists.",
+      formLink: { href: "/items", label: "Go to your items" },
+    });
+    const { user } = renderForm(vi.fn().mockRejectedValue(rejection));
+
+    await user.type(screen.getByLabelText(/^Name/), "Wool coat");
+    await user.type(screen.getByLabelText(/^Purchase date/), "2026-10-09");
+    await user.click(screen.getByRole("button", { name: "Save item" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("This item no longer exists.");
+    expect(within(alert).getByRole("link", { name: "Go to your items" })).toHaveAttribute("href", "/items");
   });
 });

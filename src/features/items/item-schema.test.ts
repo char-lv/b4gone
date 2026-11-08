@@ -1,4 +1,4 @@
-import { type ItemDraft, validateItemDraft } from "./item-schema";
+import { type ItemDraft, draftFromItem, validateItemDraft } from "./item-schema";
 
 const today = "2026-10-23";
 
@@ -173,5 +173,36 @@ describe("validateItemDraft", () => {
   it("rejects non-string input from untrusted callers", () => {
     const result = validateItemDraft({ ...draft(), name: 42 } as unknown as ItemDraft, today);
     expect(result.success).toBe(false);
+  });
+});
+
+// Issue #5: the edit form opens with the saved values.
+describe("draftFromItem", () => {
+  it("turns a saved item into form text that validates back to the same item", () => {
+    const item = {
+      name: "Wool coat",
+      purchaseDate: "2026-10-09",
+      priceCents: 18950,
+      returnDeadline: "2026-11-08",
+      warrantyExpiration: null,
+    };
+
+    const draft = draftFromItem(item);
+
+    expect(draft).toEqual({
+      name: "Wool coat",
+      purchaseDate: "2026-10-09",
+      price: "189.50",
+      returnDeadline: "2026-11-08",
+      warrantyExpiration: "",
+    });
+    expect(validateItemDraft(draft, "2026-10-23")).toEqual({ success: true, data: item });
+  });
+
+  it("keeps a free item at 0.00 and an unknown price blank", () => {
+    const item = { name: "Pen", purchaseDate: "2026-10-09", returnDeadline: null, warrantyExpiration: null };
+
+    expect(draftFromItem({ ...item, priceCents: 0 }).price).toBe("0.00");
+    expect(draftFromItem({ ...item, priceCents: null }).price).toBe("");
   });
 });

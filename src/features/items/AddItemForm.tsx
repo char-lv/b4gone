@@ -32,6 +32,8 @@ type AddItemFormProps = {
   onCancel?: () => void;
   /** The id of the heading that names the form. */
   labelledBy?: string;
+  /** The values the form starts with, such as a saved item when editing; empty when omitted. */
+  initialDraft?: ItemDraft;
 };
 
 const EMPTY_DRAFT: ItemDraft = {

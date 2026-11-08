@@ -132,6 +132,11 @@ export function createItemDraftSchema(today: string) {
     });
 }
 
+/** A saved item as edit-form text (issue #5). */
+export function draftFromItem(item: NewItemInput): ItemDraft {
+  throw new Error("Not implemented");
+}
+
 export function validateItemDraft(draft: ItemDraft, today: string): ItemValidationResult {
   const result = createItemDraftSchema(today).safeParse(draft);
   if (result.success) return { success: true, data: result.data };
