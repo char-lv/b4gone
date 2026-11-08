@@ -1,4 +1,4 @@
-import { formatUsd, parseUsdToCents } from "./money";
+import { centsToInput, formatUsd, parseUsdToCents } from "./money";
 
 describe("parseUsdToCents", () => {
   it("treats blank input as no amount, distinct from zero", () => {
@@ -52,5 +52,22 @@ describe("formatUsd", () => {
     [100000000, "$1,000,000.00"],
   ])("formats %i cents as %s", (cents, text) => {
     expect(formatUsd(cents)).toBe(text);
+  });
+});
+
+describe("centsToInput", () => {
+  it("fills the edit form with plain digits that parse back to the same cents", () => {
+    expect(centsToInput(18950)).toBe("189.50");
+    expect(centsToInput(1)).toBe("0.01");
+    expect(centsToInput(129999)).toBe("1299.99");
+    expect(centsToInput(99_999_999)).toBe("999999.99");
+    for (const cents of [0, 1, 99, 100, 18950, 99_999_999]) {
+      expect(parseUsdToCents(centsToInput(cents))).toEqual({ ok: true, cents });
+    }
+  });
+
+  it("keeps zero as a real amount and no price as a blank field", () => {
+    expect(centsToInput(0)).toBe("0.00");
+    expect(centsToInput(null)).toBe("");
   });
 });

@@ -32,3 +32,8 @@ export function formatUsd(cents: number): string {
   const dollars = Math.floor(cents / 100).toLocaleString("en-US");
   return `$${dollars}.${String(cents % 100).padStart(2, "0")}`;
 }
+
+/** Stored cents as edit-form text: 18950 becomes "189.50", zero stays "0.00", and no price is blank. */
+export function centsToInput(cents: number | null): string {
+  throw new Error("Not implemented");
+}

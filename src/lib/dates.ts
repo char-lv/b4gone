@@ -51,3 +51,23 @@ export function formatDateOnly(value: string): string {
   const [year, month, day] = value.split("-").map(Number);
   return `${MONTHS_SHORT[month - 1]} ${day}, ${year}`;
 }
+
+/** Calendar days from `today` to `date`: 0 for today, negative for past dates. */
+export function daysUntil(date: string, today: string): number {
+  throw new Error("Not implemented");
+}
+
+/** Dashboard reminders cover today through day 30 inclusive. */
+export function isInDashboardWindow(date: string, today: string): boolean {
+  throw new Error("Not implemented");
+}
+
+/** Deadlines on days 0-7 inclusive are urgent. */
+export function isUrgent(days: number): boolean {
+  throw new Error("Not implemented");
+}
+
+/** Text for a deadline's distance from today, such as "Due today" or "In 3 days". */
+export function relativeDayText(days: number): string {
+  throw new Error("Not implemented");
+}
