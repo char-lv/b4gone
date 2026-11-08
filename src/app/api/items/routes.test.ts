@@ -7,18 +7,25 @@ const mocks = vi.hoisted(() => ({
   createItem: vi.fn(),
   listItems: vi.fn(),
   findItem: vi.fn(),
+  updateItem: vi.fn(),
+  setItemStatus: vi.fn(),
+  deleteItem: vi.fn(),
   getRequestUser: vi.fn(),
 }));
 vi.mock("@/features/items/item-repository", () => ({
   createItem: mocks.createItem,
   listItems: mocks.listItems,
   findItem: mocks.findItem,
+  updateItem: mocks.updateItem,
+  setItemStatus: mocks.setItemStatus,
+  deleteItem: mocks.deleteItem,
 }));
 vi.mock("@/lib/auth/server-session", () => ({ getRequestUser: mocks.getRequestUser }));
 vi.mock("@/lib/db/pool", () => ({ getPool: () => ({}) }));
 
 const { GET: list, POST: create } = await import("./route");
-const { GET: detail } = await import("./[id]/route");
+const { DELETE: remove, GET: detail, PUT: edit } = await import("./[id]/route");
+const { PUT: setStatus } = await import("./[id]/status/route");
 
 const SITE = "https://b4gone.example";
 const USER = { id: "4b3f3f0c-6a51-4c39-9a64-2f0f6f1d8e21", email: "jane@example.com" };
@@ -34,6 +41,15 @@ function post(body: unknown): NextRequest {
 }
 
 const params = { params: Promise.resolve({ id: ITEM_ID }) };
+const FULL_BODY = { ...BODY, returnDeadline: null, warrantyExpiration: null };
+
+function send(method: "PUT" | "DELETE", path: string, body?: unknown): NextRequest {
+  return new NextRequest(`${SITE}${path}`, {
+    method,
+    headers: { "content-type": "application/json", origin: SITE },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+}
 
 describe("item route handlers", () => {
   let logged: ReturnType<typeof vi.spyOn>;
@@ -78,6 +94,13 @@ describe("item route handlers", () => {
     ["POST /api/items", () => create(post(BODY)), mocks.createItem],
     ["GET /api/items", () => list(new NextRequest(`${SITE}/api/items`)), mocks.listItems],
     ["GET /api/items/:id", () => detail(new NextRequest(`${SITE}/api/items/${ITEM_ID}`), params), mocks.findItem],
+    ["PUT /api/items/:id", () => edit(send("PUT", `/api/items/${ITEM_ID}`, FULL_BODY), params), mocks.updateItem],
+    ["DELETE /api/items/:id", () => remove(send("DELETE", `/api/items/${ITEM_ID}`), params), mocks.deleteItem],
+    [
+      "PUT /api/items/:id/status",
+      () => setStatus(send("PUT", `/api/items/${ITEM_ID}/status`, { status: "returned" }), params),
+      mocks.setItemStatus,
+    ],
   ])("%s answers a database failure with a generic 500 and logs only the error name", async (_label, call, query) => {
     query.mockRejectedValue(Object.assign(new Error(`connection to db.example failed for ${USER.email}`), { name: "DatabaseError" }));
 
@@ -108,5 +131,30 @@ describe("item route handlers", () => {
 
     expect((await list(new NextRequest(`${SITE}/api/items`))).status).toBe(500);
     expect((await detail(new NextRequest(`${SITE}/api/items/${ITEM_ID}`), params)).status).toBe(500);
+  });
+
+  // Issue #5, added after the handlers were written: the owner always comes from the session.
+  it("edits, sets the status, and deletes with the session user's id", async () => {
+    mocks.updateItem.mockResolvedValue({ id: ITEM_ID });
+    mocks.setItemStatus.mockResolvedValue({ id: ITEM_ID, status: "returned" });
+    mocks.deleteItem.mockResolvedValue(true);
+
+    expect((await edit(send("PUT", `/api/items/${ITEM_ID}`, { ...FULL_BODY, ownerId: "x" }), params)).status).toBe(200);
+    expect(mocks.updateItem).toHaveBeenCalledWith({}, USER.id, ITEM_ID, expect.objectContaining({ name: "Wool coat" }));
+    expect((await setStatus(send("PUT", `/api/items/${ITEM_ID}/status`, { status: "returned" }), params)).status).toBe(200);
+    expect(mocks.setItemStatus).toHaveBeenCalledWith({}, USER.id, ITEM_ID, "returned");
+    expect((await remove(send("DELETE", `/api/items/${ITEM_ID}`), params)).status).toBe(204);
+    expect(mocks.deleteItem).toHaveBeenCalledWith({}, USER.id, ITEM_ID);
+  });
+
+  it("answers a JSON body that is not an object with field errors for an edit and a status change", async () => {
+    const edited = await edit(send("PUT", `/api/items/${ITEM_ID}`, ["not", "an", "item"]), params);
+    const status = await setStatus(send("PUT", `/api/items/${ITEM_ID}/status`, "returned"), params);
+
+    expect(edited.status).toBe(400);
+    expect(status.status).toBe(400);
+    expect(await status.json()).toMatchObject({ error: { fields: { status: "Choose active or returned." } } });
+    expect(mocks.updateItem).not.toHaveBeenCalled();
+    expect(mocks.setItemStatus).not.toHaveBeenCalled();
   });
 });
