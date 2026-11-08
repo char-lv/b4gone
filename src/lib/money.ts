@@ -28,6 +28,16 @@ export function parseUsdToCents(raw: string): MoneyParseResult {
   return { ok: true, cents };
 }
 
+/** Checks cents sent to the API the way parseUsdToCents checks typed text; null or absent means no amount. */
+export function parseStoredCents(value: unknown): MoneyParseResult {
+  if (value === null || value === undefined) return { ok: true, cents: null };
+  if (typeof value !== "number" || !Number.isFinite(value)) return { ok: false, code: "format" };
+  if (value < 0) return { ok: false, code: "negative" };
+  if (!Number.isInteger(value)) return { ok: false, code: "format" };
+  if (value > MAX_AMOUNT_CENTS) return { ok: false, code: "too_large" };
+  return { ok: true, cents: value };
+}
+
 export function formatUsd(cents: number): string {
   const dollars = Math.floor(cents / 100).toLocaleString("en-US");
   return `$${dollars}.${String(cents % 100).padStart(2, "0")}`;
