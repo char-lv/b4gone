@@ -416,8 +416,11 @@ describe("PUT /api/subscriptions/{id}/status", () => {
     expect(await stored(saved.id)).toMatchObject({ status: "cancelled", anchor: "2026-01-31" });
 
     // A month later the Jan 31 anchor gives Nov 30, then Dec 31: never a date carried over from a clamp.
-    vi.setSystemTime(new Date("2026-11-20T12:00:00Z"));
-    const reactivated = await setStatus(saved.id, { status: "active", timeZone: NEW_YORK }, { cookie: jane.cookie });
+    // Sessions last seven days, so Jane signs in again at the later time.
+    const later = new Date("2026-11-20T12:00:00Z");
+    vi.setSystemTime(later);
+    const cookie = `${SESSION_COOKIE_NAME}=${await createSessionToken(jane.id, readSessionSecret(process.env), later)}`;
+    const reactivated = await setStatus(saved.id, { status: "active", timeZone: NEW_YORK }, { cookie });
     expect(await json(reactivated)).toMatchObject({
       subscription: { status: "active", firstBillingDate: "2026-01-31", nextBillingDate: "2026-11-30" },
     });
