@@ -521,4 +521,18 @@ describe("changes to another user's item", () => {
     expect(await stored(jane, coat.item.id)).toEqual(coat);
     expect(await countItems(sam.id)).toBe(0);
   });
+
+  // Issue #6: restoring is the same request with "active", so check it on a returned item too.
+  it("do not let another user restore a returned item", async () => {
+    const jane = await createAccount("jane");
+    const sam = await createAccount("sam");
+    const coat = await saveCoat(jane);
+    await status(coat.item.id, { status: "returned" }, { cookie: jane.cookie });
+
+    const restored = await status(coat.item.id, { status: "active" }, { cookie: sam.cookie });
+
+    expect(restored.status).toBe(404);
+    expect(await json(restored)).toEqual({ error: { code: "not_found", message: "Item not found." } });
+    expect(await stored(jane, coat.item.id)).toEqual({ item: { ...coat.item, status: "returned" } });
+  });
 });
