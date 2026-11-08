@@ -1,27 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
 import { BackLink } from "@/components/ui/BackLink";
 import { AddItemForm } from "./AddItemForm";
 import { formRejection, sendItemRequest } from "./item-client";
 import type { Item } from "./item-repository";
 import { type NewItemInput, draftFromItem } from "./item-schema";
 import { getLocalToday, localTimeZone, useLocalToday } from "./local-today";
+import { useMountedRef } from "./use-mounted-ref";
 
 /** The edit form for a saved item (issue #5): the add form's fields and rules, starting from the saved values. */
 export function EditItemPanel({ item }: { item: Item }) {
   const router = useRouter();
   const today = useLocalToday();
   const detailsPath = `/items/${item.id}`;
-  // False once the user has left this page, for example through the navigation while a save is pending.
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+  const mounted = useMountedRef();
 
   async function handleSubmit(input: NewItemInput): Promise<void> {
     try {

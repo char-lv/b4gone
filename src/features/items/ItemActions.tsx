@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Button, buttonClassName } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ITEM_GONE_MESSAGE, ITEMS_LINK, ItemRequestError, sendItemRequest } from "./item-client";
 import { dashboardDeadlines } from "./item-deadlines";
 import type { Item } from "./item-repository";
 import { useLocalToday } from "./local-today";
+import { useMountedRef } from "./use-mounted-ref";
 
 type ActionError = { message: string; link?: { href: string; label: string } };
 
@@ -75,14 +76,7 @@ export function ItemActions({ item }: { item: Item }) {
   const deleteBusy = useRef(false);
   const [deleteError, setDeleteError] = useState<ActionError | null>(null);
 
-  // False once the user has left this page, for example through the navigation while a delete is pending.
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+  const mounted = useMountedRef();
 
   async function toggleStatus() {
     if (statusBusy.current || refreshing) return;

@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
 import { BackLink } from "@/components/ui/BackLink";
 import { AddItemForm } from "./AddItemForm";
 import { formRejection, sendItemRequest } from "./item-client";
 import type { NewItemInput } from "./item-schema";
 import { getLocalToday, localTimeZone, useLocalToday } from "./local-today";
+import { useMountedRef } from "./use-mounted-ref";
 
 /** Saves the item for the signed-in user (issue #4) and resolves with its id. */
 async function saveItem(item: NewItemInput): Promise<string> {
@@ -26,14 +26,7 @@ export function NewItemPanel() {
   const router = useRouter();
   // Re-renders when the local date changes so the purchase date limit follows the clock.
   const today = useLocalToday();
-  // False once the user has left this page, for example through the navigation while a save is pending.
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+  const mounted = useMountedRef();
 
   async function handleSubmit(item: NewItemInput): Promise<void> {
     const id = await saveItem(item);
