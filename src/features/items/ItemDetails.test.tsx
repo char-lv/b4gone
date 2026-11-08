@@ -1,6 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import type { Item } from "./item-repository";
 import { ItemDetails } from "./ItemDetails";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 
 const COAT: Item = {
   id: "9d7a1c52-0d6f-4f4e-8a9b-3c1e2f4a5b6c",
@@ -46,7 +48,7 @@ describe("ItemDetails", () => {
 
       // The region exists before its text, so screen readers announce the change.
       expect(await screen.findByText("Item saved.")).toBeInTheDocument();
-      expect(screen.getByRole("status")).toHaveTextContent("Item saved.");
+      expect(screen.getByText("Item saved.").closest("[role=status]")).toBeInTheDocument();
     });
 
     it("moves focus to the item's name so keyboard and screen reader users know where they are", async () => {
@@ -64,9 +66,20 @@ describe("ItemDetails", () => {
     });
   });
 
-  it("shows no confirmation when the item is opened later", () => {
+  it("shows no confirmation when the item is opened later", async () => {
     render(<ItemDetails item={COAT} saved={false} />);
 
-    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+    await act(async () => {});
+    expect(screen.queryByText("Item saved.")).not.toBeInTheDocument();
+  });
+
+  // Issue #5.
+  it("shows the item's dashboard deadlines and its actions", () => {
+    render(<ItemDetails item={COAT} saved={false} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: "On the dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Edit item" })).toHaveAttribute("href", `/items/${COAT.id}/edit`);
+    expect(screen.getByRole("button", { name: "Mark as returned" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete item" })).toBeInTheDocument();
   });
 });

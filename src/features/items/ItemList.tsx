@@ -33,7 +33,7 @@ function AddItemLink() {
   );
 }
 
-export function ItemList({ items }: { items: Item[] }) {
+export function ItemList({ items }: { items: Item[]; deleted?: boolean }) {
   const returned = items.filter((item) => item.status === "returned").length;
 
   return (
