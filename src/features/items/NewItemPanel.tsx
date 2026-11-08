@@ -1,40 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef } from "react";
 import { BackLink } from "@/components/ui/BackLink";
-import { todayInTimeZone } from "@/lib/dates";
 import { AddItemForm } from "./AddItemForm";
 import type { NewItemInput } from "./item-schema";
-
-// How often an open page checks whether the local date has changed, such as at midnight.
-const DATE_CHECK_INTERVAL_MS = 30_000;
-
-function subscribeToLocalDate(onChange: () => void): () => void {
-  const interval = setInterval(onChange, DATE_CHECK_INTERVAL_MS);
-  // Timers pause while a laptop sleeps, so also check when the page becomes visible again.
-  window.addEventListener("focus", onChange);
-  document.addEventListener("visibilitychange", onChange);
-  return () => {
-    clearInterval(interval);
-    window.removeEventListener("focus", onChange);
-    document.removeEventListener("visibilitychange", onChange);
-  };
-}
-
-function localTimeZone(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-/** The user's current local calendar date, read from the clock each time it is called. */
-function getLocalToday(): string {
-  return todayInTimeZone(localTimeZone(), new Date());
-}
-
-// The server cannot know the user's time zone, so "today" is only known in the browser.
-function getServerToday(): null {
-  return null;
-}
+import { getLocalToday, localTimeZone, useLocalToday } from "./local-today";
 
 const SIGNED_OUT_MESSAGE =
   "You’ve been signed out. Your entries are still here. Sign in again in a new tab, then select “Save item”.";
@@ -65,7 +36,7 @@ async function saveItem(item: NewItemInput): Promise<string> {
 export function NewItemPanel() {
   const router = useRouter();
   // Re-renders when the local date changes so the purchase date limit follows the clock.
-  const today = useSyncExternalStore(subscribeToLocalDate, getLocalToday, getServerToday);
+  const today = useLocalToday();
   // False once the user has left this page, for example through the navigation while a save is pending.
   const mounted = useRef(true);
   useEffect(() => {
