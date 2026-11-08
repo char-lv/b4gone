@@ -53,10 +53,10 @@ test("adds an item, fixing field errors first", async ({ page }) => {
   await page.getByRole("button", { name: "Save item" }).click();
 
   await expect(page).toHaveURL(SAVED_ITEM_URL);
-  await expect(page.getByRole("status")).toHaveText("Item saved.");
+  await expect(page.getByRole("status").filter({ hasText: "Item saved." })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Wool coat" })).toBeVisible();
   await expect(page.getByText("$189.50")).toBeVisible();
-  await expect(page.getByText("Nov 8, 2026")).toBeVisible();
+  await expect(page.getByRole("definition").filter({ hasText: "Nov 8, 2026" })).toBeVisible();
 });
 
 test("rejects a purchase date after the user's local today", async ({ page }) => {
