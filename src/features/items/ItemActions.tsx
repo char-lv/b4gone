@@ -9,6 +9,7 @@ import { ITEM_GONE_MESSAGE, ITEMS_LINK, ItemRequestError, sendItemRequest } from
 import { dashboardDeadlines } from "./item-deadlines";
 import type { Item } from "./item-repository";
 import { useLocalToday } from "./local-today";
+import { useNoticeScope } from "./NoticeScope";
 import { useMountedRef } from "./use-mounted-ref";
 
 type ActionError = { message: string; link?: { href: string; label: string } };
@@ -77,6 +78,7 @@ export function ItemActions({ item }: { item: Item }) {
   const [deleteError, setDeleteError] = useState<ActionError | null>(null);
 
   const mounted = useMountedRef();
+  const { hideFlash } = useNoticeScope();
 
   async function toggleStatus() {
     if (statusBusy.current || refreshing) return;
@@ -86,10 +88,12 @@ export function ItemActions({ item }: { item: Item }) {
     setStatusError(null);
     try {
       await sendItemRequest(`/api/items/${item.id}/status`, "PUT", { status: active ? "returned" : "active" });
+      hideFlash();
       setNotice(active ? returnedMessage(item.name, activeDeadlineCount) : restoredMessage(item.name, activeDeadlineCount));
       // The button stays pending until the refreshed item arrives with its new status.
       startRefresh(() => router.refresh());
     } catch (error) {
+      hideFlash();
       setStatusError(actionError(error, active ? "Couldn’t mark this item as returned. Try again." : "Couldn’t undo the return. Try again."));
     } finally {
       statusBusy.current = false;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useNoticeScope } from "./NoticeScope";
 
 type FlashNoticeProps = {
   /** True when the page was opened with ?{param}=1. */
@@ -19,6 +20,8 @@ type FlashNoticeProps = {
  */
 export function FlashNotice({ show, param, message, focusId }: FlashNoticeProps) {
   const [shown, setShown] = useState(false);
+  // A later message on the same page replaces this one.
+  const { flashHidden } = useNoticeScope();
 
   useEffect(() => {
     if (!show) return;
@@ -35,7 +38,7 @@ export function FlashNotice({ show, param, message, focusId }: FlashNoticeProps)
 
   return (
     <div role="status" aria-live="polite">
-      {shown ? (
+      {shown && !flashHidden ? (
         <p className="mb-5 max-w-[46rem] rounded-control border border-accent-line bg-accent-soft px-4 py-3 text-[0.9375rem]">
           {message}
         </p>

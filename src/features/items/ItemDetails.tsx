@@ -8,6 +8,7 @@ import { ITEM_STATUS_LABELS, ItemStatusTag } from "./ItemStatusTag";
 import { FlashNotice } from "./FlashNotice";
 import { ItemActions } from "./ItemActions";
 import { ItemDashboardDeadlines } from "./ItemDashboardDeadlines";
+import { NoticeScope } from "./NoticeScope";
 
 function NotSet({ children }: { children: string }) {
   return <span className="text-muted">{children}</span>;
@@ -26,7 +27,7 @@ function Row({ term, children }: { term: string; children: ReactNode }) {
 
 export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
   return (
-    <>
+    <NoticeScope>
       <BackLink href="/items">Back to items</BackLink>
 
       <FlashNotice show={saved} param="saved" message="Item saved." focusId="item-title" />
@@ -53,6 +54,6 @@ export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
 
       <ItemDashboardDeadlines item={item} />
       <ItemActions item={item} />
-    </>
+    </NoticeScope>
   );
 }
