@@ -43,7 +43,7 @@ function DeadlineText({ item, today }: { item: Item; today: string | null }) {
   if (deadlines.length === 0) return <p className="text-muted">None of this item’s dates fall in the next 30 days.</p>;
 
   return (
-    <ul className="grid gap-1.5">
+    <ul className="grid list-disc gap-1 pl-5">
       {deadlines.map((deadline) => {
         const days = daysUntil(deadline.date, today);
         return (

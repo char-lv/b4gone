@@ -92,12 +92,13 @@ export function ConfirmDialog({
           {error}
         </div>
       ) : null}
-      <div className="mt-6 flex flex-wrap justify-end gap-2">
-        <Button ref={cancelRef} aria-disabled={busy || undefined} onClick={() => !busy && onClose()}>
-          {cancelLabel}
-        </Button>
+      {/* As in the prototype: the action first, then the safe choice, which still receives focus. */}
+      <div className="mt-6 flex flex-wrap gap-2">
         <Button variant="danger" aria-disabled={busy || undefined} onClick={() => !busy && onConfirm()}>
           {busy && busyLabel ? busyLabel : confirmLabel}
+        </Button>
+        <Button ref={cancelRef} aria-disabled={busy || undefined} onClick={() => !busy && onClose()}>
+          {cancelLabel}
         </Button>
       </div>
     </dialog>

@@ -189,7 +189,8 @@ test("the item actions and the delete dialog work with the keyboard alone", asyn
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Delete “Wool coat”?" });
   await expect(dialog.getByRole("button", { name: "Keep item" })).toBeFocused();
-  await page.keyboard.press("Tab");
+  // Delete item comes first in the dialog, as in the prototype.
+  await page.keyboard.press("Shift+Tab");
   await expect(dialog.getByRole("button", { name: "Delete item" })).toBeFocused();
   await page.keyboard.press("Enter");
 
