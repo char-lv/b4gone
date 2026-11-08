@@ -50,3 +50,40 @@ export async function findItem(db: Db, ownerId: string, id: string): Promise<Ite
   ]);
   return result.rows[0] ?? null;
 }
+
+/** Replaces every editable field of the owner's item; the status stays as it is. Null when not found. */
+export async function updateItem(db: Db, ownerId: string, id: string, input: NewItemInput): Promise<Item | null> {
+  if (!isUuid(id)) return null;
+  const result = await db.query<Item>(
+    `update items
+     set name = $3, purchase_date = $4, price_cents = $5, return_deadline = $6, warranty_expiration = $7,
+       updated_at = now()
+     where id = $1 and owner_id = $2
+     returning ${ITEM_COLUMNS}`,
+    [id, ownerId, input.name, input.purchaseDate, input.priceCents, input.returnDeadline, input.warrantyExpiration],
+  );
+  return result.rows[0] ?? null;
+}
+
+/**
+ * Sets the owner's item to active or returned. Null when not found. Setting the status it already has
+ * succeeds without counting as a change, so a repeated click does not move updated_at.
+ */
+export async function setItemStatus(db: Db, ownerId: string, id: string, status: ItemStatus): Promise<Item | null> {
+  if (!isUuid(id)) return null;
+  const result = await db.query<Item>(
+    `update items
+     set status = $3, updated_at = case when status = $3 then updated_at else now() end
+     where id = $1 and owner_id = $2
+     returning ${ITEM_COLUMNS}`,
+    [id, ownerId, status],
+  );
+  return result.rows[0] ?? null;
+}
+
+/** Deletes the owner's item; false when there was nothing to delete. */
+export async function deleteItem(db: Db, ownerId: string, id: string): Promise<boolean> {
+  if (!isUuid(id)) return false;
+  const result = await db.query(`delete from items where id = $1 and owner_id = $2 returning id`, [id, ownerId]);
+  return result.rows.length > 0;
+}

@@ -1,9 +1,10 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, Ref } from "react";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "secondary" | "danger" | "danger-outline";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
+  ref?: Ref<HTMLButtonElement>;
 };
 
 const BASE =
@@ -12,6 +13,9 @@ const BASE =
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: "border-accent bg-accent text-white hover:border-accent-hover hover:bg-accent-hover",
   secondary: "border-line-button bg-surface text-ink hover:bg-surface-hover",
+  // Deleting: a solid red confirm button in the dialog, and a red outline for the button that opens it.
+  danger: "border-urgent bg-urgent text-white hover:brightness-90",
+  "danger-outline": "border-urgent-line bg-surface text-urgent hover:bg-urgent-soft",
 };
 
 /** Button styles for other elements, such as a link that starts an action like "Add item". */

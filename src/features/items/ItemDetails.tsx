@@ -1,11 +1,14 @@
-// One saved item (issue #4). Edit, return, undo, and delete actions are added here by #5.
+// One saved item (issue #4) with its dashboard deadlines and its edit, return, undo, and delete actions (#5).
 import type { ReactNode } from "react";
 import { BackLink } from "@/components/ui/BackLink";
 import { formatDateOnly } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import type { Item } from "./item-repository";
 import { ITEM_STATUS_LABELS, ItemStatusTag } from "./ItemStatusTag";
-import { SavedNotice } from "./SavedNotice";
+import { FlashNotice } from "./FlashNotice";
+import { ItemActions } from "./ItemActions";
+import { ItemDashboardDeadlines } from "./ItemDashboardDeadlines";
+import { NoticeScope } from "./NoticeScope";
 
 function NotSet({ children }: { children: string }) {
   return <span className="text-muted">{children}</span>;
@@ -24,10 +27,10 @@ function Row({ term, children }: { term: string; children: ReactNode }) {
 
 export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
   return (
-    <>
+    <NoticeScope>
       <BackLink href="/items">Back to items</BackLink>
 
-      <SavedNotice saved={saved} focusId="item-title" />
+      <FlashNotice show={saved} param="saved" message="Item saved." focusId="item-title" />
 
       <div className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2">
         {/* tabIndex lets the save confirmation move focus here; the heading is not a tab stop. */}
@@ -48,6 +51,9 @@ export function ItemDetails({ item, saved }: { item: Item; saved: boolean }) {
         </Row>
         <Row term="Status">{ITEM_STATUS_LABELS[item.status]}</Row>
       </dl>
-    </>
+
+      <ItemDashboardDeadlines item={item} />
+      <ItemActions item={item} />
+    </NoticeScope>
   );
 }

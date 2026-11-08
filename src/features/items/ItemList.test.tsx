@@ -84,4 +84,26 @@ describe("ItemList", () => {
 
     expect(screen.getByText("1 item: 1 active, 0 returned. Newest purchases first.")).toBeInTheDocument();
   });
+
+  // Issue #5: deleting an item opens the list with ?deleted=1.
+  describe("after a delete", () => {
+    beforeEach(() => window.history.replaceState(null, "", "/items?deleted=1"));
+    afterEach(() => window.history.replaceState(null, "", "/"));
+
+    it("confirms it, moves focus to the heading, and drops ?deleted=1 from the address", async () => {
+      render(<ItemList items={[COAT]} deleted />);
+
+      expect(await screen.findByText("Item deleted.")).toBeInTheDocument();
+      expect(screen.getByText("Item deleted.").closest("[role=status]")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1, name: "Items" })).toHaveFocus();
+      expect(window.location.pathname + window.location.search).toBe("/items");
+    });
+
+    it("confirms it when the list is now empty", async () => {
+      render(<ItemList items={[]} deleted />);
+
+      expect(await screen.findByText("Item deleted.")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 2, name: "No items yet" })).toBeInTheDocument();
+    });
+  });
 });

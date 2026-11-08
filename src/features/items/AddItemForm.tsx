@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
@@ -25,13 +26,15 @@ type AddItemFormProps = {
    * Receives the validated item; the form waits for the returned promise. While it is pending the
    * fields are read-only and further submissions are ignored. Resolving clears the form. Rejecting
    * keeps the draft: an ItemSubmitError (or any error with fieldErrors) shows its messages next to
-   * the fields, an error with a formMessage string shows that text, and any other error shows a
-   * retry message.
+   * the fields, an error with a formMessage string shows that text (with a formLink { href, label }
+   * after it, if given), and any other error shows a retry message.
    */
   onSubmit: (item: NewItemInput) => void | Promise<void>;
   onCancel?: () => void;
   /** The id of the heading that names the form. */
   labelledBy?: string;
+  /** The values the form starts with, such as a saved item when editing; empty when omitted. */
+  initialDraft?: ItemDraft;
 };
 
 const EMPTY_DRAFT: ItemDraft = {
@@ -46,10 +49,17 @@ const DATE_FIELDS = ["purchaseDate", "returnDeadline", "warrantyExpiration"] as 
 
 const RETRY_MESSAGE = "Couldn’t save this item. Your entries are still here. Select “Save item” to try again.";
 
-function formMessageFromRejection(error: unknown): string | null {
-  if (typeof error !== "object" || error === null || !("formMessage" in error)) return null;
-  const message = (error as { formMessage: unknown }).formMessage;
-  return typeof message === "string" && message.trim() !== "" ? message : null;
+type SaveError = { message: string; link?: { href: string; label: string } };
+
+function saveErrorFromRejection(error: unknown): SaveError {
+  if (typeof error !== "object" || error === null || !("formMessage" in error)) return { message: RETRY_MESSAGE };
+  const { formMessage, formLink } = error as { formMessage: unknown; formLink?: { href?: unknown; label?: unknown } };
+  if (typeof formMessage !== "string" || formMessage.trim() === "") return { message: RETRY_MESSAGE };
+  const link =
+    typeof formLink?.href === "string" && typeof formLink.label === "string"
+      ? { href: formLink.href, label: formLink.label }
+      : undefined;
+  return { message: formMessage, link };
 }
 
 type FormCheck = { item: NewItemInput | null; errors: ItemFieldErrors };
@@ -59,12 +69,12 @@ function fieldInput(form: HTMLFormElement | null, field: ItemField): HTMLInputEl
   return element instanceof HTMLInputElement ? element : null;
 }
 
-export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddItemFormProps) {
-  const [draft, setDraft] = useState<ItemDraft>(EMPTY_DRAFT);
+export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy, initialDraft }: AddItemFormProps) {
+  const [draft, setDraft] = useState<ItemDraft>(initialDraft ?? EMPTY_DRAFT);
   const [errors, setErrors] = useState<ItemFieldErrors>({});
   const [attempted, setAttempted] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<SaveError | null>(null);
   const savingRef = useRef(false);
 
   function check(next: ItemDraft, form: HTMLFormElement | null): FormCheck {
@@ -114,7 +124,7 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
     } catch (error) {
       const rejected = fieldErrorsFromRejection(error);
       if (rejected) showErrors(rejected, form);
-      else setSaveError(formMessageFromRejection(error) ?? RETRY_MESSAGE);
+      else setSaveError(saveErrorFromRejection(error));
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -149,7 +159,15 @@ export function AddItemForm({ getToday, onSubmit, onCancel, labelledBy }: AddIte
       ) : null}
       {saveError ? (
         <div role="alert" className="mb-4 rounded-control border border-urgent-line bg-urgent-soft px-4 py-3">
-          {saveError}
+          {saveError.message}
+          {saveError.link ? (
+            <>
+              {" "}
+              <Link href={saveError.link.href} className="font-semibold text-accent underline underline-offset-[3px]">
+                {saveError.link.label}
+              </Link>
+            </>
+          ) : null}
         </div>
       ) : null}
 

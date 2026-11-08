@@ -17,10 +17,10 @@ Joint planning record: **Pending.** Add the date, attendees, and a link to the m
 | [#2](https://github.com/char-lv/b4gone/issues/2) Registration, sign-in, sign-out | 5 | high | Jiaying (confirmed; assigned to `Jasmine-G-uo`) | Done (merged 2026-11-05) | [#20](https://github.com/char-lv/b4gone/pull/20), approved by Chengling at `3d09579` |
 | [#3](https://github.com/char-lv/b4gone/issues/3) Add-item form and HW3 comparison | 5 | high | Chengling (confirmed; assigned to `char-lv`) | In Review (2026-11-04) | HW3 comparison done (submitted through Canvas). Form imported from Run B with new red/green fixes in [#24](https://github.com/char-lv/b4gone/pull/24); moved into the signed-in layout after #2 merged |
 | [#4](https://github.com/char-lv/b4gone/issues/4) Item APIs and persistence | 5 | high | Jiaying (reassigned; assigned to `Jasmine-G-uo`) | In Review | Items table, item API, Items list and details, and saving from the add-item form on `feature/4-item-api` |
-| [#5](https://github.com/char-lv/b4gone/issues/5) Edit, delete, return, restore | 5 | high | Chengling (confirmed; assigned to `char-lv`) | Sprint Todo | Not started |
+| [#5](https://github.com/char-lv/b4gone/issues/5) Edit, delete, return, restore | 5 | high | Jiaying (reassigned; assigned to `Jasmine-G-uo`) | In Review | Edit page, return and undo, delete with confirmation, and the item's dashboard deadlines on `feature/5-item-actions`, which builds on #4 |
 | [#6](https://github.com/char-lv/b4gone/issues/6) Validation, isolation, and flow tests | 3 | medium | Unconfirmed | Sprint Todo | Not started |
 
-Total: 26 points. Confirmed so far: Chengling 15 points (#3–#5) and Jiaying 5 points (#2). #1 and #6 (3 points each) have no confirmed owner. Each partner needs five reviews of the other's pull requests, so when assigning #6 and the Sprint 2 issues, check that both partners will author enough pull requests.
+Total: 26 points. Confirmed so far: Chengling 5 points (#3) and Jiaying 15 points (#2, #4, #5; #4 and #5 were reassigned to her). #1 and #6 (3 points each) have no confirmed owner. Each partner needs five reviews of the other's pull requests, so when assigning #6 and the Sprint 2 issues, check that both partners will author enough pull requests.
 
 Dependencies: #4 needs the session owner from #2 and the form from #3; #5 builds on #4; #6 covers #2–#5.
 

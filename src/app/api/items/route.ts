@@ -1,18 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { todayFromBody } from "@/features/items/item-api";
 import { createItem, listItems } from "@/features/items/item-repository";
 import { validateNewItem } from "@/features/items/item-schema";
 import { getRequestUser } from "@/lib/auth/server-session";
-import { isValidTimeZone, todayInTimeZone } from "@/lib/dates";
 import { getPool } from "@/lib/db/pool";
 import { FIELD_ERRORS_MESSAGE, apiError, forbiddenOrigin, readJson, serverError, unauthenticated } from "@/lib/http/api-response";
 import { isSameOriginRequest } from "@/lib/http/origin";
-
-const TIME_ZONE_ERROR = "Your browser’s time zone could not be read. Reload the page and try again.";
-
-// The browser sends its IANA time zone with each item so "today" is the user's date, not the server's.
-function timeZoneOf(body: unknown): unknown {
-  return typeof body === "object" && body !== null ? (body as { timeZone?: unknown }).timeZone : undefined;
-}
 
 export async function POST(request: NextRequest): Promise<Response> {
   if (!isSameOriginRequest(request)) return forbiddenOrigin();
@@ -24,11 +17,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     const body = await readJson(request);
     if (body === undefined) return apiError(400, "invalid_json", "Send the request body as JSON.");
 
-    const timeZone = timeZoneOf(body);
-    if (!isValidTimeZone(timeZone)) {
-      return apiError(400, "validation_failed", FIELD_ERRORS_MESSAGE, { timeZone: TIME_ZONE_ERROR });
-    }
-    const parsed = validateNewItem(body, todayInTimeZone(timeZone, new Date()));
+    const today = todayFromBody(body);
+    if ("response" in today) return today.response;
+    const parsed = validateNewItem(body, today.today);
     if (!parsed.success) return apiError(400, "validation_failed", FIELD_ERRORS_MESSAGE, parsed.fieldErrors);
 
     const item = await createItem(getPool(), user.id, parsed.data);

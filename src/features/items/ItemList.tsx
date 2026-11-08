@@ -1,10 +1,12 @@
 // The Items page body (issue #4): a table on wider screens that becomes one card per item on phones,
-// following the prototype. Edit, return, and delete actions live on the details page (#5).
+// following the prototype. Edit, return, and delete actions live on the details page (#5); after a
+// delete the list opens with ?deleted=1.
 import Link from "next/link";
 import { buttonClassName } from "@/components/ui/Button";
 import { formatDateOnly } from "@/lib/dates";
 import { formatUsd } from "@/lib/money";
 import type { Item } from "./item-repository";
+import { FlashNotice } from "./FlashNotice";
 import { ItemStatusTag } from "./ItemStatusTag";
 
 const COLUMNS = ["Name", "Purchased", "Price", "Return by", "Warranty until", "Status"] as const;
@@ -33,13 +35,17 @@ function AddItemLink() {
   );
 }
 
-export function ItemList({ items }: { items: Item[] }) {
+export function ItemList({ items, deleted = false }: { items: Item[]; deleted?: boolean }) {
   const returned = items.filter((item) => item.status === "returned").length;
 
   return (
     <>
+      <FlashNotice show={deleted} param="deleted" message="Item deleted." focusId="items-title" />
       <div className="mb-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-3 max-sm:mb-5">
-        <h1 className="text-[1.375rem] font-semibold tracking-tight sm:text-[1.625rem]">Items</h1>
+        {/* tabIndex lets the delete confirmation move focus here; the heading is not a tab stop. */}
+        <h1 id="items-title" tabIndex={-1} className="text-[1.375rem] font-semibold tracking-tight outline-none sm:text-[1.625rem]">
+          Items
+        </h1>
         {items.length > 0 ? <AddItemLink /> : null}
       </div>
 

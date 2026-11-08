@@ -1,4 +1,13 @@
-import { formatDateOnly, isValidDateOnly, isValidTimeZone, todayInTimeZone } from "./dates";
+import {
+  daysUntil,
+  formatDateOnly,
+  isInDashboardWindow,
+  isUrgent,
+  isValidDateOnly,
+  isValidTimeZone,
+  relativeDayText,
+  todayInTimeZone,
+} from "./dates";
 
 describe("isValidDateOnly", () => {
   it.each(["2026-10-23", "2024-02-29", "2026-01-31", "2000-02-29"])("accepts %s", (value) => {
@@ -56,5 +65,58 @@ describe("formatDateOnly", () => {
     expect(formatDateOnly("2026-10-09")).toBe("Oct 9, 2026");
     expect(formatDateOnly("2024-02-29")).toBe("Feb 29, 2024");
     expect(formatDateOnly("2026-12-31")).toBe("Dec 31, 2026");
+  });
+});
+
+describe("daysUntil", () => {
+  it.each([
+    ["2026-11-08", "2026-11-08", 0],
+    ["2026-11-09", "2026-11-08", 1],
+    ["2026-11-07", "2026-11-08", -1],
+    ["2026-12-08", "2026-11-08", 30],
+    ["2027-01-01", "2026-12-31", 1],
+    ["2024-03-01", "2024-02-28", 2],
+    ["2026-03-01", "2026-02-28", 1],
+    ["2025-01-01", "2024-01-01", 366],
+    ["0001-01-02", "0001-01-01", 1],
+    ["0100-03-01", "0100-02-28", 1],
+  ])("counts calendar days from %s to today %s", (date, today, days) => {
+    expect(daysUntil(date, today)).toBe(days);
+  });
+});
+
+describe("isInDashboardWindow", () => {
+  const today = "2026-11-08";
+
+  it.each(["2026-11-08", "2026-11-15", "2026-12-08"])("includes %s (days 0 to 30)", (date) => {
+    expect(isInDashboardWindow(date, today)).toBe(true);
+  });
+
+  it.each(["2026-11-07", "2026-12-09", "2027-11-08"])("excludes %s", (date) => {
+    expect(isInDashboardWindow(date, today)).toBe(false);
+  });
+});
+
+describe("isUrgent", () => {
+  it.each([
+    [0, true],
+    [7, true],
+    [8, false],
+    [-1, false],
+  ])("treats day %i as urgent: %s", (days, urgent) => {
+    expect(isUrgent(days)).toBe(urgent);
+  });
+});
+
+describe("relativeDayText", () => {
+  it.each([
+    [0, "Due today"],
+    [1, "Due tomorrow"],
+    [3, "In 3 days"],
+    [30, "In 30 days"],
+    [-1, "Passed yesterday"],
+    [-4, "Passed 4 days ago"],
+  ])("describes day %i as %j", (days, text) => {
+    expect(relativeDayText(days)).toBe(text);
   });
 });
