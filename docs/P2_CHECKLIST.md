@@ -142,7 +142,7 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 | 5+ PR reviews per partner | Partial | — | Jiaying: 2 approvals ([#13](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250); [#14](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036), which reports `npm ci`, lint, typecheck, `test:unit`, and build passing on Node 24.11.0). Chengling: 0, because Jiaying has not opened a PR yet | Jiaying reviews #15–#19. Chengling reviews Jiaying's PRs starting with #2 |
 | Task estimation | Done | — | Story points in each issue | Use actual velocity at Sprint 2 planning |
 | Contribution balance: substantial commits from both | Partial | — | Every commit on every branch is Chengling's (author names `char-lv` and `Chengling Lv`, same email); Jiaying's first commits are in [#20](https://github.com/char-lv/b4gone/pull/20) (#2), awaiting review | Merge #2; Jiaying's other confirmed issues |
-| Shared rules maintained by both partners | Partial | — | Jiaying reviewed and approved the rules in [#13](https://github.com/char-lv/b4gone/pull/13). Every AGENTS.md commit is by Chengling | Jiaying authors at least one AGENTS.md change (for example, an agreed proposal from [ai-workflow.md](process/ai-workflow.md)) |
+| Shared rules maintained by both partners | Done | #2, #4, #5 | Jiaying reviewed and approved the rules in [#13](https://github.com/char-lv/b4gone/pull/13) and has authored AGENTS.md changes in [`d287455`](https://github.com/char-lv/b4gone/commit/d287455) (#2), [`b676875`](https://github.com/char-lv/b4gone/commit/b676875) (#4), and [`a6eb92b`](https://github.com/char-lv/b4gone/commit/a6eb92b) (#5); Chengling authored the rest | Review AGENTS.md together at each retrospective |
 | Shared repository with push access for both | Done | — | Collaborator API: `Jasmine-G-uo` has `write` (2026-10-28) | None |
 | User stories with acceptance criteria | Done | — | PRD Section 4 and the issue bodies | None |
 
@@ -150,8 +150,8 @@ Preview access: Vercel Authentication protects previews. The #18 preview redirec
 
 | Requirement | Status | Issue / PR | Evidence | Remaining action |
 | --- | --- | --- | --- | --- |
-| Shared rules file and context engineering | Partial | #1, #3, #12 | AGENTS.md, the CLAUDE.md import, HW3-driven refinement ([`c96d056`](https://github.com/char-lv/b4gone/commit/c96d056)), and [ai-workflow.md](process/ai-workflow.md) | Both partners record their AI sessions |
-| AI-assisted TDD | Partial | all feature issues | [TDD record](process/ai-workflow.md#ai-assisted-tdd-record) | Add each feature's red/green record |
+| Shared rules file and context engineering | Partial | #1, #3, #12 | AGENTS.md, the CLAUDE.md import, HW3-driven refinement ([`c96d056`](https://github.com/char-lv/b4gone/commit/c96d056)), and [ai-workflow.md](process/ai-workflow.md), where both partners now record their AI sessions in the VS Code IDE (Jiaying: #2, #4, #5, #6, #9) | Jiaying's `/memory` confirmation; keep recording each session |
+| AI-assisted TDD | Partial | all feature issues | [TDD record](process/ai-workflow.md#ai-assisted-tdd-record): red/green records for #1, #3, #7, and #8 (Chengling) and #2, #4, #5, and #9 (Jiaying), with tests written after their code labeled and #6 noted as tests of existing behavior | Add the record for each remaining feature issue |
 
 ### Documentation (15 points) and deliverables
 
