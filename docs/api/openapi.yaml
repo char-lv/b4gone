@@ -13,7 +13,7 @@ info:
     Every error uses the same shape: `{ "error": { "code", "message", "fields"? } }`, where
     `fields` maps a request field to the message to show next to it.
 
-    Subscription and dashboard endpoints are added by issues #7 and #9.
+    Subscription endpoints come from issue #7; dashboard endpoints are added by issue #9.
 servers:
   - url: https://b4gone.vercel.app
     description: Production
@@ -24,6 +24,8 @@ tags:
     description: Registration, sign-in, sign-out, and the current session (issue #2).
   - name: Items
     description: Purchases with return and warranty deadlines, private to the signed-in user (issues #4 and #5).
+  - name: Subscriptions
+    description: Monthly and yearly subscriptions with next billing dates and cancel/reactivate, private to the signed-in user (issue #7).
 
 paths:
   /api/auth/register:
@@ -330,6 +332,214 @@ paths:
         "404": { $ref: "#/components/responses/ItemNotFound" }
         "500": { $ref: "#/components/responses/ServerError" }
 
+  /api/subscriptions:
+    post:
+      tags: [Subscriptions]
+      summary: Save a subscription
+      description: |
+        Saves one monthly or yearly subscription for the signed-in user (issue #7); any owner or
+        status field in the body is ignored, and new subscriptions start as `active`. The first
+        billing date is the recurring anchor and may be in the future. `timeZone` gives the user's
+        today, which the response's `nextBillingDate` is calculated from.
+      operationId: createSubscription
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubscriptionRequest" }
+            example:
+              name: Music plan
+              amountCents: 1099
+              billingCycle: monthly
+              firstBillingDate: "2026-01-31"
+              timeZone: America/New_York
+      responses:
+        "201":
+          description: The saved subscription with its next billing date.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubscriptionResponse" }
+        "400":
+          description: The body is not JSON or not sent as `application/json` (`invalid_json`), or a field is invalid (`validation_failed`). Every invalid field is reported at once; a missing or unknown `timeZone` is reported on its own.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              examples:
+                validation:
+                  value:
+                    error:
+                      code: validation_failed
+                      message: Check the highlighted fields.
+                      fields:
+                        name: Enter a service name.
+                        amountCents: Enter the amount. Use 0 for a free plan.
+                        billingCycle: Choose monthly or yearly.
+                        firstBillingDate: Enter a complete, real date.
+                timeZone:
+                  value:
+                    error:
+                      code: validation_failed
+                      message: Check the highlighted fields.
+                      fields: { timeZone: Your browser’s time zone could not be read. Reload the page and try again. }
+                json:
+                  value: { error: { code: invalid_json, message: Send the request body as JSON. } }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    get:
+      tags: [Subscriptions]
+      summary: List the signed-in user's subscriptions
+      description: |
+        By name (ignoring case), then in the order the subscriptions were added. Each subscription
+        includes its next billing date for today in `timeZone`. `averageMonthlyCostCents` is the
+        average monthly cost of the active subscriptions (issue #8): monthly amounts plus one
+        twelfth of yearly amounts, rounded once to whole cents.
+      operationId: listSubscriptions
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/TimeZone"
+      responses:
+        "200":
+          description: The user's subscriptions; an empty array and `0` for a new account.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [subscriptions, averageMonthlyCostCents]
+                properties:
+                  subscriptions:
+                    type: array
+                    items: { $ref: "#/components/schemas/Subscription" }
+                  averageMonthlyCostCents: { type: integer, minimum: 0 }
+        "400": { $ref: "#/components/responses/TimeZoneMissing" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/subscriptions/{id}:
+    get:
+      tags: [Subscriptions]
+      summary: Get one of the signed-in user's subscriptions
+      description: Another user's subscription, a missing one, and a malformed id all return the same `404`.
+      operationId: getSubscription
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionId"
+        - $ref: "#/components/parameters/TimeZone"
+      responses:
+        "200":
+          description: The subscription with its next billing date.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubscriptionResponse" }
+        "400": { $ref: "#/components/responses/TimeZoneMissing" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/SubscriptionNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    put:
+      tags: [Subscriptions]
+      summary: Replace a subscription's fields
+      description: |
+        Replaces the name, amount, billing cycle, and first billing date with the same rules as
+        creating a subscription. Changing the first billing date changes the anchor that later
+        charges repeat from. The status is not changed; use `PUT /api/subscriptions/{id}/status`.
+      operationId: updateSubscription
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubscriptionRequest" }
+            example:
+              name: Family music
+              amountCents: 1699
+              billingCycle: yearly
+              firstBillingDate: "2025-11-15"
+              timeZone: America/New_York
+      responses:
+        "200":
+          description: The updated subscription.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubscriptionResponse" }
+        "400":
+          description: Same as creating a subscription.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: validation_failed
+                  message: Check the highlighted fields.
+                  fields: { amountCents: Amount can’t be negative. }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "404": { $ref: "#/components/responses/SubscriptionNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    delete:
+      tags: [Subscriptions]
+      summary: Delete a subscription
+      description: Deletes the subscription and, with it, its renewal reminder and its share of the monthly cost. The website asks for confirmation first.
+      operationId: deleteSubscription
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionId"
+      responses:
+        "204":
+          description: Deleted. A second request for the same id returns `404`.
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "404": { $ref: "#/components/responses/SubscriptionNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/subscriptions/{id}/status:
+    put:
+      tags: [Subscriptions]
+      summary: Cancel a subscription, or reactivate it
+      description: |
+        A cancelled subscription keeps its record but has no next billing date, no renewal reminder,
+        and no share of the monthly cost. Reactivating it calculates the next billing date from the
+        original first billing date again (issue #7). Sending the status the subscription already
+        has returns `200` and does not count as a change.
+      operationId: setSubscriptionStatus
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubscriptionStatusRequest" }
+            example: { status: cancelled, timeZone: America/New_York }
+      responses:
+        "200":
+          description: The subscription with its new status and next billing date.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SubscriptionResponse" }
+        "400":
+          description: The body is not JSON (`invalid_json`), `status` is not `active` or `cancelled`, or `timeZone` is missing or unknown (`validation_failed`).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: validation_failed
+                  message: Check the highlighted fields.
+                  fields: { status: Choose active or cancelled. }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/ForbiddenOrigin" }
+        "404": { $ref: "#/components/responses/SubscriptionNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
 components:
   securitySchemes:
     sessionCookie:
@@ -345,6 +555,20 @@ components:
       required: true
       description: Another user's item, a missing item, and a malformed id all return the same `404`.
       schema: { type: string, format: uuid }
+
+    SubscriptionId:
+      name: id
+      in: path
+      required: true
+      description: Another user's subscription, a missing one, and a malformed id all return the same `404`.
+      schema: { type: string, format: uuid }
+    TimeZone:
+      name: timeZone
+      in: query
+      required: true
+      description: The user's IANA time zone, such as `America/New_York`, used to find today's date for next billing dates.
+      schema: { type: string }
+      example: America/New_York
 
   headers:
     SessionCookie:
@@ -452,6 +676,61 @@ components:
       required: [item]
       properties:
         item: { $ref: "#/components/schemas/Item" }
+    SubscriptionRequest:
+      type: object
+      required: [name, amountCents, billingCycle, firstBillingDate, timeZone]
+      properties:
+        name:
+          type: string
+          description: The service name. 1–100 characters after trimming, with at least one visible character and no control characters; the trimmed name is stored.
+        amountCents:
+          type: integer
+          minimum: 0
+          maximum: 99999999
+          description: The amount of each charge in US cents, up to $999,999.99. Required; `0` is a free plan. Strings, fractions, and `null` are rejected.
+        billingCycle: { type: string, enum: [monthly, yearly] }
+        firstBillingDate:
+          allOf: [{ $ref: "#/components/schemas/DateOnly" }]
+          description: The recurring anchor. Any real date, including one in the future.
+        timeZone:
+          type: string
+          description: The user's IANA time zone, used to calculate the response's `nextBillingDate`.
+    SubscriptionStatusRequest:
+      type: object
+      required: [status, timeZone]
+      properties:
+        status: { type: string, enum: [active, cancelled] }
+        timeZone: { type: string, description: The user's IANA time zone. }
+    Subscription:
+      type: object
+      required: [id, name, amountCents, billingCycle, firstBillingDate, status, nextBillingDate]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        amountCents: { type: integer, minimum: 0 }
+        billingCycle: { type: string, enum: [monthly, yearly] }
+        firstBillingDate: { $ref: "#/components/schemas/DateOnly" }
+        status: { type: string, enum: [active, cancelled] }
+        nextBillingDate:
+          oneOf: [{ $ref: "#/components/schemas/DateOnly" }, { type: "null" }]
+          description: |
+            The first occurrence of `firstBillingDate` on or after today in the request's time zone,
+            including today (issue #8). Monthly plans keep the anchor day and use a shorter month's
+            last day (Jan 31 → Feb 28 → Mar 31); a yearly Feb 29 anchor gives Feb 28 in other years.
+            `null` while cancelled.
+      example:
+        id: 9d7a1c52-0d6f-4f4e-8a9b-3c1e2f4a5b6c
+        name: Music plan
+        amountCents: 1099
+        billingCycle: monthly
+        firstBillingDate: "2026-01-31"
+        status: active
+        nextBillingDate: "2026-10-31"
+    SubscriptionResponse:
+      type: object
+      required: [subscription]
+      properties:
+        subscription: { $ref: "#/components/schemas/Subscription" }
     Error:
       type: object
       required: [error]
@@ -504,6 +783,22 @@ components:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }
           example: { error: { code: not_found, message: Item not found. } }
+    SubscriptionNotFound:
+      description: The user has no subscription with this id.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { error: { code: not_found, message: Subscription not found. } }
+    TimeZoneMissing:
+      description: The `timeZone` query parameter is missing or not a known IANA time zone.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            error:
+              code: validation_failed
+              message: Check the highlighted fields.
+              fields: { timeZone: Your browser’s time zone could not be read. Reload the page and try again. }
     ServerError:
       description: An unexpected failure, such as an unreachable database. Details are never returned.
       content:
