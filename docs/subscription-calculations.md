@@ -61,3 +61,23 @@ type BillableSubscription = {
 ```
 
 #7 maps its database rows (`amount_cents`, `billing_cycle`, `first_billing_date`, `status`) to these camelCase fields at the server boundary. `amountCents × 12` must stay a safe integer, so #7's validation should cap amounts well below `Number.MAX_SAFE_INTEGER / 12` cents.
+
+## Saved subscriptions and the dashboard handoff (#7 → #9)
+
+Issue #7 stores subscriptions and calls the functions above; it never computes a date or a total itself. This is what the dashboard (#9) can rely on.
+
+### Reading the data
+
+- Table `subscriptions` (`db/migrations/003_create_subscriptions.sql`): `owner_id`, `name`, `amount_cents` (integer, 0–99999999), `billing_cycle` (`monthly`/`yearly`), `first_billing_date` (`DATE`, the anchor; may be in the future), `status` (`active`/`cancelled`, default `active`). The next charge is never stored.
+- On the server, `listSubscriptions(db, ownerId)` in `src/features/subscriptions/subscription-repository.ts` returns the owner's rows as `Subscription` values, ordered by name. A `Subscription` is a `BillableSubscription`, so pass the list straight to `nextRenewals(list, today)` and `averageMonthlyCostCents(list)` without mapping or filtering. Always take the owner from the verified session (`getCurrentUser()` in a Server Component).
+- Over HTTP, `GET /api/subscriptions?timeZone=<IANA zone>` returns `{ subscriptions, averageMonthlyCostCents }`, where each subscription carries `nextBillingDate` (`null` while cancelled). See `docs/api/openapi.yaml`.
+
+### Today and time zones
+
+The server does not know the user's time zone. The Subscriptions pages compute the next charge in the browser with `NextCharge` (`src/features/subscriptions/NextCharge.tsx`), which reads the local date through `useLocalToday()` and follows the clock past midnight. The dashboard should do the same: load the rows on the server, then compute `nextRenewals(rows, today)` and the 0–30 day window in a client component that uses `useLocalToday()`, or call the API with the browser's `timeZone`. `averageMonthlyCostCents` does not depend on today.
+
+### Links and refreshes
+
+- Each renewal event opens `/subscriptions/{subscriptionId}`. Another user's id, a missing one, and a malformed one all show "Subscription not found" with a real 404.
+- Every subscription change (add, edit, cancel, reactivate, delete) awaits the API and then calls `router.refresh()`, which drops the client router cache. A dashboard rendered as a dynamic Server Component (it reads the session cookie) therefore shows the saved state on the next visit without extra wiring. A dashboard that keeps client state of its own must reload it after these changes.
+- A cancelled subscription contributes no renewal event and no cost; reactivating it brings both back from the original anchor. A free (`0`) active subscription still has a renewal event.

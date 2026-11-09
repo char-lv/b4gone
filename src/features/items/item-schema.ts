@@ -3,13 +3,14 @@ import { formatDateOnly, isValidDateOnly } from "@/lib/dates";
 import {
   MAX_AMOUNT_CENTS,
   type MoneyErrorCode,
-  type MoneyParseResult,
   centsToInput,
   formatUsd,
+  parseStoredCents,
   parseUsdToCents,
 } from "@/lib/money";
+import { RECORD_NAME_MAX, recordNameError } from "@/lib/record-name";
 
-export const ITEM_NAME_MAX = 100;
+export const ITEM_NAME_MAX = RECORD_NAME_MAX;
 
 /** Raw text entered in the add/edit item form. */
 export type ItemDraft = {
@@ -61,19 +62,6 @@ const DEADLINE_LABELS = {
 export const INVALID_DATE_MESSAGE = "Enter a complete, real date.";
 export const INVALID_OPTIONAL_DATE_MESSAGE = "Enter a complete, real date, or clear the field.";
 
-function nameError(raw: string): string | undefined {
-  // Count code points so an emoji counts as one character.
-  const length = Array.from(raw.trim()).length;
-  // trim() keeps format characters such as U+200B, so a name needs at least one visible character.
-  if (!/[^\p{Cf}\p{Z}\s]/u.test(raw)) return "Enter a name.";
-  // A name is one line (no Cc controls or U+2028/U+2029 separators), and PostgreSQL text cannot store U+0000.
-  if (/[\p{Cc}\p{Zl}\p{Zp}]/u.test(raw.trim())) return "Remove tabs, line breaks, and other control characters.";
-  if (length > ITEM_NAME_MAX) {
-    return `Use ${ITEM_NAME_MAX} characters or fewer. This one has ${length}.`;
-  }
-  return undefined;
-}
-
 function purchaseDateError(value: string, today: string): string | undefined {
   if (value === "") return "Enter the purchase date.";
   if (!isValidDateOnly(value)) return INVALID_DATE_MESSAGE;
@@ -112,7 +100,7 @@ export function createItemDraftSchema(today: string) {
       const validPurchaseDate = purchaseError ? null : draft.purchaseDate;
       const price = parseUsdToCents(draft.price);
       const errors: ItemFieldErrors = {
-        name: nameError(draft.name),
+        name: recordNameError(draft.name, "Enter a name."),
         purchaseDate: purchaseError,
         price: price.ok ? undefined : PRICE_ERRORS[price.code],
         returnDeadline: deadlineError("returnDeadline", draft.returnDeadline, validPurchaseDate),
@@ -215,10 +203,10 @@ export function validateNewItem(payload: unknown, today: string): NewItemValidat
   const validPurchaseDate = purchaseError ? null : purchaseDate;
   const returnDeadline = optionalDate(body.returnDeadline);
   const warrantyExpiration = optionalDate(body.warrantyExpiration);
-  const price = centsResult(body.priceCents);
+  const price = parseStoredCents(body.priceCents);
 
   const errors: NewItemFieldErrors = {
-    name: nameError(name),
+    name: recordNameError(name, "Enter a name."),
     purchaseDate: purchaseError,
     priceCents: price.ok ? undefined : PRICE_ERRORS[price.code],
     returnDeadline:
@@ -252,14 +240,4 @@ function optionalDate(value: unknown): string | null | undefined {
   if (value === null || value === undefined) return null;
   if (typeof value !== "string") return undefined;
   return value.trim() || null;
-}
-
-/** Checks stored cents the way parseUsdToCents checks typed text. */
-function centsResult(value: unknown): MoneyParseResult {
-  if (value === null || value === undefined) return { ok: true, cents: null };
-  if (typeof value !== "number" || !Number.isFinite(value)) return { ok: false, code: "format" };
-  if (value < 0) return { ok: false, code: "negative" };
-  if (!Number.isInteger(value)) return { ok: false, code: "format" };
-  if (value > MAX_AMOUNT_CENTS) return { ok: false, code: "too_large" };
-  return { ok: true, cents: value };
 }

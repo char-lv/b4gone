@@ -13,4 +13,7 @@ Current suites:
 - `item-repository.test.ts` and `items-api.test.ts` cover item persistence and the item API: null versus zero prices, date-only values that do not shift with the session time zone, list order, validation against today in the sent time zone, and two-user ownership (#4). They delete only the `@items-test.example` and `@items-api-test.example` accounts they create; items go with them.
 - `migrations.test.ts` also checks the `items` table constraints (#4), inside transactions that are rolled back.
 
-Subscription API suites (#7) are not written yet. Each suite must create and clean up its own data in the test database and never connect to `DATABASE_URL`.
+- `subscription-repository.test.ts` and `subscriptions-api.test.ts` cover subscription persistence and the subscription API (#7): required amounts with free plans, future anchors, anchors that come back as the saved `YYYY-MM-DD` under any session time zone, next billing dates from #8 in the sent time zone (including a charge due today), cancel and reactivate from the original anchor, the average monthly cost, origin and JSON checks, and two-user ownership for every operation. They delete only the `@subscriptions-test.example` and `@subscriptions-api-test.example` accounts they create.
+- `migrations.test.ts` also checks the `subscriptions` table constraints and that `003_create_subscriptions` follows `002_create_items` (#7).
+
+Each suite must create and clean up its own data in the test database and never connect to `DATABASE_URL`.
