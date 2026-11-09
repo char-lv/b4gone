@@ -41,6 +41,13 @@ function summary(page: Page, term: string) {
   return page.locator("dt", { hasText: term }).locator("xpath=following-sibling::dd[1]");
 }
 
+/** The deadline count card: the total, and how many of those fall within 7 days. */
+async function expectDeadlineCount(page: Page, total: number, withinSevenDays: number) {
+  const card = summary(page, "Deadlines in the next 30 days");
+  await expect(card.locator("span").first()).toHaveText(String(total));
+  await expect(card).toContainText(`${withinSevenDays} within 7 days.`);
+}
+
 function group(page: Page, name: RegExp) {
   return page.getByRole("list", { name });
 }
@@ -52,7 +59,7 @@ test.beforeEach(async ({ page }) => {
 test("a new account sees an empty dashboard with both add actions", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "No deadlines in the next 30 days" })).toBeVisible();
-  await expect(summary(page, "Deadlines in the next 30 days")).toContainText("0");
+  await expect(summary(page, "Deadlines in the next 30 days").locator("span").first()).toHaveText("0");
   await expect(summary(page, "Average monthly subscription cost")).toContainText("$0.00");
   await expect(page.getByText("Demo today")).toHaveCount(0);
 
@@ -79,7 +86,7 @@ test("deadlines from today through day 30 appear once, in order and in their gro
 
   await openDashboard(page);
 
-  await expect(summary(page, "Deadlines in the next 30 days")).toContainText("52 within 7 days.");
+  await expectDeadlineCount(page, 5, 2);
   await expect(summary(page, "Average monthly subscription cost")).toContainText("$9.99");
   await expect(group(page, /^Within 7 days/).getByRole("link")).toHaveText([
     `Due todayReturn deadline${formatDateOnly(day(0))}Due today`,
@@ -106,14 +113,14 @@ test("returning an item and cancelling a subscription update the events, count, 
   await addSubscription(page, "Music", "9.99", day(5));
 
   await openDashboard(page);
-  await expect(summary(page, "Deadlines in the next 30 days")).toContainText("2");
+  await expectDeadlineCount(page, 2, 2);
   await page.getByRole("link", { name: /^Wool coat/ }).click();
   await page.getByRole("button", { name: "Mark as returned" }).click();
   await expect(page.getByRole("button", { name: "Undo return" })).toBeVisible();
 
   await openDashboard(page);
   await expect(page.getByRole("link", { name: /^Wool coat/ })).toHaveCount(0);
-  await expect(summary(page, "Deadlines in the next 30 days")).toContainText("11 within 7 days.");
+  await expectDeadlineCount(page, 1, 1);
   await page.getByRole("link", { name: /^Music/ }).click();
   await page.getByRole("button", { name: "Cancel subscription" }).click();
   await expect(page.getByRole("button", { name: "Reactivate subscription" })).toBeVisible();
@@ -132,7 +139,7 @@ test("returning an item and cancelling a subscription update the events, count, 
   await expect(page.getByRole("button", { name: "Mark as returned" })).toBeVisible();
 
   await openDashboard(page);
-  await expect(summary(page, "Deadlines in the next 30 days")).toContainText("22 within 7 days.");
+  await expectDeadlineCount(page, 2, 2);
   await expect(summary(page, "Average monthly subscription cost")).toContainText("$9.99");
 });
 
