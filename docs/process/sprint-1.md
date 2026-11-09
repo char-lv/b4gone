@@ -14,20 +14,20 @@ Joint planning record: **Pending.** Add the date, attendees, and a link to the m
 
 | Issue | Points | Priority | Owner | Board status on 2026-11-04 | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| [#1](https://github.com/char-lv/b4gone/issues/1) Next.js project and shared rules | 3 | high | Unconfirmed; work so far by Chengling | Done | [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14), and [#16](https://github.com/char-lv/b4gone/pull/16) merged; the issue closed on 2026-10-31 |
-| [#2](https://github.com/char-lv/b4gone/issues/2) Registration, sign-in, sign-out | 5 | high | Jiaying (confirmed; assigned to `Jasmine-G-uo`) | In Review | [#20](https://github.com/char-lv/b4gone/pull/20) open since 2026-10-31; CI and the Vercel preview build pass; no review yet |
-| [#3](https://github.com/char-lv/b4gone/issues/3) Add-item form and HW3 comparison | 5 | high | Chengling (confirmed; assigned to `char-lv`) | In Progress | HW3 comparison done (submitted through Canvas). Form integration from the local Run B copy and the midnight-date fix not started |
-| [#4](https://github.com/char-lv/b4gone/issues/4) Item APIs and persistence | 5 | high | Jiaying (reassigned by Chengling on 2026-11-04; assigned to `Jasmine-G-uo`; Jiaying's confirmation pending) | Sprint Todo | Not started. Depends on #2 ([#20](https://github.com/char-lv/b4gone/pull/20)) and #3; handoff notes in the issue |
-| [#5](https://github.com/char-lv/b4gone/issues/5) Edit, delete, return, restore | 5 | high | Chengling (confirmed; assigned to `char-lv`) | Sprint Todo | Not started |
-| [#6](https://github.com/char-lv/b4gone/issues/6) Validation, isolation, and flow tests | 3 | medium | Unconfirmed | Sprint Todo | Not started |
+| [#1](https://github.com/char-lv/b4gone/issues/1) Next.js project and shared rules | 3 | high | Unconfirmed; work so far by Chengling | Done (closed 2026-10-31) | [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14), and [#16](https://github.com/char-lv/b4gone/pull/16) merged |
+| [#2](https://github.com/char-lv/b4gone/issues/2) Registration, sign-in, sign-out | 5 | high | Jiaying (confirmed; assigned to `Jasmine-G-uo`) | Done (merged 2026-11-05) | [#20](https://github.com/char-lv/b4gone/pull/20), approved by Chengling at `3d09579` |
+| [#3](https://github.com/char-lv/b4gone/issues/3) Add-item form and HW3 comparison | 5 | high | Chengling (confirmed; assigned to `char-lv`) | Done (merged 2026-11-05; closed 2026-11-08) | HW3 comparison submitted through Canvas; form imported from Run B with new red/green fixes in [#24](https://github.com/char-lv/b4gone/pull/24) |
+| [#4](https://github.com/char-lv/b4gone/issues/4) Item APIs and persistence | 5 | high | Jiaying (reassigned; assigned to `Jasmine-G-uo`) | Done (merged 2026-11-08) | [#26](https://github.com/char-lv/b4gone/pull/26), approved by Chengling at `7c7a314`; `002_create_items` applied to production before the merge |
+| [#5](https://github.com/char-lv/b4gone/issues/5) Edit, delete, return, restore | 5 | high | Jiaying (reassigned; assigned to `Jasmine-G-uo`) | Done (merged 2026-11-08) | [#27](https://github.com/char-lv/b4gone/pull/27), approved by Chengling at `31a6dfc` |
+| [#6](https://github.com/char-lv/b4gone/issues/6) Validation, isolation, and flow tests | 3 | medium | Jiaying (assigned to `Jasmine-G-uo`) | Done (merged 2026-11-08) | [#28](https://github.com/char-lv/b4gone/pull/28), approved by Chengling at `921fa9e` |
 
-Total: 26 points. After the 2026-11-04 reassignment: Chengling 10 points (#3 and #5) and Jiaying 10 points (#2 and #4). #1 (closed) and #6 (3 points each) have no confirmed owner. Each partner needs five reviews of the other's pull requests, so when assigning #6 and the Sprint 2 issues, check that both partners will author enough pull requests.
+Total: 26 points, all done. By owner: Chengling 5 points (#3) and Jiaying 18 points (#2, #4, #5, #6; #4 and #5 were reassigned to her). #1 (3 points) has no confirmed owner; the work was Chengling's. Each partner needs five reviews of the other's pull requests, so check the Sprint 2 split for that too.
 
 Dependencies: #4 needs the session owner from #2 and the form from #3; #5 builds on #4; #6 covers #2–#5. With #4 now owned by Jiaying, #3 (Chengling) feeds #4 (Jiaying), which feeds #5 (Chengling).
 
 Risk on 2026-10-28: two days remain before the milestone date (2026-10-30), and #2, #4, #5, and #6 have no branch or pull request yet. Decide together at the next standup whether to keep the date or move work to Sprint 2, and record the decision here.
 
-Status on 2026-11-04: the milestone date has passed with #2–#6 open (#2 in review, #3 in progress, #4–#6 not started). No joint decision about the date or scope is recorded yet.
+Status on 2026-11-09: all six Sprint 1 issues are closed. #1 closed on 2026-10-31, before the milestone date; #2 and #3 merged on 2026-11-05 and #4–#6 on 2026-11-08, after it. No joint decision about the late date is recorded.
 
 ## Standups
 
