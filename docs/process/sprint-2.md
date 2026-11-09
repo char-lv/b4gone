@@ -6,9 +6,9 @@
 
 ## Planning
 
-Joint planning record: **Pending.** The 2026-10-25 recap ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792955442191349)) split the twelve issues across two sprints, but no Sprint 2 planning meeting or message was found. The 2026-11-04 update ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793839618825829)) lists Sprint 2 planning as upcoming work. The owners below come from GitHub assignments: #7 and #8 `char-lv`, #9 and #10 `Jasmine-G-uo`; #11 and #12 have no assignee.
+Joint planning: the partners planned Sprint 2 together on 2026-11-05 and started the main feature work that day, according to Chengling on 2026-11-09. That fits GitHub: #8 was assigned to `char-lv` on 2026-11-05, and [#25](https://github.com/char-lv/b4gone/pull/25) (#8) merged the same day. Earlier, the 2026-10-25 recap ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792955442191349)) had split the twelve issues across two sprints, and the 2026-11-04 update ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793839618825829)) listed Sprint 2 planning as next. Chengling also posted a Sprint 2 planning summary in Slack. It was written afterwards from the Slack updates, issues, and commit history, so it summarizes the plan; it is not a record made on 2026-11-05. Its link is **Pending**. Jiaying confirms the date in her review of #31. The owners below come from GitHub assignments: #7 and #8 `char-lv`, #9 and #10 `Jasmine-G-uo`; #11 and #12 have no assignee. #7 was reassigned to Chengling on 2026-11-08, after the planning.
 
-- Product Owner and Scrum Master for Sprint 2: **Pending**, like Sprint 1. AGENTS.md says the roles swap each sprint, but no record shows who held them.
+- Product Owner: Jiaying. Scrum Master: Chengling (the Sprint 1 roles swapped). The partners agreed on the roles, according to Chengling on 2026-11-09: in Sprint 1 Chengling was Product Owner and Jiaying was Scrum Master, and in Sprint 2 they swapped. No written record of that agreement is linked yet; Jiaying confirms it in her review of #31.
 
 | Issue | Points | Priority | Suggested owner (unconfirmed) | Board status on 2026-10-28 | Evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -29,10 +29,9 @@ At least three updates per partner per sprint. The Slack messages are in the cou
 
 | Date (PT) | Posted by | Covers | Summary | Link |
 | --- | --- | --- | --- | --- |
-| 2026-11-04 | Chengling | A section for each partner | Done, next, and blockers: accounts (#2), the add-item form (#3), reviews, deployment, and the #4 handoff. Lists the Sprint 1 retrospective and Sprint 2 planning as next | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793839618825829) |
 | 2026-11-08 | Jiaying | A section for each partner | Done, next, and blockers: the #8 calculations, the Items stack (#4–#6), reviews, migrations, and what subscriptions and the dashboard depend on | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1794175414140039) |
 
-Neither message names a sprint. They are listed here by date because they came after the Sprint 1 milestone date (2026-10-30), but the Nov 4 post still reports Sprint 1 work. **Pending:** the partners confirm when Sprint 2 started and which sprint each post belongs to. Even if both count for Sprint 2, that is two posts per partner, so at least one more real update from each partner is needed.
+Sprint 2 started with planning on 2026-11-05; Sprint 1 pull requests kept merging until 2026-11-08, so the two overlap. The 2026-11-04 post is listed under [Sprint 1](sprint-1.md#standups). The 2026-11-08 post names no sprint, but it came after the planning. Count so far: one post with a section for each partner. **Pending:** at least two more real updates covering each partner before the 2026-11-12 deadline, or three per partner if shared posts are not counted for both.
 
 ## Retrospective
 
