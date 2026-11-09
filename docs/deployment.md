@@ -1,6 +1,6 @@
 # Deployment
 
-Status: **Vercel is connected, but no production deployment has succeeded yet.** On 2026-10-28 the owner connected a Vercel Hobby project and performed steps 1–4 below. The first production build of `main` (`7820b4c`) failed in `npm ci`: the lockfile lacked entries that Vercel's npm 11.19.1 requires. Pull request #18 fixes the lockfile, and its preview build succeeded. The production URL, deployed commit, and deployed smoke-check result are still pending. Remaining work is tracked in issue #11.
+Status on 2026-11-09: **`main` (accounts, items, and subscriptions) is served at https://b4gone.vercel.app, and every Vercel deployment triggers the automated smoke check.** On the same day the owner signed in on production with an invented test account and added, cancelled, reactivated, edited, and deleted a labeled test subscription ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6732546792)). History: on 2026-10-28 the owner connected a Vercel Hobby project and performed steps 1–4 below. The first production build of `main` (`7820b4c`) failed in `npm ci`: the lockfile lacked entries that Vercel's npm 11.19.1 requires. Pull request #18 fixed the lockfile and was merged on 2026-10-31. Vercel then reported a completed deployment for `main` at `7aa3a2b`, and the production URL passed the smoke check from Chengling's machine. Remaining work is tracked in issue #11.
 
 ## Plan
 
@@ -23,12 +23,12 @@ Only the repository owner can let Vercel read `char-lv/b4gone`, so the owner (Ch
 
 | Item | Where to find it | Value |
 | --- | --- | --- |
-| Production URL | Vercel project → Domains | Pending |
-| Deployed commit | Vercel deployment → Source (should be the current `main` SHA) | Pending |
-| Deployment page | Vercel deployment URL | Pending |
-| Smoke check | `npm run smoke -- <production URL>` output | Pending |
-| Preview deployment | Vercel comment or GitHub deployment on the next pull request | Pending |
-| Automated smoke run | Actions → Deployment smoke check | Pending |
+| Production URL | Vercel project → Domains | https://b4gone.vercel.app. On 2026-11-04 the Vercel project API listed it as an alias of the current production deployment, and it answered `200` to an anonymous request with the `main` homepage |
+| Deployed commit | Vercel deployment → Source (should be the current `main` SHA) | On 2026-11-09: `328f271` (merge of #29), reported by the automated smoke run ([run](https://github.com/char-lv/b4gone/actions/runs/42562967558)). First deployment: `7aa3a2b` ([`7aa3a2bc`](https://github.com/char-lv/b4gone/commit/7aa3a2bc424048667a4a4efb0ba8b82a948237b2)): the production target's `githubCommitSha` in the Vercel project API and the build log's clone line (2026-11-04, Vercel CLI 64.7.0). Built with Node v24.22.2 and npm 11.19.1 |
+| Deployment page | Vercel deployment URL | [6ANgb6a3f](https://vercel.com/cj-09b7/b4gone/6ANgb6a3fiKmVVDJeNiLbfvs9b5K) (requires Vercel sign-in) |
+| Smoke check | `npm run smoke -- <production URL>` output | Passed on 2026-11-04 from Chengling's machine: `PASS HTTP status: 200`, `PASS HTML response: text/html; charset=utf-8`, `PASS Page title contains B4Gone: B4Gone` |
+| Preview deployment | Vercel comment or GitHub deployment on the next pull request | #18 ([`3dd6e23`](https://vercel.com/cj-09b7/b4gone/98ZMtHChnbAEWPaA4jqhP9cpnZ58)) and #20 ([`5b6cf81`](https://vercel.com/cj-09b7/b4gone/DeRXtTiPZAvZiwUXipeCkK9VxYzG)) built successfully. Their URLs redirect anonymous visitors to the Vercel sign-in (Vercel Authentication) |
+| Automated smoke run | Actions → Deployment smoke check | First run on 2026-11-09 against production ([run](https://github.com/char-lv/b4gone/actions/runs/42546650387)), then a preview ([run](https://github.com/char-lv/b4gone/actions/runs/42546877557)) and the production deployment of `328f271` ([run](https://github.com/char-lv/b4gone/actions/runs/42562967558)); all passed. See [Automated smoke check](#automated-smoke-check) |
 
 Paste the smoke-check output and links into issue #11 and the process evidence index. A passing check prints three `PASS` lines:
 
@@ -39,12 +39,20 @@ PASS HTML response: text/html; charset=utf-8
 PASS Page title contains B4Gone: B4Gone
 ```
 
+## Automated smoke check
+
+[`deployment-smoke.yml`](../.github/workflows/deployment-smoke.yml) first started only from `deployment_status` events, and it never ran. On 2026-11-04 the Vercel project API showed both deployment event sources turned off: `gitProviderOptions.createDeployments` is `disabled` (no GitHub deployments, so no `deployment_status`), and `disableRepositoryDispatchEvents` is `true`.
+
+[#23](https://github.com/char-lv/b4gone/pull/23) switches the trigger to the `vercel.deployment.success` repository dispatch event that [Vercel's docs](https://vercel.com/docs/git/vercel-for-github) recommend. It checks production on https://b4gone.vercel.app, because every unique deployment URL is behind Vercel Authentication. #23 merged on 2026-11-09, and the owner turned on repository dispatch events in the Vercel project's Git settings the same day; Deployment Protection and the secrets were not changed. Production runs check https://b4gone.vercel.app; preview runs use `VERCEL_AUTOMATION_BYPASS_SECRET`. The check covers the homepage only, not signed-in flows.
+
 ## Deployment Protection for previews
 
 Vercel can require a Vercel sign-in before anyone opens a preview deployment. Then the partner cannot open previews from a Hobby project, and the automated smoke check receives `401`. Choose one option and record the choice in #11:
 
 - Keep protection and create a **Protection Bypass for Automation** secret in the Vercel project's Deployment Protection settings. Add it to GitHub (repository **Settings → Secrets and variables → Actions**) as `VERCEL_AUTOMATION_BYPASS_SECRET`. The smoke check sends it as a header and never prints it.
 - Or turn off Vercel Authentication for previews so both partners can open them. Previews must then never contain real personal data or production credentials.
+
+Chosen on 2026-11-04: keep protection with an automation bypass token, stored as `VERCEL_AUTOMATION_BYPASS_SECRET` ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6645202973)). Never put the token in a URL, and never forward the bypass header or cookies to another origin.
 
 Do not authorize deployments of pull requests from forks.
 
@@ -110,9 +118,8 @@ In Vercel, open **Deployments**, pick the last good production deployment, and p
 
 ## Remaining under #11
 
-- Connect Vercel, perform the first deployment, and fill in the evidence table.
-- Confirm one pull request preview deployment and its automated smoke check.
-- Confirm that a reviewed merge to `main` deploys to production automatically.
-- Add the preview and production databases and secrets described in [Database and session secrets](#database-and-session-secrets-issue-2), then record the verification in #11.
-- End-to-end tests run in CI against a disposable PostgreSQL service with throwaway credentials (added in #2); extend them as item flows arrive.
-- Confirm that `deployment-smoke.yml` runs. On 2026-10-28 Vercel reported commit statuses, but the GitHub deployments API listed no deployments, and this workflow starts only from `deployment_status` events.
+- Production domain and deployed commit: confirmed on 2026-11-09. The merge of #29 (`328f271`) deployed to https://b4gone.vercel.app without manual steps, and the automated smoke check reported that commit ([run](https://github.com/char-lv/b4gone/actions/runs/42562967558)).
+- Pull request preview with an automated smoke check: confirmed on #21's preview on 2026-11-09 (see the last item).
+- Preview and production databases and secrets: the four Vercel variables were added on 2026-11-04 ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6644843797)). Preview sign-in passed HTTP/API checks on the #20 preview ([record](https://github.com/char-lv/b4gone/issues/11#issuecomment-6645202973)). Both Neon branches have `001_create_users`, `002_create_items`, and `003_create_subscriptions` (checks by Jiaying before and after `003` on 2026-11-09, [record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)). Production sign-in with an invented account (step 3 above) and one subscription flow passed on 2026-11-09 ([record](https://github.com/char-lv/b4gone/issues/11#issuecomment-6732546792)). Not checked on production: two-user isolation and the item flows (both covered by CI tests).
+- End-to-end tests run in CI against a disposable PostgreSQL service with throwaway credentials (added in #2); they cover accounts, items, and subscriptions.
+- Confirm that `deployment-smoke.yml` runs (see [Automated smoke check](#automated-smoke-check)). Vercel reported commit statuses but no GitHub deployments, so the old `deployment_status` trigger never fired. [#23](https://github.com/char-lv/b4gone/pull/23), merged on 2026-11-09, switches the workflow to Vercel's `repository_dispatch` events, which were then turned on in the Vercel project's Git settings. The first automated run passed against production on 2026-11-09 ([run](https://github.com/char-lv/b4gone/actions/runs/42546650387), [record](https://github.com/char-lv/b4gone/issues/11#issuecomment-6730208659)). A preview-triggered run, through `VERCEL_AUTOMATION_BYPASS_SECRET`, passed the same day ([run](https://github.com/char-lv/b4gone/actions/runs/42546877557)).

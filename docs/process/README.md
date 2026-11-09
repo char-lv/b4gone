@@ -1,6 +1,6 @@
 # Process records
 
-These files hold the team's actual process records. They link only to records that exist; anything not yet recorded is marked **Pending**. Last updated 2026-10-28.
+These files hold the team's actual process records. They link only to records that exist; anything not yet recorded is marked **Pending**. Last updated 2026-11-09.
 
 Partners: Chengling ([`char-lv`](https://github.com/char-lv), repository owner) and Jiaying ([`Jasmine-G-uo`](https://github.com/Jasmine-G-uo)).
 

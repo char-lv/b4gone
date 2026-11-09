@@ -22,6 +22,7 @@ The billing-date and monthly-cost rules shared by subscriptions and the dashboar
 - [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) tracks every P2 requirement with its status, related issue or pull request, evidence, and remaining action.
 - Sprint notes, standups, retrospectives, the contribution log, and the AI workflow record are in [docs/process/](docs/process/README.md).
 - Work is planned on the [project board](https://github.com/users/char-lv/projects/1).
+- Production: https://b4gone.vercel.app, deployed by Vercel from `main`. Since 2026-11-09 it serves `main` with accounts, items, and subscriptions; the dashboard (#9) is not built yet. See [docs/deployment.md](docs/deployment.md).
 
 ## Planned stack
 
@@ -29,7 +30,7 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 
 ## Current stage
 
-The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private and currently shows an empty state. Signed-in users can add items at `/items/new` (issue #3), and the items are saved to their account and shown in the Items list and on each item's page (issue #4). Editing, returning, and deleting items come with issue #5. Subscriptions (issue #7) can be added, viewed, edited, cancelled, reactivated, and deleted at `/subscriptions`, with next charges and the average monthly cost from issue #8. The dashboard's deadlines (issue #9) and receipt features are not implemented yet.
+The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private and currently shows an empty state. Signed-in users can add items at `/items/new` (issue #3), and the items are saved to their account and shown in the Items list and on each item's page (issue #4). Items can be edited, returned and restored, and deleted with confirmation (issue #5). Subscriptions (issue #7) can be added, viewed, edited, cancelled, reactivated, and deleted at `/subscriptions`, with next charges and the average monthly cost from issue #8. The dashboard's deadlines (issue #9) and receipt features are not implemented yet.
 
 ## Local setup
 
@@ -90,8 +91,8 @@ Every pull request and every push to `main` runs [`.github/workflows/ci.yml`](.g
 
 [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml) runs CodeQL security analysis (`security-extended` queries) on pull requests, on `main`, and weekly. Results appear under the repository's Security tab.
 
-Third-party actions are pinned to full commit SHAs. The CI database uses throwaway credentials that exist only inside the job. Deploy previews and automated production deployment are still pending under issue #11.
+Third-party actions are pinned to full commit SHAs. The CI database uses throwaway credentials that exist only inside the job. Every pull request gets a protected Vercel preview, and merges to `main` deploy to production automatically (issue #11).
 
 ## Deployment
 
-The site is not deployed yet. [docs/deployment.md](docs/deployment.md) describes the planned Vercel setup (preview deployments for pull requests, production deployments from `main`), the steps for the first deployment, and the evidence to record. `npm run smoke -- <url>` checks a deployed site, and [`.github/workflows/deployment-smoke.yml`](.github/workflows/deployment-smoke.yml) runs that check after each successful deployment once Vercel is connected.
+Vercel deploys `main` to https://b4gone.vercel.app and builds a protected preview for each pull request. [docs/deployment.md](docs/deployment.md) describes the setup, the migration steps for each Neon branch, and the recorded evidence. `npm run smoke -- <url>` checks a deployed site, and [`.github/workflows/deployment-smoke.yml`](.github/workflows/deployment-smoke.yml) runs that check after each successful Vercel deployment. It checks the homepage only, not signed-in flows.
