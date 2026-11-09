@@ -21,7 +21,7 @@ For each new entry, record the issue, what the agent was asked to do, which chec
 
 ## How context reaches the agent
 
-- **Shared rules:** root [AGENTS.md](../../AGENTS.md). Claude Code loads it through the one-line root `CLAUDE.md` import (`@AGENTS.md`). Each partner confirms this once in their own VS Code setup with `/memory` or `/context`. Chengling: confirmed on 2026-10-28, when the session context showed `CLAUDE.md` importing the AGENTS.md rules. Jiaying: **Pending**.
+- **Shared rules:** root [AGENTS.md](../../AGENTS.md). Claude Code loads it through the one-line root `CLAUDE.md` import (`@AGENTS.md`). Each partner confirms this once in their own VS Code setup with `/memory` or `/context`. Chengling: confirmed on 2026-10-28, when the session context showed `CLAUDE.md` importing the AGENTS.md rules. Jiaying: confirmed on 2026-11-08 with `/memory` in the VS Code extension, which listed the project `CLAUDE.md` and its AGENTS.md import.
 - **Task:** the GitHub issue body (goal, acceptance criteria, estimate, PRD reference).
 - **Behavior and design:** [docs/PRD.md](../PRD.md) and the prototype linked in its Section 7.
 - **Verification:** the npm scripts in the README, CI on every pull request, and partner review before merge.
