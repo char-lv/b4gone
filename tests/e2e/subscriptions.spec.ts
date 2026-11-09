@@ -184,7 +184,10 @@ test("the subscription list and details fit a phone screen without sideways scro
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, path).toBeLessThanOrEqual(0);
   }
-  await expect(page.getByRole("button", { name: "Delete subscription" })).toBeInViewport();
+  // The last action button sits below the fold on a phone; once scrolled to, none of it is clipped.
+  const deleteButton = page.getByRole("button", { name: "Delete subscription" });
+  await deleteButton.scrollIntoViewIfNeeded();
+  await expect(deleteButton).toBeInViewport({ ratio: 1 });
 });
 
 test("another account sees none of the subscriptions and cannot open one", async ({ page, browser }) => {

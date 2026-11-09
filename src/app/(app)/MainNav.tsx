@@ -18,8 +18,8 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Main">
-      <ul className="flex gap-1">
+    <nav aria-label="Main" className="max-sm:-ml-2.5">
+      <ul className="flex flex-wrap gap-1">
         {SECTIONS.map(({ href, label }) => {
           const current = isCurrent(pathname, href);
           return (
@@ -27,7 +27,7 @@ export function MainNav() {
               <Link
                 href={href}
                 aria-current={current ? "page" : undefined}
-                className={`block border-b-2 px-3.5 pt-[1.0625rem] pb-4 ${
+                className={`block border-b-2 px-2.5 pt-[1.0625rem] pb-4 sm:px-3.5 ${
                   current ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
                 }`}
               >

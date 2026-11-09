@@ -15,7 +15,8 @@ export default async function AppLayout({ children }: Readonly<{ children: React
     <>
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-8 gap-y-2 px-5">
-          <div className="flex items-center gap-8">
+          {/* On phones the three section tabs move under the wordmark instead of widening the page (#7). */}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-8">
             <div className="py-3.5">
               <Wordmark href="/dashboard" />
             </div>
