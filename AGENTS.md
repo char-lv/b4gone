@@ -87,7 +87,7 @@ Use red-green-refactor for application behavior: write a meaningful failing test
 - Project coverage goals: at least 80% lines/statements/functions and 75% branches for authored application code; at least 90% lines and branches for shared date/money/recurrence/validation modules. Exclude generated files and configuration, not difficult business cases. These are team targets, not percentages specified by the instructor.
 - Required cases include blank versus zero money, excess decimals, trimmed-name boundaries, invalid/future purchase dates, leap years, short months, dates on days 0/7/30, and foreign-owner record IDs. Fix the clock and timezone in tests.
 
-The scripts below are available. npm run test:integration covers the test-database connection, SQL migrations, the auth API with two-user session checks, and the item repository and API with two-user ownership checks (#4, #5); the subscription suite is added with #7. Database commands read .env.local; docs/setup.md explains the development and test databases. On the current macOS 13 machine, use PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e. Bundled Chromium remains unverified on this machine.
+The scripts below are available. npm run test:integration covers the test-database connection, SQL migrations, the auth API with two-user session checks, and the item and subscription repositories and APIs with two-user ownership checks (#4, #5, #7). Database commands read .env.local; docs/setup.md explains the development and test databases. On the current macOS 13 machine, use PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e. Bundled Chromium remains unverified on this machine.
 
 | Command | Purpose |
 | --- | --- |

@@ -1,6 +1,6 @@
 # Setup and environments
 
-This guide sets up B4Gone for local development and explains how local, test, CI, preview, and production settings stay separate. Accounts (#2) and items (#4) are stored in PostgreSQL through this connection.
+This guide sets up B4Gone for local development and explains how local, test, CI, preview, and production settings stay separate. Accounts (#2), items (#4), and subscriptions (#7) are stored in PostgreSQL through this connection.
 
 ## Prerequisites
 
@@ -78,7 +78,7 @@ npm run build
 npm run test:e2e   # macOS 13: PLAYWRIGHT_CHROMIUM_CHANNEL=chrome npm run test:e2e
 ```
 
-A working connection prints a line such as `Connected to the app database "b4gone_dev" as "b4gone" (PostgreSQL 17.x).` `npm run db:migrate` prints the versions it applied, or that the database is up to date. The integration suite applies migrations to the test database, then checks the connection, the migration runner, and the auth API (registration, sign-in, sign-out, session lookup, cross-origin rejection, and two-user isolation). Auth suites delete only the accounts they create.
+A working connection prints a line such as `Connected to the app database "b4gone_dev" as "b4gone" (PostgreSQL 17.x).` `npm run db:migrate` prints the versions it applied, or that the database is up to date. The integration suite applies migrations to the test database, then checks the connection, the migration runner, the auth API (registration, sign-in, sign-out, session lookup, cross-origin rejection, and two-user isolation), and the item and subscription repositories and APIs with two-user ownership checks. Each suite deletes only the accounts it creates. After pulling a branch that adds a file to `db/migrations/` (such as `003_create_subscriptions.sql` in #7), run `npm run db:migrate` again for your development database; the test database is migrated by the suite itself.
 
 ## Environments
 
