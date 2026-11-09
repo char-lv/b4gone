@@ -174,6 +174,19 @@ test("a failed save keeps the draft, and trying again saves it once", async ({ p
   await expect(page.getByRole("row", { name: /News plan/ })).toHaveCount(1);
 });
 
+test("the subscription list and details fit a phone screen without sideways scrolling", async ({ page }) => {
+  await addSubscription(page, { name: "International news and podcasts bundle", amount: "129.99", firstBillingDate: day(-3) });
+  await page.setViewportSize({ width: 375, height: 740 });
+
+  for (const path of ["/subscriptions", new URL(page.url()).pathname]) {
+    await page.goto(path);
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Subscriptions" })).toBeInViewport();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, path).toBeLessThanOrEqual(0);
+  }
+  await expect(page.getByRole("button", { name: "Delete subscription" })).toBeInViewport();
+});
+
 test("another account sees none of the subscriptions and cannot open one", async ({ page, browser }) => {
   await addSubscription(page, { name: "Private plan", amount: "9.99", firstBillingDate: day(-5) });
   const privateUrl = page.url();
