@@ -1,6 +1,6 @@
 # Architecture
 
-B4Gone is one Next.js 16 application (App Router, React 19, TypeScript) backed by one PostgreSQL database. There is no separate API server, no ORM, and no client-side state library. This page describes what is on `main` at `7db64cd` (2026-11-09). The dashboard's deadline list (#9) is in review in [#30](https://github.com/char-lv/b4gone/pull/30) and is not described here as built. Until #30 merges, `/dashboard` shows a placeholder empty state.
+B4Gone is one Next.js 16 application (App Router, React 19, TypeScript) backed by one PostgreSQL database. There is no separate API server, no ORM, and no client-side state library. This page describes what is on `main` at `06cdda5` (2026-11-09), after the dashboard (#9) merged in [#30](https://github.com/char-lv/b4gone/pull/30).
 
 ## How a request flows
 
@@ -22,7 +22,7 @@ flowchart TB
 
   CC -- "page request" --> PX --> SC
   CC -- "fetch JSON + cookie" --> RH
-  CC -. "same schemas and #8 calculations" .-> FEAT
+  CC -. "schemas, #8 calculations, dashboard events" .-> FEAT
   RH --> HTTP
   RH --> FEAT
   SC --> AUTH
@@ -34,6 +34,8 @@ flowchart TB
 ```
 
 **Pages read on the server.** List and detail pages under `src/app/(app)/` are async Server Components. They get the signed-in user from `getCurrentUser()` in `src/lib/auth/server-session.ts`. Then they call a repository directly, for example `listSubscriptions(getPool(), user.id)`. The browser never sees SQL or the database connection.
+
+The Dashboard is the one page that finishes its work in the browser; see [The dashboard](#the-dashboard) below.
 
 **Changes go through the API.** Forms and buttons are Client Components. They validate input with the same schema the server uses, then send JSON to a route handler with `fetch`. After a successful save they call `router.refresh()`, so the Server Components re-read the list and details. A failed save keeps the draft and shows an error.
 
@@ -74,6 +76,18 @@ sequenceDiagram
   A->>A: router.refresh()
 ```
 
+## The dashboard
+
+The dashboard (#9, [#30](https://github.com/char-lv/b4gone/pull/30)) adds no API route and no table. It reads the same owner-scoped data as the Items and Subscriptions pages and derives everything else.
+
+1. `src/app/(app)/dashboard/page.tsx` is a Server Component. It calls `listItems` and `listSubscriptions` with the signed-in user's id. For items it passes only `id`, `name`, `returnDeadline`, `warrantyExpiration`, and `status` to the browser; purchase date and price stay on the server.
+2. `DashboardView` is a Client Component. It gets today from `useLocalToday`, so the date is the user's local calendar day and the list moves to the next day when the page stays open past midnight. The server renders "—" and "Checking dates…" in place of anything date-dependent, so the server and browser HTML match.
+3. `dashboardEvents` in `src/features/dashboard/dashboard-events.ts` joins `itemDeadlines` (#5) and `nextRenewals` (#8). It keeps days 0–30 with `isInDashboardWindow`, then sorts by date, event type (return, warranty, renewal), name ignoring case, and id. Returned items and cancelled subscriptions give no events. An item can give a return and a warranty event, and a subscription gives at most one renewal.
+4. The list is split once with `isUrgent` (days 0–7) into "Within 7 days" and "In 8–30 days", so no event appears twice. The first card counts `events.length`, and the second shows `averageMonthlyCostCents` of the active plans. Each row links to `/items/{id}` or `/subscriptions/{id}` and shows "Due today" or "In N days" as text.
+5. `loading.tsx` and `error.tsx` give the page a loading state and an error panel with Try again.
+
+Because the page is rendered per request, opening it again after a change shows the saved records. The Playwright tests in `tests/e2e/dashboard.spec.ts` check this after a return, undo, cancellation, and reactivation.
+
 ## Authentication
 
 Accounts were built in #2 ([#20](https://github.com/char-lv/b4gone/pull/20)).
@@ -91,6 +105,7 @@ Accounts were built in #2 ([#20](https://github.com/char-lv/b4gone/pull/20)).
 | `src/app/(app)/` | Signed-in layout and navigation, plus the Dashboard, Items, and Subscriptions pages with their loading, error, and not-found states |
 | `src/app/api/` | `auth/{register,login,logout,me}`, `items`, `items/{id}`, `items/{id}/status`, `subscriptions`, `subscriptions/{id}`, `subscriptions/{id}/status` |
 | `src/features/auth/`, `items/`, `subscriptions/` | Each feature's forms and views, its shared schema, its repository, and its client request helper |
+| `src/features/dashboard/` | `dashboardEvents` and `DashboardView`; no repository of its own |
 | `src/components/ui/` | `Button`, `FormField`, `ConfirmDialog`, `ErrorPanel`, `BackLink`, `Wordmark` |
 | `src/lib/` | Date-only helpers, money parsing, recurrence, record-name rules, HTTP helpers, auth, and the database pool |
 | `db/migrations/` | `001_create_users.sql`, `002_create_items.sql`, `003_create_subscriptions.sql` |

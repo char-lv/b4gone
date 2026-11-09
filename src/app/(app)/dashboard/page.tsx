@@ -1,28 +1,27 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { DashboardView } from "@/features/dashboard/DashboardView";
+import { listItems } from "@/features/items/item-repository";
+import { listSubscriptions } from "@/features/subscriptions/subscription-repository";
+import { getCurrentUser } from "@/lib/auth/server-session";
+import { getPool } from "@/lib/db/pool";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
-// Placeholder for the signed-in home until the dashboard (#9) lists upcoming deadlines.
-export default function DashboardPage() {
-  return (
-    <>
-      <h1 className="text-[1.625rem] font-[650] leading-tight tracking-[-0.015em]">Dashboard</h1>
-      <p className="mt-1.5 text-[0.9375rem] text-muted">
-        Upcoming return deadlines, warranty expirations, and renewals for the next 30 days.
-      </p>
+// The signed-in home (issue #9). The page reads the owner's records on the server; the events depend
+// on the user's today, which only the browser knows, so DashboardView computes them there.
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/sign-in?next=/dashboard");
 
-      <section className="mt-8 rounded-card border border-line bg-surface px-6 py-14 text-center shadow-card">
-        <span className="mx-auto mb-4 inline-grid size-12 place-items-center rounded-full bg-accent-soft text-accent">
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="5" width="16" height="15" rx="2" />
-            <path d="M4 10h16M9 3v4M15 3v4" />
-          </svg>
-        </span>
-        <h2 className="text-[1.0625rem] font-[650]">Nothing to track yet</h2>
-        <p className="mx-auto mt-1.5 max-w-sm text-[0.9375rem] text-muted">
-          Your account is ready. Items and subscriptions you add will show their upcoming deadlines here.
-        </p>
-      </section>
-    </>
-  );
+  const [items, subscriptions] = await Promise.all([listItems(getPool(), user.id), listSubscriptions(getPool(), user.id)]);
+  // Only the fields the deadlines need go to the browser.
+  const deadlineItems = items.map(({ id, name, returnDeadline, warrantyExpiration, status }) => ({
+    id,
+    name,
+    returnDeadline,
+    warrantyExpiration,
+    status,
+  }));
+  return <DashboardView items={deadlineItems} subscriptions={subscriptions} />;
 }

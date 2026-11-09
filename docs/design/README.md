@@ -32,7 +32,7 @@ The font is Public Sans, loaded with `next/font`. Pages sit in a column up to `m
 - **Status** is shown as a tag with text ("Active", "Returned", "Cancelled"), not color alone. Dates near today get text such as "Due today" or "In 3 days".
 - **Delete** opens `ConfirmDialog`. The dialog opens with focus on the safe choice ("Keep subscription"), closes with Esc, and returns focus to the button that opened it.
 - **Keyboard:** every action is a real button or link, a "Skip to main content" link comes first, and the focus outline is a 3px accent ring.
-- **Phone width:** the header tabs wrap under the wordmark at 375px. A Playwright test checks that `/items` and `/subscriptions` do not scroll sideways (#7).
+- **Phone width:** the header tabs wrap under the wordmark at 375px. Playwright tests check that `/items`, `/subscriptions` (#7), and `/dashboard` (#9) do not scroll sideways.
 
 ## Compared with the course checklist
 

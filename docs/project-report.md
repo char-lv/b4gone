@@ -1,6 +1,6 @@
 # B4Gone project report
 
-This is the overview for the P2 submission: what B4Gone does today, how it is built, how we checked it, and what is still missing. It links to the detailed documents instead of repeating them. Facts are as of `main` at `7db64cd` on 2026-11-09.
+This is the overview for the P2 submission: what B4Gone does today, how it is built, how we checked it, and what is still missing. It links to the detailed documents instead of repeating them. Facts are as of `main` at `06cdda5` on 2026-11-09, after the dashboard merged.
 
 Team: Chengling Lv ([`char-lv`](https://github.com/char-lv)) and Jiaying Guo ([`Jasmine-G-uo`](https://github.com/Jasmine-G-uo)).
 
@@ -37,8 +37,9 @@ These parts are on `main` and deployed:
 | Edit, return and undo, confirmed delete | #5 | [#27](https://github.com/char-lv/b4gone/pull/27) (Jiaying → Chengling) | 2026-11-08 |
 | Item validation, isolation, and flow tests | #6 | [#28](https://github.com/char-lv/b4gone/pull/28) (Jiaying → Chengling) | 2026-11-08 |
 | Subscriptions: add, list, details, edit, cancel, reactivate, confirmed delete | #7 | [#29](https://github.com/char-lv/b4gone/pull/29) (Chengling → Jiaying) | 2026-11-09 |
+| Dashboard: deadline count, average monthly cost, 30-day list in two groups | #9 | [#30](https://github.com/char-lv/b4gone/pull/30) (Jiaying → Chengling) | 2026-11-09 |
 
-The Dashboard with the 30-day deadline list and the two summary cards (#9) is open as [#30](https://github.com/char-lv/b4gone/pull/30) by Jiaying, waiting for Chengling's review. Until it merges, `/dashboard` shows a placeholder. Cross-view, accessibility, and failure-state checks (#10) have not started. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
+The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) have not started. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
 
 ## How it is built
 
@@ -62,18 +63,20 @@ The decisions that shaped the code:
 - 148 integration tests against a disposable PostgreSQL 17 service.
 - 41 Playwright tests.
 
-The integration suites include two-user checks for every item and subscription operation. The Playwright suites cover sign-in, add with field errors fixed by keyboard, a failed save that keeps the draft, edit, return and undo, cancel and reactivate, confirmed delete, phone width, and a second account that sees nothing.
+After #30 merged, CI on `06cdda5` ([run](https://github.com/char-lv/b4gone/actions/runs/42579382300)) passed 621 unit and component tests in 50 files (91.91% lines, 88.51% statements, 89.12% functions, 85.5% branches), 148 integration tests, and 46 Playwright tests.
+
+The integration suites include two-user checks for every item and subscription operation. The Playwright suites cover sign-in, add with field errors fixed by keyboard, a failed save that keeps the draft, edit, return and undo, cancel and reactivate, confirmed delete, phone width, and a second account that sees nothing. The dashboard suite adds the 30-day window and groups, and the count and average changing after a return or cancellation.
 
 **Security checks.** `npm audit`, dependency review on pull requests, and CodeQL (`security-extended`) run in CI. CodeQL flagged a dynamic regular expression in a #7 test, and we replaced it with static matchers instead of suppressing the alert.
 
-**Deployment.** Merges to `main` deploy to Vercel production. `deployment-smoke.yml` checks each deployment's homepage; the run after #21 merged reported `7db64cd` ([run](https://github.com/char-lv/b4gone/actions/runs/42566222197)). The smoke check does not sign in. On 2026-11-09 we also checked production by hand with an invented account: we added a labeled subscription, cancelled it, reactivated it, edited it, and deleted it ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6732546792)). Database migrations are applied to the Neon preview branch first, then to production before the merge, with checks before and after ([`003` record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)).
+**Deployment.** Merges to `main` deploy to Vercel production. `deployment-smoke.yml` checks each deployment's homepage; the run after #21 merged reported `7db64cd` ([run](https://github.com/char-lv/b4gone/actions/runs/42566222197)). After #30 merged, the run reported `06cdda5` ([run](https://github.com/char-lv/b4gone/actions/runs/42579535653)). The smoke check does not sign in. On 2026-11-09 we also checked production by hand with an invented account: we added a labeled subscription, cancelled it, reactivated it, edited it, and deleted it ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6732546792)). Database migrations are applied to the Neon preview branch first, then to production before the merge, with checks before and after ([`003` record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)).
 
-**Review.** Each merged pull request was approved by the other partner first. As of 2026-11-09, Jiaying has 12 approving reviews of Chengling's pull requests, and Chengling has 4 of Jiaying's. Chengling's fifth will be #30.
+**Review.** Each merged pull request was approved by the other partner first. As of 2026-11-09, Jiaying has approved 13 of Chengling's pull requests (including this documentation pull request, #31), and Chengling has approved 5 of Jiaying's. The fifth was #30, approved at `9fad79c` after local unit, Playwright, and browser checks ([review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987)).
 
 ## Known limitations
 
-- The Dashboard (#9) is not on `main` yet, and the #10 checks have not started.
-- Only one signed-in flow (subscriptions) was checked by hand on production. Two-user isolation and the item flows were checked only in CI.
+- The #10 checks (views staying in step, accessibility, failure states) have not started. Jiaying owns them, including two 404 resource errors seen during an item edit and a subscription delete in the #30 review, and a wording fix in the #9 TDD record.
+- Only one signed-in flow (subscriptions) was checked by hand on production. The dashboard was checked signed in only locally, during the #30 review; on production only the homepage smoke check ran. Two-user isolation and the item flows were checked only in CI.
 - There is no health route that queries the database, no seed script, no formatter, and no branch protection on `main`.
 - Local and CI use Node 24.11.0 / npm 11.6.1, while Vercel builds with Node 24.22.2 / npm 11.19.1. Draft [#22](https://github.com/char-lv/b4gone/pull/22) proposes aligning them; both partners still have to upgrade and agree.
 - Previews are behind Vercel Authentication. On the Hobby plan only the owner can open them in a browser.
@@ -81,7 +84,7 @@ The integration suites include two-user checks for every item and subscription o
 
 ## Demo outline (10 minutes)
 
-The video is not recorded yet. This outline uses only features that are deployed today; the Dashboard segment depends on #30 merging first. Use an invented account and invented records.
+The video is not recorded yet. This outline uses only features that are deployed today. Use an invented account and invented records.
 
 | Time | Segment | What to show |
 | --- | --- | --- |
@@ -89,7 +92,7 @@ The video is not recorded yet. This outline uses only features that are deployed
 | 0:45–1:45 | Accounts | Register, sign out, show that `/items` redirects to sign-in, sign back in |
 | 1:45–3:30 | Items | Add an item with a wrong price (`1,,2`) and a return deadline before the purchase date; fix both with the keyboard; save; open details; mark it returned, then undo; edit it |
 | 3:30–5:15 | Subscriptions | Add a $15.99 monthly plan anchored on Jan 31 and show the next charge. Add a yearly plan and show the average monthly cost. Cancel one and watch the average change, then reactivate it and show the same anchor |
-| 5:15–6:00 | Dashboard | Only if #30 has merged: the 30-day list, the urgency labels, and a row opening its record. Otherwise skip this segment |
+| 5:15–6:00 | Dashboard | The two cards, the 30-day list with its two groups and urgency labels, and a row opening its record. Return the item from earlier and show that its events leave |
 | 6:00–6:30 | Delete | Delete a record through the confirmation dialog; show the 404 for its old URL |
 | 6:30–8:00 | Engineering | A red/green commit pair in GitHub, a CI run with its stages, CodeQL, and the Vercel preview on a pull request |
 | 8:00–9:15 | Teamwork | The board, a partner review with comments, the Slack planning and progress messages, and the contribution log |
