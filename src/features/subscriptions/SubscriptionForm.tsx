@@ -4,6 +4,9 @@ import Link from "next/link";
 import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
+import { useLocalToday } from "@/features/items/local-today";
+import { daysUntil, formatDateOnly, isValidDateOnly, relativeDayText } from "@/lib/dates";
+import { nextBillingDate } from "@/lib/recurrence";
 import { BILLING_CYCLE_LABELS } from "./SubscriptionLabels";
 import {
   BILLING_CYCLES,
@@ -54,6 +57,22 @@ function focusTarget(form: HTMLFormElement, field: SubscriptionField): HTMLInput
   }
   const element = form.elements.namedItem(field);
   return element instanceof HTMLInputElement ? element : null;
+}
+
+/** The next charge for the entered anchor and cycle (#8), on the user's local date, as a short line. */
+function NextChargePreview({ draft }: { draft: SubscriptionDraft }) {
+  const today = useLocalToday();
+  const anchor = draft.firstBillingDate.trim();
+  const cycle = BILLING_CYCLES.find((candidate) => candidate === draft.billingCycle);
+  if (!today || !cycle || !isValidDateOnly(anchor)) {
+    return <p className="-mt-2 mb-5 text-sm text-muted">Next charge: enter a first billing date to see it.</p>;
+  }
+  const next = nextBillingDate(anchor, cycle, today);
+  return (
+    <p className="-mt-2 mb-5 text-sm text-muted">
+      Next charge: {formatDateOnly(next)} ({relativeDayText(daysUntil(next, today))})
+    </p>
+  );
 }
 
 /**
@@ -209,6 +228,7 @@ export function SubscriptionForm({ onSubmit, onCancel, labelledBy, initialDraft 
         size="date"
         hint="The date of the first charge; it may be in the future. Later charges repeat from this date."
       />
+      <NextChargePreview draft={draft} />
 
       <div className="mt-6 flex flex-wrap gap-2 border-t border-line pt-5">
         <Button type="submit" variant="primary" aria-disabled={saving || undefined}>

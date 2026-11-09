@@ -8,6 +8,7 @@ import { sendSubscriptionRequest, subscriptionFormRejection } from "./subscripti
 import type { Subscription } from "./subscription-repository";
 import { type NewSubscriptionInput, draftFromSubscription } from "./subscription-schema";
 import { SubscriptionForm } from "./SubscriptionForm";
+import { SUBSCRIPTION_STATUS_LABELS } from "./SubscriptionLabels";
 
 /** The edit form for a saved subscription (issue #7): the add form's fields and rules, starting from the saved values. */
 export function EditSubscriptionPanel({ subscription }: { subscription: Subscription }) {
@@ -37,6 +38,10 @@ export function EditSubscriptionPanel({ subscription }: { subscription: Subscrip
           Edit subscription
         </h1>
         <p className="mt-1.5 break-words text-muted">Editing “{subscription.name}”.</p>
+        <p className="mt-1 text-muted">
+          Status: {SUBSCRIPTION_STATUS_LABELS[subscription.status]}.{" "}
+          {subscription.status === "active" ? "Cancel it from the details page." : "Reactivate it from the details page."}
+        </p>
       </div>
       <SubscriptionForm
         labelledBy="edit-subscription-title"

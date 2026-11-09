@@ -170,7 +170,7 @@ export function SubscriptionActions({ subscription }: { subscription: Subscripti
         onConfirm={deleteThisSubscription}
         onClose={() => setDialogOpen(false)}
       >
-        This removes the subscription and its renewal reminder.
+        {active ? "This removes the subscription and its renewal reminder." : "This removes the cancelled subscription."}
       </ConfirmDialog>
     </>
   );
