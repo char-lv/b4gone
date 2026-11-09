@@ -22,7 +22,7 @@ The billing-date and monthly-cost rules shared by subscriptions and the dashboar
 - [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) tracks every P2 requirement with its status, related issue or pull request, evidence, and remaining action.
 - Sprint notes, standups, retrospectives, the contribution log, and the AI workflow record are in [docs/process/](docs/process/README.md).
 - Work is planned on the [project board](https://github.com/users/char-lv/projects/1).
-- Production: https://b4gone.vercel.app, deployed by Vercel from `main`. Since 2026-11-09 it serves `main` with accounts, items, and subscriptions; the dashboard (#9) is not built yet. See [docs/deployment.md](docs/deployment.md).
+- Production: https://b4gone.vercel.app, deployed by Vercel from `main`. Since 2026-11-09 it serves `main` with accounts, items, and subscriptions; the dashboard (#9) goes live when its pull request merges. See [docs/deployment.md](docs/deployment.md).
 
 ## Planned stack
 
@@ -30,7 +30,7 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 
 ## Current stage
 
-The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private and currently shows an empty state. Signed-in users can add items at `/items/new` (issue #3), and the items are saved to their account and shown in the Items list and on each item's page (issue #4). Items can be edited, returned and restored, and deleted with confirmation (issue #5). Subscriptions (issue #7) can be added, viewed, edited, cancelled, reactivated, and deleted at `/subscriptions`, with next charges and the average monthly cost from issue #8. The dashboard's deadlines (issue #9) and receipt features are not implemented yet.
+The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private. Signed-in users can add items at `/items/new` (issue #3), and the items are saved to their account and shown in the Items list and on each item's page (issue #4). Items can be edited, marked as returned and restored, and deleted (issue #5). Subscriptions (issue #7) can be added, viewed, edited, cancelled, reactivated, and deleted at `/subscriptions`, with next charges and the average monthly cost from issue #8. The dashboard (issue #9) shows the deadline count, the average monthly subscription cost, and every return deadline, warranty expiration, and next renewal from today through day 30, split into the next 7 days and days 8 to 30, with each event linking to its record. Receipt features are not implemented.
 
 ## Local setup
 

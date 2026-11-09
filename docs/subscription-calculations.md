@@ -35,7 +35,7 @@ type RenewalEvent = { subscriptionId: string; name: string; date: string; amount
 - Cancelled subscriptions give no event.
 - A reactivated subscription is just active again: its date comes from the original `firstBillingDate`.
 - A free (zero-amount) subscription still has a renewal.
-- The result is not limited to the 30-day dashboard window and is not sorted. #9 keeps events from `today` through day 30 inclusive, merges them with item events, and sorts by date, event type, and record name.
+- The result is not limited to the 30-day dashboard window and is not sorted. `dashboardEvents` in `src/features/dashboard/dashboard-events.ts` (#9) keeps events from `today` through day 30 inclusive, merges them with item events, and sorts by date, event type, and record name.
 
 ## `averageMonthlyCostCents(subscriptions)`
 
