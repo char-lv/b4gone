@@ -17,8 +17,8 @@ describe("SubscriptionForm", () => {
   it("shows the four fields in order with required markers and monthly selected", () => {
     render(<SubscriptionForm onSubmit={vi.fn()} />);
 
-    const labels = ["Service name", "Amount (USD)", "Monthly", "Yearly", "First billing date"];
-    for (const label of labels) expect(screen.getByLabelText(new RegExp(`^${label.replace(/[()]/g, "\\$&")}`))).toBeInTheDocument();
+    const labels = [/^Service name/, /^Amount \(USD\)/, /^Monthly/, /^Yearly/, /^First billing date/];
+    for (const label of labels) expect(screen.getByLabelText(label)).toBeInTheDocument();
     expect(screen.getByRole("group", { name: /Billing cycle/ })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Monthly" })).toBeChecked();
     expect(screen.getAllByText("(required)")).toHaveLength(4);
