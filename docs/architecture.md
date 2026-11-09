@@ -5,10 +5,8 @@ B4Gone is one Next.js 16 application (App Router, React 19, TypeScript) backed b
 ## How a request flows
 
 ```mermaid
-flowchart LR
-  subgraph Browser
-    CC["Client Components<br/>forms, NextCharge, ConfirmDialog"]
-  end
+flowchart TB
+  CC["Browser: Client Components<br/>forms, NextCharge, ConfirmDialog"]
 
   subgraph Vercel["Next.js app on Vercel"]
     PX["src/proxy.ts<br/>redirects signed-out visitors"]
@@ -18,22 +16,21 @@ flowchart LR
     AUTH["src/lib/auth/<br/>JWT session, bcrypt"]
     FEAT["src/features/*/<br/>schemas and calculations"]
     REPO["Repositories<br/>owner-scoped SQL"]
-    POOL["src/lib/db/pool.ts<br/>pg Pool"]
   end
 
   DB[("PostgreSQL 17<br/>users, items, subscriptions")]
 
   CC -- "page request" --> PX --> SC
-  CC -- "fetch JSON + session cookie" --> RH
-  SC --> AUTH
-  SC --> REPO
-  RH --> HTTP
-  RH --> AUTH
-  RH --> FEAT
-  RH --> REPO
-  AUTH --> REPO
-  REPO --> POOL --> DB
+  CC -- "fetch JSON + cookie" --> RH
   CC -. "same schemas and #8 calculations" .-> FEAT
+  RH --> HTTP
+  RH --> FEAT
+  SC --> AUTH
+  RH --> AUTH
+  AUTH --> REPO
+  SC --> REPO
+  RH --> REPO
+  REPO -- "pg Pool, src/lib/db/pool.ts" --> DB
 ```
 
 **Pages read on the server.** List and detail pages under `src/app/(app)/` are async Server Components. They get the signed-in user from `getCurrentUser()` in `src/lib/auth/server-session.ts`. Then they call a repository directly, for example `listSubscriptions(getPool(), user.id)`. The browser never sees SQL or the database connection.
