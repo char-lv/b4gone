@@ -17,7 +17,7 @@ The partners planned the project and Sprint 1 in meetings and recapped them in S
 | 2026-10-28 | Chengling | Both partners met to review progress and confirm Sprint 1 responsibilities; lists each partner's work, next steps, and the dependencies between them | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793219652400559) |
 
 - Owners: the 2026-10-28 meeting confirmed Sprint 1 responsibilities, and the issues were assigned on GitHub that day: #2 to Jiaying and #3–#5 to Chengling. On 2026-11-04 Chengling reassigned #4 to Jiaying ([record in #4](https://github.com/char-lv/b4gone/issues/4#issuecomment-6644022894)). #5 and #6 were also assigned to Jiaying, and she implemented #4–#6 ([#26](https://github.com/char-lv/b4gone/pull/26)–[#28](https://github.com/char-lv/b4gone/pull/28)). #1 has no assignee; the work was Chengling's.
-- Product Owner: Chengling. Scrum Master: Jiaying. The partners agreed on the roles, according to Chengling on 2026-11-09: in Sprint 1 Chengling was Product Owner and Jiaying was Scrum Master, and in Sprint 2 they swapped. No written record of that agreement is linked yet; Jiaying confirms it in her review of #31.
+- Product Owner: Chengling. Scrum Master: Jiaying. Both partners agreed on these roles at the 2026-11-05 meeting. Jiaying confirmed them in Slack on 2026-11-08 ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1794206532613009)) and in her reviews of #31 ([first](https://github.com/char-lv/b4gone/pull/31#pullrequestreview-5822290437), [second](https://github.com/char-lv/b4gone/pull/31#pullrequestreview-5822547817)).
 
 | Issue | Points | Priority | Owner | Board status on 2026-11-04 | Evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ The course asks for at least three standups per partner per sprint. For this spr
 | 2026-10-30 | Jiaying | A section for each partner | Labeled Sprint 1: done, next, and blockers for setup, reviews, databases, deployment, and accounts | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793420722222249) |
 | 2026-11-04 | Chengling | A section for each partner | Done, next, and blockers: accounts (#2), the add-item form (#3), reviews, deployment, and the #4 handoff. Lists the Sprint 1 retrospective and Sprint 2 planning as next | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793839618825829) |
 
-Sprint 1 ran until Sprint 2 planning on 2026-11-05 (see [sprint-2.md](sprint-2.md#planning)), so the 2026-11-04 post belongs here. It names no sprint, but it was posted before that planning. Count: three posts with a section for each partner (Oct 28, Oct 30, Nov 4), plus two team recaps. By author, Chengling posted two of the three and Jiaying one. If a section in a shared post counts as that partner's standup, each partner has three for Sprint 1. **Pending:** both partners agree that the shared format counts. Do not add or backdate messages.
+Sprint 1 ran until Sprint 2 planning on 2026-11-05 (see [sprint-2.md](sprint-2.md#planning)), so the 2026-11-04 post belongs here. It names no sprint, but it was posted before that planning. Count: three posts with a section for each partner (Oct 28, Oct 30, Nov 4), plus two team recaps. By author, Chengling posted two of the three and Jiaying one. Jiaying agreed in her review of #31 ([review](https://github.com/char-lv/b4gone/pull/31#pullrequestreview-5822547817)) that a post with a section for each partner counts as a standup for both. Read that way, each partner has three for Sprint 1. Do not add or backdate messages.
 
 ## Retrospective
 
