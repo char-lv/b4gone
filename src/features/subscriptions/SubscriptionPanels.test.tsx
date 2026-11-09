@@ -110,6 +110,8 @@ describe("EditSubscriptionPanel", () => {
     const user = userEvent.setup();
     render(<EditSubscriptionPanel subscription={MUSIC} />);
     expect(screen.getByRole("heading", { level: 1, name: "Edit subscription" })).toBeInTheDocument();
+    // The form edits the fields; the status is shown and changes on the details page.
+    expect(screen.getByText("Status: Cancelled. Reactivate it from the details page.")).toBeInTheDocument();
     expect(screen.getByLabelText(/^Amount/)).toHaveValue("10.99");
 
     await user.clear(screen.getByLabelText(/^Service name/));

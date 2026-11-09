@@ -122,6 +122,15 @@ describe("SubscriptionActions", () => {
     expect(refresh).toHaveBeenCalled();
   });
 
+  it("does not mention a renewal reminder when deleting a cancelled subscription, which has none", async () => {
+    const user = userEvent.setup();
+    render(<SubscriptionActions subscription={CANCELLED} />);
+
+    await user.click(screen.getByRole("button", { name: "Delete subscription" }));
+
+    expect(deleteDialog()).toHaveAccessibleDescription("This removes the cancelled subscription.");
+  });
+
   it("keeps the subscription and returns focus when the deletion is not confirmed", async () => {
     const user = userEvent.setup();
     render(<SubscriptionActions subscription={MUSIC} />);

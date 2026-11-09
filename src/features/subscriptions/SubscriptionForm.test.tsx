@@ -135,6 +135,28 @@ describe("SubscriptionForm", () => {
     expect(field(/^First billing date/)).toHaveValue("2024-02-29");
   });
 
+  it("previews the next charge from the entered anchor and cycle, including a charge due today", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-02-01T17:00:00Z"));
+    try {
+      const user = userEvent.setup();
+      render(<SubscriptionForm onSubmit={vi.fn()} />);
+      expect(screen.getByText("Next charge: enter a first billing date to see it.")).toBeInTheDocument();
+
+      await user.type(field(/^First billing date/), "2026-01-31");
+      expect(screen.getByText("Next charge: Feb 28, 2026 (In 27 days)")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("radio", { name: "Yearly" }));
+      expect(screen.getByText("Next charge: Jan 31, 2027 (In 364 days)")).toBeInTheDocument();
+
+      await user.clear(field(/^First billing date/));
+      await user.type(field(/^First billing date/), "2026-02-01");
+      expect(screen.getByText("Next charge: Feb 1, 2026 (Due today)")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("calls onCancel from Cancel", async () => {
     const user = userEvent.setup();
     const onCancel = vi.fn();
