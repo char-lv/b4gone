@@ -2,6 +2,25 @@
 
 B4Gone is a website for tracking purchase return deadlines, warranty expirations, and subscription renewals.
 
+Production: https://b4gone.vercel.app
+
+## Documentation
+
+Start with the [project report](docs/project-report.md). It explains what works, how it was checked, what is missing, and the demo plan, and it links to everything below.
+
+| Topic | Document |
+| --- | --- |
+| Requirements, user stories, and the prototype link | [docs/PRD.md](docs/PRD.md) |
+| Architecture, request flow, database ER diagram, environments | [docs/architecture.md](docs/architecture.md) |
+| API (OpenAPI 3.1) | [docs/api/openapi.yaml](docs/api/openapi.yaml) |
+| UI tokens and patterns | [docs/design/README.md](docs/design/README.md) |
+| Billing-date and monthly-cost rules | [docs/subscription-calculations.md](docs/subscription-calculations.md) |
+| Local setup and environment separation | [docs/setup.md](docs/setup.md) |
+| Deployment, migrations, and smoke-check evidence | [docs/deployment.md](docs/deployment.md) |
+| Sprints, Slack planning and standup records, contributions, AI use | [docs/process/](docs/process/README.md) |
+| Status of every P2 requirement | [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) |
+| Board | [GitHub project](https://github.com/users/char-lv/projects/1) |
+
 ## Planned MVP
 
 - Account registration, sign-in, and private user records.
@@ -59,7 +78,7 @@ The site runs at http://localhost:3000. Registration and sign-in need the migrat
 | `npm run test:coverage` | Vitest with V8 coverage and the declared thresholds | Works |
 | `npm run test:e2e` | Playwright suite on Chromium; builds and starts the production server on port 3100 | Works (see note) |
 | `npm run build` | Production build | Works |
-| `npm run test:integration` | Vitest integration suite in Node against `TEST_DATABASE_URL` | Works; connection, migration, and auth API suites (migrations are applied first). Fails if `TEST_DATABASE_URL` is missing or unsafe |
+| `npm run test:integration` | Vitest integration suite in Node against `TEST_DATABASE_URL` | Works; connection, migration, auth API, and item and subscription repository and API suites (migrations are applied first). Fails if `TEST_DATABASE_URL` is missing or unsafe |
 | `npm run db:check` | Connects to `DATABASE_URL` (add `-- --test` for `TEST_DATABASE_URL`) and prints the database, user, and server version | Works |
 | `npm run db:migrate` | Applies pending `db/migrations/*.sql` files to `DATABASE_URL` (add `-- --test` for `TEST_DATABASE_URL`) and records them in `schema_migrations` | Works |
 

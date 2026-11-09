@@ -6,11 +6,18 @@
 
 ## Planning
 
-Joint planning record: **Pending.** Add the date, attendees, and a link to the meeting notes or Slack thread, and confirm the estimates and remaining owners below together.
+The partners planned the project and Sprint 1 in meetings and recapped them in Slack. The Slack messages are in the course channel [#group_prject](https://app.slack.com/client/T0C0GQNGVMH/C0CB4SELD0A); opening a link needs access to the workspace. "Posted by" is who wrote the message. A message can describe both partners' work. The messages say what was true when they were posted; current status is on GitHub.
 
-- Confirmed by both partners: Jiaying owns #2 and Chengling owns #3–#5. The issues were assigned on GitHub on 2026-10-28. The date and link of that agreement are **Pending**.
-- 2026-11-04: Chengling reassigned #4 to Jiaying ([record in #4](https://github.com/char-lv/b4gone/issues/4#issuecomment-6644022894)). Chengling keeps #3 and #5. Jiaying's confirmation is not recorded yet; #1 and #6 still have no owner.
-- Product Owner and Scrum Master for Sprint 1: **Pending** joint decision. The roles swap in Sprint 2.
+| Date (PT) | Posted by | What it records | Link |
+| --- | --- | --- | --- |
+| 2026-10-24 | Chengling | Recap of a joint meeting: the team chose B4Gone, agreed the must-have and optional scope, and named the PRD, mockups, issues, and assignments as next steps | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792877581950459) |
+| 2026-10-25 | Jiaying | Agrees with the scope and next steps in that recap | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792951707135869) |
+| 2026-10-25 | Jiaying | Recap of the follow-up discussion: PRD and prototype, twelve issues across two sprints, the shared rules, and review as next steps | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792955442191349) |
+| 2026-10-27 | Chengling | Acknowledges Jiaying's notes | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793165663100119) |
+| 2026-10-28 | Chengling | Both partners met to review progress and confirm Sprint 1 responsibilities; lists each partner's work, next steps, and the dependencies between them | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793219652400559) |
+
+- Owners: the 2026-10-28 meeting confirmed Sprint 1 responsibilities, and the issues were assigned on GitHub that day: #2 to Jiaying and #3–#5 to Chengling. On 2026-11-04 Chengling reassigned #4 to Jiaying ([record in #4](https://github.com/char-lv/b4gone/issues/4#issuecomment-6644022894)). #5 and #6 were also assigned to Jiaying, and she implemented #4–#6 ([#26](https://github.com/char-lv/b4gone/pull/26)–[#28](https://github.com/char-lv/b4gone/pull/28)). #1 has no assignee; the work was Chengling's.
+- Product Owner and Scrum Master for Sprint 1: **Pending.** None of the messages above names them. If the partners agreed on roles, record who held each one and where that was decided. Do not fill this in after the fact without that record.
 
 | Issue | Points | Priority | Owner | Board status on 2026-11-04 | Evidence |
 | --- | --- | --- | --- | --- | --- |
@@ -23,7 +30,7 @@ Joint planning record: **Pending.** Add the date, attendees, and a link to the m
 
 Total: 26 points, all done. By owner: Chengling 5 points (#3) and Jiaying 18 points (#2, #4, #5, #6; #4 and #5 were reassigned to her). #1 (3 points) has no confirmed owner; the work was Chengling's. Each partner needs five reviews of the other's pull requests, so check the Sprint 2 split for that too.
 
-Dependencies: #4 needs the session owner from #2 and the form from #3; #5 builds on #4; #6 covers #2–#5. With #4 now owned by Jiaying, #3 (Chengling) feeds #4 (Jiaying), which feeds #5 (Chengling).
+Dependencies: #4 needs the session owner from #2 and the form from #3; #5 builds on #4; #6 covers #2–#5. After the reassignment, #3 (Chengling) fed #4 and #5 (both Jiaying).
 
 Risk on 2026-10-28: two days remain before the milestone date (2026-10-30), and #2, #4, #5, and #6 have no branch or pull request yet. Decide together at the next standup whether to keep the date or move work to Sprint 2, and record the decision here.
 
@@ -31,20 +38,20 @@ Status on 2026-11-09: all six Sprint 1 issues are closed. #1 closed on 2026-10-3
 
 ## Standups
 
-At least three updates per partner, posted in the course Slack channel. Copy the link and a one-line summary of each real update; do not fill rows in advance.
+The course asks for at least three standups per partner per sprint. For this sprint the Slack records are shared posts: one partner wrote the message, and some of them have a section for each partner.
 
-| Date | Partner | Done | Next | Blockers | Link |
-| --- | --- | --- | --- | --- | --- |
-| Pending | Chengling | | | | |
-| Pending | Chengling | | | | |
-| Pending | Chengling | | | | |
-| Pending | Jiaying | | | | |
-| Pending | Jiaying | | | | |
-| Pending | Jiaying | | | | |
+| Date (PT) | Posted by | Covers | Summary | Link |
+| --- | --- | --- | --- | --- |
+| 2026-10-24 | Chengling | Team recap | Agreed scope and next steps; no separate done/next/blocker sections | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792877581950459) |
+| 2026-10-25 | Jiaying | Team recap | Team progress and next steps; no separate sections | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1792955442191349) |
+| 2026-10-28 | Chengling | A section for each partner | Labeled Sprint 1: each partner's completed work, next work, and dependencies | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793219652400559) |
+| 2026-10-30 | Jiaying | A section for each partner | Labeled Sprint 1: done, next, and blockers for setup, reviews, databases, deployment, and accounts | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793420722222249) |
+
+Count: two posts with a section for each partner (Oct 28 and Oct 30), plus two team recaps. That is fewer than three per partner, even if a shared post counts for both partners. **Pending:** the partners confirm whether a section in a shared post counts as that partner's standup and whether the team recaps count. Do not add or backdate messages to fill the gap.
 
 ## Retrospective
 
-**Pending.** Hold it after the last Sprint 1 pull request is reviewed, and have both partners write their own feedback.
+**Pending.** No retrospective was found in the Slack channel; the 2026-11-04 update ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793839618825829)) lists the Sprint 1 retrospective as upcoming work. Hold it together, date it, and have each partner write their own feedback.
 
 - What went well:
 - What to improve:

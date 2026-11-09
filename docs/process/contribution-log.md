@@ -4,15 +4,34 @@ Who did what, with links to the actual records. Each partner adds their own entr
 
 ## Summary on 2026-11-09
 
-Counted with `git log origin/main` at `328f271` and the GitHub API. Commit counts exclude merge commits.
+Counted with `git log` at `7db64cd` (after #21 merged) and the GitHub API. Commit counts exclude merge commits; Chengling's include both author names, `char-lv` and `Chengling Lv`.
 
 | | Chengling (`char-lv`) | Jiaying (`Jasmine-G-uo`) |
 | --- | --- | --- |
-| Commits on `main` | 82 ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 94 |
-| Pull requests authored | 11 merged: [#13](https://github.com/char-lv/b4gone/pull/13)–[#19](https://github.com/char-lv/b4gone/pull/19), [#23](https://github.com/char-lv/b4gone/pull/23), [#24](https://github.com/char-lv/b4gone/pull/24), [#25](https://github.com/char-lv/b4gone/pull/25), [#29](https://github.com/char-lv/b4gone/pull/29). 2 open: [#21](https://github.com/char-lv/b4gone/pull/21), draft [#22](https://github.com/char-lv/b4gone/pull/22) | 4 merged: [#20](https://github.com/char-lv/b4gone/pull/20), [#26](https://github.com/char-lv/b4gone/pull/26)–[#28](https://github.com/char-lv/b4gone/pull/28) |
+| Commits on `main` | 89 ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 94 ([list](https://github.com/char-lv/b4gone/commits/main/?author=Jasmine-G-uo)) |
+| Pull requests authored | 12 merged: [#13](https://github.com/char-lv/b4gone/pull/13)–[#19](https://github.com/char-lv/b4gone/pull/19), [#21](https://github.com/char-lv/b4gone/pull/21), [#23](https://github.com/char-lv/b4gone/pull/23), [#24](https://github.com/char-lv/b4gone/pull/24), [#25](https://github.com/char-lv/b4gone/pull/25), [#29](https://github.com/char-lv/b4gone/pull/29). Draft: [#22](https://github.com/char-lv/b4gone/pull/22) | 4 merged: [#20](https://github.com/char-lv/b4gone/pull/20), [#26](https://github.com/char-lv/b4gone/pull/26)–[#28](https://github.com/char-lv/b4gone/pull/28). Open: [#30](https://github.com/char-lv/b4gone/pull/30) |
 | Approving reviews of the other partner's pull requests | 4: #20, #26, #27, #28 | 12: #13–#19, #21, #23, #24, #25, #29 |
-| AGENTS.md commits on `main` | 11 | 3 (`d287455`, `b676875`, `a6eb92b`) |
-| Standups | 0 recorded | 0 recorded |
+| AGENTS.md commits on `main` | 10 | 3 (`d287455`, `b676875`, `a6eb92b`) |
+| Slack planning and progress posts | 3 recaps or updates (Oct 24, Oct 28, Nov 4) and 1 acknowledgment (Oct 27) | 3 recaps or updates (Oct 25, Oct 30, Nov 8) and 1 confirmation (Oct 25) |
+
+The Slack posts are listed with links in [sprint-1.md](sprint-1.md#standups) and [sprint-2.md](sprint-2.md#standups). The author column counts who posted, not whose work a post describes; most posts describe both partners.
+
+## Who did what
+
+| Area | Issue | Built by | Reviewed and approved by | Pull request and records |
+| --- | --- | --- | --- | --- |
+| Scaffold, shared rules, database configuration | #1 | Chengling | Jiaying | [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14), [#16](https://github.com/char-lv/b4gone/pull/16) |
+| Accounts: migration `001`, sessions, auth API, sign-in pages | #2 | Jiaying | Chengling, at `3d09579` | [#20](https://github.com/char-lv/b4gone/pull/20) |
+| Add-item form (imported from HW3 Run B, plus new red/green fixes) | #3 | Chengling | Jiaying | [#24](https://github.com/char-lv/b4gone/pull/24) |
+| Items: migration `002`, repository, API, list and details | #4 | Jiaying | Chengling, at `7c7a314` | [#26](https://github.com/char-lv/b4gone/pull/26); Jiaying applied `002` to production before the merge |
+| Edit, return and undo, confirmed delete | #5 | Jiaying | Chengling, at `31a6dfc` | [#27](https://github.com/char-lv/b4gone/pull/27) |
+| Item validation, isolation, and flow tests | #6 | Jiaying | Chengling, at `921fa9e` | [#28](https://github.com/char-lv/b4gone/pull/28) |
+| Subscriptions: migration `003`, repository, API, pages | #7 | Chengling | Jiaying, at `61c8b71` | [#29](https://github.com/char-lv/b4gone/pull/29); Jiaying applied `003` to both Neon branches before the merge ([record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)) |
+| Billing dates and average monthly cost | #8 | Chengling | Jiaying | [#25](https://github.com/char-lv/b4gone/pull/25) |
+| Dashboard | #9 | Jiaying | Pending (review requested from Chengling) | [#30](https://github.com/char-lv/b4gone/pull/30), open |
+| Cross-view, accessibility, and failure checks | #10 | Jiaying (assigned) | — | Not started |
+| CI, security scanning, Vercel, smoke check | #11 | Chengling (repository and Vercel owner) | Jiaying | [#15](https://github.com/char-lv/b4gone/pull/15), [#18](https://github.com/char-lv/b4gone/pull/18), [#23](https://github.com/char-lv/b4gone/pull/23); smoke runs in [#11](https://github.com/char-lv/b4gone/issues/11) |
+| Process notes, templates, tracker, project documents | #12 | Both: Chengling wrote most of the documents; Jiaying added her own records in her pull requests | Jiaying | [#17](https://github.com/char-lv/b4gone/pull/17), [#19](https://github.com/char-lv/b4gone/pull/19), [#21](https://github.com/char-lv/b4gone/pull/21) |
 
 Targets for P2: at least 5 genuine reviews per partner, substantial commits from both, and shared-rules changes from both.
 
