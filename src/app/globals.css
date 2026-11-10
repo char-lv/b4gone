@@ -1,12 +1,41 @@
 @import "tailwindcss";
 
+/* Design tokens from the approved prototype (docs/PRD.md, section 7). */
 @theme {
-  --color-canvas: #f7f6f2;
-  --color-ink: #1f2421;
-  --color-accent: #1f5f45;
+  --color-canvas: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f6f7f5;
+  --color-ink: #24292b;
+  --color-muted: #5f6669;
+  --color-line: #e3e5e2;
+  --color-line-strong: #858b88;
+  --color-line-button: #cdd1ce;
+  --color-neutral-soft: #f0f1ef;
+  --color-accent: #1f5d4c;
+  --color-accent-hover: #174a3c;
+  --color-accent-soft: #e8f0ec;
+  --color-accent-line: #c9ddd3;
+  --color-urgent: #b42318;
+  --color-urgent-soft: #fdecea;
+  --color-urgent-line: #f1c3bd;
+
+  --radius-card: 10px;
+  --radius-control: 6px;
+
+  --shadow-card: 0 1px 2px rgba(36, 41, 43, 0.04), 0 2px 8px rgba(36, 41, 43, 0.03);
+  --shadow-raised: 0 10px 28px rgba(36, 41, 43, 0.1);
+  --shadow-control: 0 1px 1px rgba(36, 41, 43, 0.03);
+
+  --font-sans: var(--font-public-sans), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
 }
 
 body {
   background-color: var(--color-canvas);
   color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }

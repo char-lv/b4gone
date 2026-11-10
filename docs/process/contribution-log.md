@@ -2,15 +2,36 @@
 
 Who did what, with links to the actual records. Each partner adds their own entries; do not record planned or unverified work as done. Commits marked "AI-assisted" carry a `Co-Authored-By: Claude` trailer.
 
-## Summary on 2026-10-28
+## Summary on 2026-11-09
+
+Counted with `git log` at `06cdda5` (after #30 merged) and the GitHub API. Commit counts exclude merge commits; Chengling's include both author names, `char-lv` and `Chengling Lv`.
 
 | | Chengling (`char-lv`) | Jiaying (`Jasmine-G-uo`) |
 | --- | --- | --- |
-| Commits on `main` | 14 plus 2 merge commits ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 0 |
-| Pull requests authored | 2 merged: [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14). 5 open: [#15](https://github.com/char-lv/b4gone/pull/15), [#16](https://github.com/char-lv/b4gone/pull/16), [#17](https://github.com/char-lv/b4gone/pull/17), [#18](https://github.com/char-lv/b4gone/pull/18), [#19](https://github.com/char-lv/b4gone/pull/19) | 0 |
-| Pull request reviews | 0 | 2 approvals: [#13](https://github.com/char-lv/b4gone/pull/13#pullrequestreview-5644828250), [#14](https://github.com/char-lv/b4gone/pull/14#pullrequestreview-5645457036) |
-| AGENTS.md changes | 4 commits on `main`, plus the CLAUDE.md import | 0 |
-| Standups | 0 recorded | 0 recorded |
+| Commits on `main` | 89 ([list](https://github.com/char-lv/b4gone/commits/main/?author=char-lv)) | 104 ([list](https://github.com/char-lv/b4gone/commits/main/?author=Jasmine-G-uo)) |
+| Pull requests authored | 12 merged: [#13](https://github.com/char-lv/b4gone/pull/13)–[#19](https://github.com/char-lv/b4gone/pull/19), [#21](https://github.com/char-lv/b4gone/pull/21), [#23](https://github.com/char-lv/b4gone/pull/23), [#24](https://github.com/char-lv/b4gone/pull/24), [#25](https://github.com/char-lv/b4gone/pull/25), [#29](https://github.com/char-lv/b4gone/pull/29). Open: [#31](https://github.com/char-lv/b4gone/pull/31); draft: [#22](https://github.com/char-lv/b4gone/pull/22) | 5 merged: [#20](https://github.com/char-lv/b4gone/pull/20), [#26](https://github.com/char-lv/b4gone/pull/26)–[#28](https://github.com/char-lv/b4gone/pull/28), [#30](https://github.com/char-lv/b4gone/pull/30) |
+| Approving reviews of the other partner's pull requests | 5: #20, #26, #27, #28, #30 | 13: #13–#19, #21, #23, #24, #25, #29, #31 |
+| AGENTS.md commits on `main` | 10 | 3 (`d287455`, `b676875`, `a6eb92b`) |
+| Slack planning and progress posts | 3 recaps or updates (Oct 24, Oct 28, Nov 4) and 1 acknowledgment (Oct 27) | 3 recaps or updates (Oct 25, Oct 30, Nov 8) and 1 confirmation (Oct 25) |
+
+The Slack posts are listed with links in [sprint-1.md](sprint-1.md#standups) and [sprint-2.md](sprint-2.md#standups). The author column counts who posted, not whose work a post describes; most posts describe both partners.
+
+## Who did what
+
+| Area | Issue | Built by | Reviewed and approved by | Pull request and records |
+| --- | --- | --- | --- | --- |
+| Scaffold, shared rules, database configuration | #1 | Chengling | Jiaying | [#13](https://github.com/char-lv/b4gone/pull/13), [#14](https://github.com/char-lv/b4gone/pull/14), [#16](https://github.com/char-lv/b4gone/pull/16) |
+| Accounts: migration `001`, sessions, auth API, sign-in pages | #2 | Jiaying | Chengling, at `3d09579` | [#20](https://github.com/char-lv/b4gone/pull/20) |
+| Add-item form (imported from HW3 Run B, plus new red/green fixes) | #3 | Chengling | Jiaying | [#24](https://github.com/char-lv/b4gone/pull/24) |
+| Items: migration `002`, repository, API, list and details | #4 | Jiaying | Chengling, at `7c7a314` | [#26](https://github.com/char-lv/b4gone/pull/26); Jiaying applied `002` to production before the merge |
+| Edit, return and undo, confirmed delete | #5 | Jiaying | Chengling, at `31a6dfc` | [#27](https://github.com/char-lv/b4gone/pull/27) |
+| Item validation, isolation, and flow tests | #6 | Jiaying | Chengling, at `921fa9e` | [#28](https://github.com/char-lv/b4gone/pull/28) |
+| Subscriptions: migration `003`, repository, API, pages | #7 | Chengling | Jiaying, at `61c8b71` | [#29](https://github.com/char-lv/b4gone/pull/29); Jiaying applied `003` to both Neon branches before the merge ([record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)) |
+| Billing dates and average monthly cost | #8 | Chengling | Jiaying | [#25](https://github.com/char-lv/b4gone/pull/25) |
+| Dashboard | #9 | Jiaying | Chengling, at `9fad79c` ([review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987)) | [#30](https://github.com/char-lv/b4gone/pull/30), merged 2026-11-09 |
+| Cross-view, accessibility, and failure checks | #10 | Jiaying (assigned) | — | Not started |
+| CI, security scanning, Vercel, smoke check | #11 | Chengling (repository and Vercel owner) | Jiaying | [#15](https://github.com/char-lv/b4gone/pull/15), [#18](https://github.com/char-lv/b4gone/pull/18), [#23](https://github.com/char-lv/b4gone/pull/23); smoke runs in [#11](https://github.com/char-lv/b4gone/issues/11) |
+| Process notes, templates, tracker, project documents | #12 | Both: Chengling wrote most of the documents; Jiaying added her own records in her pull requests | Jiaying | [#17](https://github.com/char-lv/b4gone/pull/17), [#19](https://github.com/char-lv/b4gone/pull/19), [#21](https://github.com/char-lv/b4gone/pull/21); open: [#31](https://github.com/char-lv/b4gone/pull/31) |
 
 Targets for P2: at least 5 genuine reviews per partner, substantial commits from both, and shared-rules changes from both.
 
@@ -32,5 +53,27 @@ Targets for P2: at least 5 genuine reviews per partner, substantial commits from
 | 2026-10-28 | Chengling (AI-assisted) | Connected Vercel (Hobby). The first production build failed in `npm ci`; diagnosed the npm 11.19.1 lockfile error and opened the lockfile fix, whose preview build succeeded (#11) | [#11 comment](https://github.com/char-lv/b4gone/issues/11#issuecomment-6482116957), [#18](https://github.com/char-lv/b4gone/pull/18) |
 | 2026-10-28 | Chengling (AI-assisted) | Team names and confirmed owners in the process notes; added the P2 completion tracker (#12) | [#17](https://github.com/char-lv/b4gone/pull/17), [P2_CHECKLIST.md](../P2_CHECKLIST.md) |
 | 2026-10-28 | Chengling (AI-assisted) | Issue and pull request templates (#12) | [#19](https://github.com/char-lv/b4gone/pull/19) |
+| 2026-10-31 | Jiaying | Reviewed and approved #18, #15, #16, #17, and #19, then merged each one | Reviews: [#18](https://github.com/char-lv/b4gone/pull/18#pullrequestreview-5721019519), [#15](https://github.com/char-lv/b4gone/pull/15#pullrequestreview-5721043876), [#16](https://github.com/char-lv/b4gone/pull/16#pullrequestreview-5721170397), [#17](https://github.com/char-lv/b4gone/pull/17#pullrequestreview-5721186599), [#19](https://github.com/char-lv/b4gone/pull/19#pullrequestreview-5721189402); merge commits `f43926f`, `1534c59`, `569d25c`, `e077d58`, `7aa3a2b` |
+| 2026-10-31 | Jiaying | Opened #20 for accounts (#2) with 18 commits | [#20](https://github.com/char-lv/b4gone/pull/20); Jiaying adds a description of the work |
+| 2026-11-04 | Chengling (AI-assisted) | Checked the production URL and smoke result, found that the deployment smoke workflow never runs, refreshed the P2 tracker (#11, #12), and drafted a Node/npm alignment proposal for joint review (#11) | This pull request; draft [#22](https://github.com/char-lv/b4gone/pull/22) |
+| 2026-11-04 | Chengling | Reassigned #4 to Jiaying and posted the handoff notes; Chengling keeps #3 and #5 | [#4 comment](https://github.com/char-lv/b4gone/issues/4#issuecomment-6644022894) |
+| 2026-11-04 | Chengling | Posted review findings on #20 (open redirect through control characters; migrations need a direct connection) | [#20 comment](https://github.com/char-lv/b4gone/pull/20#issuecomment-6643732714) (a comment, not a formal review) |
+| 2026-11-04 | Chengling (AI-assisted) | Signed in to the Vercel CLI as the project owner and verified the production deployment and runtime; opened the smoke-trigger fix and the Node/npm proposal (#11) | [#23](https://github.com/char-lv/b4gone/pull/23), draft [#22](https://github.com/char-lv/b4gone/pull/22) |
+| 2026-11-04 | Chengling (AI-assisted) | Add-item form (#3): imported the HW3 Run B form as labeled existing code and added three red/green fixes (midnight date, locked fields during a save with server field errors, item API payload validation) | [#24](https://github.com/char-lv/b4gone/pull/24) |
+| 2026-11-05 | Chengling (AI-assisted) | Reviewed Jiaying's accounts pull request (#2) at `3d09579`: re-ran its three new red/green pairs, the full local suite, and extra redirect probes, then approved and merged it. Merged `main` into the add-item branch (#3) and moved the form into the signed-in layout with a new red/green pair | [#20 review](https://github.com/char-lv/b4gone/pull/20#pullrequestreview-5790377098), [#24](https://github.com/char-lv/b4gone/pull/24) |
+| 2026-11-05 | Chengling (AI-assisted) | Merged #24 after CI passed on the integrated head. Billing dates and average monthly cost (#8): two red/green pairs and a refactor, with the calculation contract for #7 and #9 | [#24](https://github.com/char-lv/b4gone/pull/24), [#25](https://github.com/char-lv/b4gone/pull/25) |
+| 2026-11-05 | Jiaying | Reviewed the billing calculation pull request (#8): re-ran its red/green pairs and the full suite, compared `nextBillingDate` with a brute-force check, approved, and merged it | [#25](https://github.com/char-lv/b4gone/pull/25) |
+| 2026-11-05 | Jiaying | Item persistence (#4): items migration, owner-filtered repository, item API routes, Items list and details pages, and saving from the add-item form, with six red/green pairs and an amount limit that fits the database column | `feature/4-item-api` |
+| 2026-11-05 to 2026-11-06 | Jiaying | Self-review rounds on #4: item and root error pages, item titles and focus after a save, row headers, invisible and multi-line names, the price-limit message, Cancel during a save, and the root error text, with five more red/green pairs; re-ran the earlier red commits to record their failing counts | `feature/4-item-api` |
+| 2026-11-08 | Jiaying | Item actions (#5): edit page, three endpoints (`PUT` and `DELETE /api/items/{id}`, `PUT /api/items/{id}/status`), return and undo, delete with a confirmation dialog, and the item's dashboard deadlines on its details page, with six red/green pairs; Playwright flows added after the code | `feature/5-item-actions` |
+| 2026-11-08 | Jiaying | Tests for #6: malformed price separators, another user restoring a returned item, and one end-to-end purchase flow from sign-in to delete; checked the other #6 criteria against the tests from #4 and #5 | `feature/6-item-tests` |
+| 2026-11-08 | Chengling (AI-assisted) | Approved the Items stack (#26–#28) at its reviewed heads and posted the merge plan: apply `002` to production before #26, merge commits to keep the TDD SHAs, retarget #27 and #28 one at a time | [#26 comment](https://github.com/char-lv/b4gone/pull/26#issuecomment-6728302176) |
+| 2026-11-08 | Jiaying | Applied `002_create_items` to production with read-only checks before and after, then merged #26, #27, and #28 with merge commits | [#26](https://github.com/char-lv/b4gone/pull/26), [#27](https://github.com/char-lv/b4gone/pull/27), [#28](https://github.com/char-lv/b4gone/pull/28) |
+| 2026-11-08 | Chengling (AI-assisted) | Subscriptions (#7): migration `003`, shared validation, owner-filtered repository, API routes, and the list, details, add, and edit pages with cancel/reactivate and confirmed delete, in seven red/green pairs; the #9 handoff; and a phone-width fix for the three-section navigation | `feature/7-subscriptions` |
+| 2026-11-08 | Jiaying | Dashboard (#9): one 30-day event list from item deadlines and subscription renewals, the two summary cards, Within 7 days and In 8–30 days groups linking to each record, and the empty, loading, and error states, with three red/green pairs | `feature/9-dashboard` |
+| 2026-11-09 | Jiaying | Reviewed and approved #29 (#7) at `61c8b71`, then applied `003_create_subscriptions` to the Neon preview and production branches with checks before and after | [#29 record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159) |
+| 2026-11-09 | Chengling (AI-assisted) | Merged #23 and #29 with merge commits at their approved heads; turned on Vercel `repository_dispatch` events (owner); recorded the production and preview smoke runs | [#23](https://github.com/char-lv/b4gone/pull/23), [#29](https://github.com/char-lv/b4gone/pull/29), [smoke run](https://github.com/char-lv/b4gone/actions/runs/42562967558) |
+| 2026-11-09 | Chengling (AI-assisted) | Reviewed the dashboard pull request (#9) at `9fad79c`: ran the dashboard unit tests and its Playwright spec locally, replayed two red commits, and checked Back navigation, edit, delete, a second account, and the data sent to the browser; approved | [#30 review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987) |
+| 2026-11-09 | Jiaying | Merged #30 (#9) with a merge commit; took the #9 TDD wording fix and the two 404 resource errors from the review into #10 | [#30 comment](https://github.com/char-lv/b4gone/pull/30#issuecomment-6734626295) |
 | Pending | Jiaying | Wrote the formal project proposal | Location **Pending**: add the link or the Canvas submission reference |
 | Pending | Jiaying | | |
