@@ -39,7 +39,7 @@ At least three updates per partner per sprint. The Slack messages are in the cou
 | Date (PT) | Posted by | Covers | Summary | Link |
 | --- | --- | --- | --- | --- |
 | 2026-11-08 | Jiaying | A section for each partner | Done, next, and blockers: the #8 calculations, the Items stack (#4–#6), reviews, migrations, and what subscriptions and the dashboard depend on | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1794175414140039) |
-| 2026-11-09, 11:24 | **Pending** (fill in from Slack) | A section for each partner | Titled "Standup — November 8" but published on 2026-11-09 | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1794252296299819) |
+| 2026-11-09, 11:24 | Chengling | A section for each partner | Titled "Standup — November 8" but published on 2026-11-09 | [message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1794252296299819) |
 
 Sprint 2 started with planning on 2026-11-05; Sprint 1 pull requests kept merging until 2026-11-08, so the two overlap. The 2026-11-04 post is listed under [Sprint 1](sprint-1.md#standups). The 2026-11-08 post names no sprint, but it came after the planning. Count so far: two posts with a section for each partner (published 2026-11-08 and 2026-11-09). The 2026-11-08 planning summary and confirmation are planning records, not standups. The partners agreed ([review](https://github.com/char-lv/b4gone/pull/31#pullrequestreview-5822547817)) that such a post counts for both of them; the instructor has not confirmed this. **Pending:** at least one more real Sprint 2 update covering each partner before the deadline.
 
