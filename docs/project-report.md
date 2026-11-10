@@ -39,7 +39,7 @@ These parts are on `main` and deployed:
 | Subscriptions: add, list, details, edit, cancel, reactivate, confirmed delete | #7 | [#29](https://github.com/char-lv/b4gone/pull/29) (Chengling → Jiaying) | 2026-11-09 |
 | Dashboard: deadline count, average monthly cost, 30-day list in two groups | #9 | [#30](https://github.com/char-lv/b4gone/pull/30) (Jiaying → Chengling) | 2026-11-09 |
 
-The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) have not started. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
+The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) are end-to-end tests in `tests/e2e/sync.spec.ts`. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
 
 ## How it is built
 
@@ -75,8 +75,8 @@ The integration suites include two-user checks for every item and subscription o
 
 ## Known limitations
 
-- The #10 checks (views staying in step, accessibility, failure states) have not started. Jiaying owns them, including two 404 resource errors seen during an item edit and a subscription delete in the #30 review, and a wording fix in the #9 TDD record.
-- Only one signed-in flow (subscriptions) was checked by hand on production. The dashboard was checked signed in only locally, during the #30 review; on production only the homepage smoke check ran. Two-user isolation and the item flows were checked only in CI.
+- Two Chrome console lines, `Failed to load resource: 404`, appeared in a local run during the #30 review. Their source is unconfirmed: listeners on every response, in that review and again in #10, recorded no 4xx response from the site. #10 keeps a Playwright check that editing and deleting send no failing requests.
+- Signed-in checks on production were done by hand: Chengling's subscription flow on 2026-11-09, and Jiaying's 18-step test the same day with invented accounts (accounts, items with return and undo, subscriptions with cancel and reactivate, the dashboard, a failed save, keyboard use, 375 px, and a second account). The automated smoke check covers the homepage only.
 - There is no health route that queries the database, no seed script, no formatter, and no branch protection on `main`.
 - Local and CI use Node 24.11.0 / npm 11.6.1, while Vercel builds with Node 24.22.2 / npm 11.19.1. Draft [#22](https://github.com/char-lv/b4gone/pull/22) proposes aligning them; both partners still have to upgrade and agree.
 - Previews are behind Vercel Authentication. On the Hobby plan only the owner can open them in a browser.
