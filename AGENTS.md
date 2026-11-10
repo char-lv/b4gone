@@ -16,7 +16,7 @@ https://claude.ai/artifact/CPRyvxx7bDpjMWau2JmddM?sk=1KRqQph1BLUcx5C4NxUw-g
 
 ## Stack and dependency policy
 
-The scaffold exists. The tested scaffold uses Node.js 24.11.0, npm 11.6.1, Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form (#3) is imported from the HW3 Run B copy. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. Installed so far: pg 8.23.1 for database access and migrations, zod 4.6.7 for the shared account and item schemas, and jose 6.2.12, bcryptjs 3.0.3, and server-only 0.0.1 for accounts (#2).
+The scaffold exists. It was first tested on Node.js 24.11.0 with npm 11.6.1. The runtime proposed in #11 is Node.js 24.22.2 with npm 11.19.1, recorded in .nvmrc and the package.json engines and enforced by engine-strict in .npmrc; it becomes the team baseline only after both partners approve that pull request. The app uses Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, and TailwindCSS 4.3.3. The add-item form (#3) is imported from the HW3 Run B copy. The version lines below remain the stack policy; package.json and package-lock.json record the installed versions. Installed so far: pg 8.23.1 for database access and migrations, zod 4.6.7 for the shared account and item schemas, and jose 6.2.12, bcryptjs 3.0.3, and server-only 0.0.1 for accounts (#2).
 
 | Area | Baseline |
 | --- | --- |
