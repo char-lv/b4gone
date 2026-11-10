@@ -39,7 +39,7 @@ These parts are on `main` and deployed:
 | Subscriptions: add, list, details, edit, cancel, reactivate, confirmed delete | #7 | [#29](https://github.com/char-lv/b4gone/pull/29) (Chengling → Jiaying) | 2026-11-09 |
 | Dashboard: deadline count, average monthly cost, 30-day list in two groups | #9 | [#30](https://github.com/char-lv/b4gone/pull/30) (Jiaying → Chengling) | 2026-11-09 |
 
-The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) are end-to-end tests in `tests/e2e/sync.spec.ts`. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
+The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) are Playwright tests in `tests/e2e/sync.spec.ts`, in review. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
 
 ## How it is built
 
@@ -75,8 +75,8 @@ The integration suites include two-user checks for every item and subscription o
 
 ## Known limitations
 
-- Two Chrome console lines, `Failed to load resource: 404`, appeared in a local run during the #30 review. Their source is unconfirmed: listeners on every response, in that review and again in #10, recorded no 4xx response from the site. #10 keeps a Playwright check that editing and deleting send no failing requests.
-- Signed-in checks on production were done by hand: Chengling's subscription flow on 2026-11-09, and Jiaying's 18-step test the same day with invented accounts (accounts, items with return and undo, subscriptions with cancel and reactivate, the dashboard, a failed save, keyboard use, 375 px, and a second account). The automated smoke check covers the homepage only.
+- The two console 404 messages from a local Chrome run during the #30 review are of unconfirmed source ([note](https://github.com/char-lv/b4gone/pull/30#issuecomment-6774956899)). In #10 a listener on every response, while editing and deleting items and subscriptions, recorded no 4xx response from the site, and `sync.spec.ts` keeps that check.
+- Signed-in flows were checked by hand on production twice on 2026-11-09: Chengling's subscription flow, and Jiaying's 18-step test with invented accounts (accounts, items with return and undo, subscriptions with cancel and reactivate, the dashboard window and groups, deletes, a failed save, keyboard use, 375 px, and a second account). Otherwise only the homepage smoke check runs on production. Two-user isolation and the item flows are covered by the integration and Playwright suites, which run in CI and were also run locally (for example, in the #30 review: a second account's dashboard, an item return followed by browser Back, an item edit, and a subscription delete; [review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987)). Two-user isolation was also part of Jiaying's hand test.
 - There is no health route that queries the database, no seed script, no formatter, and no branch protection on `main`.
 - Local and CI use Node 24.11.0 / npm 11.6.1, while Vercel builds with Node 24.22.2 / npm 11.19.1. Draft [#22](https://github.com/char-lv/b4gone/pull/22) proposes aligning them; both partners still have to upgrade and agree.
 - Previews are behind Vercel Authentication. On the Hobby plan only the owner can open them in a browser.

@@ -29,7 +29,7 @@ The Slack posts are listed with links in [sprint-1.md](sprint-1.md#standups) and
 | Subscriptions: migration `003`, repository, API, pages | #7 | Chengling | Jiaying, at `61c8b71` | [#29](https://github.com/char-lv/b4gone/pull/29); Jiaying applied `003` to both Neon branches before the merge ([record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)) |
 | Billing dates and average monthly cost | #8 | Chengling | Jiaying | [#25](https://github.com/char-lv/b4gone/pull/25) |
 | Dashboard | #9 | Jiaying | Chengling, at `9fad79c` ([review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987)) | [#30](https://github.com/char-lv/b4gone/pull/30), merged 2026-11-09 |
-| Cross-view, accessibility, and failure checks | #10 | Jiaying | Pending (review requested from Chengling) | `feature/10-sync-checks`, in review |
+| Cross-view, accessibility, and failure checks | #10 | Jiaying (assigned) | Pending (review requested from Chengling) | `feature/10-sync-checks`; results in its pull request |
 | CI, security scanning, Vercel, smoke check | #11 | Chengling (repository and Vercel owner) | Jiaying | [#15](https://github.com/char-lv/b4gone/pull/15), [#18](https://github.com/char-lv/b4gone/pull/18), [#23](https://github.com/char-lv/b4gone/pull/23); smoke runs in [#11](https://github.com/char-lv/b4gone/issues/11) |
 | Process notes, templates, tracker, project documents | #12 | Both: Chengling wrote most of the documents; Jiaying added her own records in her pull requests | Jiaying | [#17](https://github.com/char-lv/b4gone/pull/17), [#19](https://github.com/char-lv/b4gone/pull/19), [#21](https://github.com/char-lv/b4gone/pull/21); open: [#31](https://github.com/char-lv/b4gone/pull/31) |
 

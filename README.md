@@ -43,6 +43,17 @@ The billing-date and monthly-cost rules shared by subscriptions and the dashboar
 - Work is planned on the [project board](https://github.com/users/char-lv/projects/1).
 - Production: https://b4gone.vercel.app, deployed by Vercel from `main`. Since 2026-11-09 it serves `main` with accounts, items, subscriptions, and the dashboard (#9). See [docs/deployment.md](docs/deployment.md).
 
+## Complex state
+
+The P2 specification asks for real-time updates or complex state management. B4Gone has complex state, not real-time push: nothing is sent to an open page from the server.
+
+- **Original anchors.** A subscription keeps its first billing date, and the next charge is always calculated from it (`src/lib/recurrence.ts`), never stored. A January 31 monthly plan charges on February 28, then March 31. Cancelling and reactivating don't move it (`tests/integration/subscriptions-api.test.ts`, "cancels without a next charge, then reactivates from the original anchor").
+- **Derived reminders and totals.** Item deadlines (`src/features/items/item-deadlines.ts`), renewals and the average monthly cost (`src/features/subscriptions/subscription-calculations.ts`), and the dashboard's 30-day list (`src/features/dashboard/dashboard-events.ts`) are computed from the saved records and the user's local today. Their unit tests cover short months, leap years, charges due today, and days 0, 7, 30, and 31.
+- **Status transitions.** Items move between active and returned, and subscriptions between active and cancelled. A returned or cancelled record keeps its data but gives no reminders, and a cancelled plan adds nothing to the average. Undo and reactivate bring back whatever still falls in the window (`tests/e2e/item-actions.spec.ts`, `tests/e2e/subscriptions.spec.ts`).
+- **Refresh after a successful save.** Forms and action buttons call `router.refresh()` only after the server confirms the save, and the pages read the records per request. The list, details, dashboard count, and average then show the saved state; a failed save keeps the draft. `tests/e2e/dashboard.spec.ts` checks the dashboard after a return, undo, cancel, and reactivate.
+
+`tests/e2e/sync.spec.ts` (#10) checks that every view stays in step after edits and deletions, when dates cross the 30-day window and the 7-day boundary, and when an open dashboard passes local midnight.
+
 ## Planned stack
 
 Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authentication.
@@ -50,8 +61,6 @@ Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authen
 ## Current stage
 
 The project scaffold, test tooling, and database configuration are in place (issue #1). Accounts work (issue #2): visitors can register, sign in, and sign out; the dashboard page is private. Signed-in users can add items at `/items/new` (issue #3), and the items are saved to their account and shown in the Items list and on each item's page (issue #4). Items can be edited, marked as returned and restored, and deleted (issue #5). Subscriptions (issue #7) can be added, viewed, edited, cancelled, reactivated, and deleted at `/subscriptions`, with next charges and the average monthly cost from issue #8. The dashboard (issue #9) shows the deadline count, the average monthly subscription cost, and every return deadline, warranty expiration, and next renewal from today through day 30, split into the next 7 days and days 8 to 30, with each event linking to its record. Receipt features are not implemented.
-
-For the P2 "real-time updates or complex state" requirement, B4Gone uses complex state. Reminders and costs are never stored: the dashboard and the subscription pages derive them from the saved records each time, in the user's local today. Return and undo, cancel and reactivate, edits, and deletions therefore change the lists, details, dashboard events, deadline count, and average monthly cost together, and an open dashboard moves to the next day at local midnight. `tests/e2e/sync.spec.ts` (#10) checks these updates across pages.
 
 ## Local setup
 
