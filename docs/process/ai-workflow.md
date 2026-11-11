@@ -1,6 +1,6 @@
 # AI workflow and shared rules
 
-The P2 specification names Antigravity as the primary AI harness for Weeks 6–8. The professor has since confirmed that any IDE is acceptable (link to that confirmation: **Pending**). The team uses VS Code with Claude Code, guided by the shared AGENTS.md. This page records the AI tools the team has actually used, how context reaches them, and how AGENTS.md has changed. Add an entry for every AI session that produces committed work.
+The P2 specification names Antigravity as the primary AI harness for Weeks 6–8. The professor has since confirmed in class that any IDE is acceptable. The team uses VS Code with Claude Code, guided by the shared AGENTS.md. This page records the AI tools the team has actually used, how context reaches them, and how AGENTS.md has changed. Add an entry for every AI session that produces committed work.
 
 ## Recorded AI use
 
