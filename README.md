@@ -43,6 +43,17 @@ The billing-date and monthly-cost rules shared by subscriptions and the dashboar
 - Work is planned on the [project board](https://github.com/users/char-lv/projects/1).
 - Production: https://b4gone.vercel.app, deployed by Vercel from `main`. Since 2026-11-09 it serves `main` with accounts, items, subscriptions, and the dashboard (#9). See [docs/deployment.md](docs/deployment.md).
 
+## Complex state
+
+The P2 specification asks for real-time updates or complex state management. B4Gone has complex state, not real-time push: nothing is sent to an open page from the server.
+
+- **Original anchors.** A subscription keeps its first billing date, and the next charge is always calculated from it (`src/lib/recurrence.ts`), never stored. A January 31 monthly plan charges on February 28, then March 31. Cancelling and reactivating don't move it (`tests/integration/subscriptions-api.test.ts`, "cancels without a next charge, then reactivates from the original anchor").
+- **Derived reminders and totals.** Item deadlines (`src/features/items/item-deadlines.ts`), renewals and the average monthly cost (`src/features/subscriptions/subscription-calculations.ts`), and the dashboard's 30-day list (`src/features/dashboard/dashboard-events.ts`) are computed from the saved records and the user's local today. Their unit tests cover short months, leap years, charges due today, and days 0, 7, 30, and 31.
+- **Status transitions.** Items move between active and returned, and subscriptions between active and cancelled. A returned or cancelled record keeps its data but gives no reminders, and a cancelled plan adds nothing to the average. Undo and reactivate bring back whatever still falls in the window (`tests/e2e/item-actions.spec.ts`, `tests/e2e/subscriptions.spec.ts`).
+- **Refresh after a successful save.** Forms and action buttons call `router.refresh()` only after the server confirms the save, and the pages read the records per request. The list, details, dashboard count, and average then show the saved state; a failed save keeps the draft. `tests/e2e/dashboard.spec.ts` checks the dashboard after a return, undo, cancel, and reactivate.
+
+Checks that every view stays in step, including failure states, are issue #10 (in progress).
+
 ## Planned stack
 
 Next.js, TypeScript, TailwindCSS, Next.js API routes, PostgreSQL, and JWT authentication.

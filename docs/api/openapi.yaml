@@ -13,7 +13,8 @@ info:
     Every error uses the same shape: `{ "error": { "code", "message", "fields"? } }`, where
     `fields` maps a request field to the message to show next to it.
 
-    Subscription endpoints come from issue #7; dashboard endpoints are added by issue #9.
+    Subscription endpoints come from issue #7. The dashboard (issue #9) adds no endpoint: its page
+    reads the existing item and subscription repositories in a Server Component.
 servers:
   - url: https://b4gone.vercel.app
     description: Production

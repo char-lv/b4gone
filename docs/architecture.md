@@ -43,7 +43,7 @@ The Dashboard is the one page that finishes its work in the browser; see [The da
 
 1. For changes, check that the request came from the same origin (`isSameOriginRequest`). Otherwise return `403`.
 2. Look up the user from the session cookie. Otherwise return `401`.
-3. Require a JSON body (`readJson`) and the caller's `timeZone`. Otherwise return `400 invalid_json` or a field error.
+3. Require a JSON body (`readJson`), plus the caller's `timeZone` where the route needs the user's calendar date. Otherwise return `400 invalid_json` or a field error.
 4. Validate with the shared schema. Otherwise return `400 validation_failed` with errors per field.
 5. Call the repository with `user.id` as the owner.
 6. Return a camelCase JSON response.
@@ -172,7 +172,7 @@ The database checks back up the shared validation; they do not replace it. Some 
 
 ### Design decisions
 
-**Dates are date-only.** Purchase dates, deadlines, and the first billing date are PostgreSQL `DATE` columns. The repositories read them with `to_char(column, 'YYYY-MM-DD')`, so they reach the app as plain strings and never pass through a JavaScript `Date` or a UTC timestamp. "Today" comes from the user's time zone. The browser sends `timeZone` with each request, and `src/lib/http/user-today.ts` turns it into a `YYYY-MM-DD` date. For example, at 02:30 UTC a user in New York is still on the previous day. The integration tests check that case.
+**Dates are date-only.** Purchase dates, deadlines, and the first billing date are PostgreSQL `DATE` columns. The repositories read them with `to_char(column, 'YYYY-MM-DD')`, so they reach the app as plain strings and never pass through a JavaScript `Date` or a UTC timestamp. "Today" comes from the user's time zone. Requests that need the user's calendar date send `timeZone`: creating or editing an item (the purchase date can't be in the future) and every subscription request except delete (the response includes the next charge). `src/lib/http/user-today.ts` turns it into a `YYYY-MM-DD` date. Item reads, status changes, and deletes don't need it. For example, at 02:30 UTC a user in New York is still on the previous day. The integration tests check that case.
 
 **Money is integer cents.** `src/lib/money.ts` parses `"15.99"` into `1599`. It rejects negative amounts, more than two decimals, and malformed separators such as `1,,2` or `1,200`, instead of rounding or stripping them. Item price is optional, and blank and zero are different values (`null` and `0`). Subscription amount is required, and `0` means a free plan. The limit of 99999999 cents ($999,999.99) keeps `amount × 12` a safe integer for the monthly average. Formatting as USD happens only for display.
 
