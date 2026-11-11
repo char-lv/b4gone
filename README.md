@@ -52,7 +52,7 @@ The P2 specification asks for real-time updates or complex state management. B4G
 - **Status transitions.** Items move between active and returned, and subscriptions between active and cancelled. A returned or cancelled record keeps its data but gives no reminders, and a cancelled plan adds nothing to the average. Undo and reactivate bring back whatever still falls in the window (`tests/e2e/item-actions.spec.ts`, `tests/e2e/subscriptions.spec.ts`).
 - **Refresh after a successful save.** Forms and action buttons call `router.refresh()` only after the server confirms the save, and the pages read the records per request. The list, details, dashboard count, and average then show the saved state; a failed save keeps the draft. `tests/e2e/dashboard.spec.ts` checks the dashboard after a return, undo, cancel, and reactivate.
 
-Checks that every view stays in step, including failure states, are issue #10 (in progress).
+`tests/e2e/sync.spec.ts` (#10) checks that every view stays in step after edits and deletions, when dates cross the 30-day window and the 7-day boundary, and when an open dashboard passes local midnight.
 
 ## Planned stack
 
