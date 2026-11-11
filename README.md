@@ -19,6 +19,7 @@ Start with the [project report](docs/project-report.md). It explains what works,
 | Deployment, migrations, and smoke-check evidence | [docs/deployment.md](docs/deployment.md) |
 | Sprints, Slack planning and standup records, contributions, AI use | [docs/process/](docs/process/README.md) |
 | Status of every P2 requirement | [docs/P2_CHECKLIST.md](docs/P2_CHECKLIST.md) |
+| Demo video (10 minutes) | [Google Drive](https://drive.google.com/file/d/1gzjgbEKqxgLRAabwr8lHXV4qWKsNz5WV/view?usp=sharing) |
 | Board | [GitHub project](https://github.com/users/char-lv/projects/1) |
 
 ## Planned MVP
