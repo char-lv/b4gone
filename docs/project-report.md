@@ -19,7 +19,7 @@ Team: Chengling Lv ([`char-lv`](https://github.com/char-lv)) and Jiaying Guo ([`
 | Who did what | [process/contribution-log.md](process/contribution-log.md) |
 | AI use and TDD record | [process/ai-workflow.md](process/ai-workflow.md) |
 | Requirement status | [P2_CHECKLIST.md](P2_CHECKLIST.md) |
-| Demo video | **Pending**: not recorded yet |
+| Demo video | [B4Gone demo on Google Drive](https://drive.google.com/file/d/1gzjgbEKqxgLRAabwr8lHXV4qWKsNz5WV/view?usp=sharing) |
 | Individual reflections | Submitted separately by each partner through Canvas, not stored here |
 
 ## What B4Gone does
@@ -84,7 +84,7 @@ The integration suites include two-user checks for every item and subscription o
 
 ## Demo outline (10 minutes)
 
-The video is not recorded yet. This outline uses only features that are deployed today. Use an invented account and invented records.
+The video is [on Google Drive](https://drive.google.com/file/d/1gzjgbEKqxgLRAabwr8lHXV4qWKsNz5WV/view?usp=sharing). Jiaying presents the first half: the problem, accounts, items, the dashboard, and one red/green commit pair. Chengling presents the second half, starting with subscriptions. Both halves use invented accounts and records on production. The outline below was the plan before recording.
 
 | Time | Segment | What to show |
 | --- | --- | --- |
