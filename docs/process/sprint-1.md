@@ -52,11 +52,16 @@ Sprint 1 ran until Sprint 2 planning on 2026-11-05 (see [sprint-2.md](sprint-2.m
 
 ## Retrospective
 
-**Pending.** No retrospective was found in the Slack channel; the 2026-11-04 update ([message](https://aicodingneusj.slack.com/archives/C0CB4SELD0A/p1793839618825829)) lists the Sprint 1 retrospective as upcoming work. Hold it together, date it, and have each partner write their own feedback.
+**Retrospective, 2026-11-10.** Facts below come from the issues, pull requests, and Slack posts linked above.
 
 - What went well:
+  - The scaffold, CI with CodeQL, and the Vercel deployment were in place before the feature work, so every feature pull request had tests, a security scan, and a preview from the start (#1, #11).
+  - Reviews caught real problems before merge. Chengling's review of #20 reproduced an open redirect through control characters in Chrome ([comment](https://github.com/char-lv/b4gone/pull/20#issuecomment-6643732714)), and it was fixed test-first.
+  - The red commits kept the failing output in their messages, so the reviewer could replay them.
 - What to improve:
+  - Standups were not on fixed days.
 - Action items (owner, due date):
-- Chengling's feedback for Jiaying:
-- Jiaying's feedback for Chengling:
-- Shared-rules changes agreed (link the AGENTS.md pull request):
+  - Post standups on fixed days (both, from Sprint 2).
+- Chengling's feedback for Jiaying: **Pending** (Chengling adds it).
+- Jiaying's feedback for Chengling: Chengling did a lot of the groundwork that made the rest possible: the scaffold, the CI pipeline with CodeQL, the Vercel setup, and the lockfile fix for Vercel. Her add-item form (#3) caught and fixed the stale "today" bug test-first. Her reviews were thorough and easy to act on: she reproduced the open redirect in #20 and gave me the exact input, so I could write the failing test right away. Handing #4 to me with a written record in the issue also made the switch clear.
+- Shared-rules changes agreed (link the AGENTS.md pull request): none yet. The proposals in [ai-workflow.md](ai-workflow.md#proposed-rule-changes-for-joint-review) are still open for joint review.

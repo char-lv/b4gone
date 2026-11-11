@@ -45,11 +45,19 @@ Sprint 2 started with planning on 2026-11-05; Sprint 1 pull requests kept mergin
 
 ## Retrospective
 
-**Pending.** No Sprint 2 retrospective has been held. Hold it before the final submission, date it, and have each partner write their own feedback.
+**Retrospective, 2026-11-10.**
 
 - What went well:
+  - The features merged within a few days: #8 on 2026-11-05, #7 and #9 on 2026-11-09, and #10 is in review.
+  - `003` went to the Neon preview branch first and to production before #7 merged, with read-only checks before and after ([record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)).
+  - Both partners tested the deployed site by hand on 2026-11-09, and #10 added the cross-view checks that were missing.
+  - The project report, diagrams, and tracker were kept in step with what was merged (#31, #32).
 - What to improve:
+  - Several documentation pull requests (#31, #32, #33) changed the same files at once, so we spent time on merge conflicts. Next time we would agree who edits the tracker and sprint notes in which pull request.
 - Action items (owner, due date):
-- Chengling's feedback for Jiaying:
-- Jiaying's feedback for Chengling:
-- Shared-rules changes agreed (link the AGENTS.md pull request):
+  - Record the demo video: Jiaying 0:00–5:00, Chengling 5:00–10:00 (both, before the Canvas deadline).
+  - Submit the individual reflections on Canvas (each partner, before the Canvas deadline).
+  - Close #10–#12 and the Sprint 2 milestone after the last pull requests merge (both, before the Canvas deadline).
+- Chengling's feedback for Jiaying: **Pending** (Chengling adds it).
+- Jiaying's feedback for Chengling: Chengling did excellent work this sprint. She delivered subscriptions (#7) and the billing and cost rules (#8), with a clear contract in [subscription-calculations.md](../subscription-calculations.md) that made the dashboard (#9) straightforward to build. Her review of #30 checked the dashboard locally and pointed out that the TDD record overstated how my reds failed, which kept our evidence honest. She also wrote most of the project report and diagrams and kept every document accurate. She was quick to answer and easy to work with.
+- Shared-rules changes agreed (link the AGENTS.md pull request): none yet; see the Sprint 1 note.
