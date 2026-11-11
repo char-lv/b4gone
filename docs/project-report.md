@@ -39,7 +39,7 @@ These parts are on `main` and deployed:
 | Subscriptions: add, list, details, edit, cancel, reactivate, confirmed delete | #7 | [#29](https://github.com/char-lv/b4gone/pull/29) (Chengling → Jiaying) | 2026-11-09 |
 | Dashboard: deadline count, average monthly cost, 30-day list in two groups | #9 | [#30](https://github.com/char-lv/b4gone/pull/30) (Jiaying → Chengling) | 2026-11-09 |
 
-The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) are Playwright tests in `tests/e2e/sync.spec.ts`, in review. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
+The Dashboard shows two cards: the number of deadlines in the next 30 days and the average monthly subscription cost. Below them is one list of return, warranty, and renewal dates from today through day 30, split into "Within 7 days" and "In 8–30 days". Each row opens its record. Cross-view, accessibility, and failure-state checks (#10, Jiaying) are Playwright tests in `tests/e2e/sync.spec.ts`, merged in [#33](https://github.com/char-lv/b4gone/pull/33) on 2026-11-10. Receipt uploads and AI receipt extraction were optional in the PRD and were not built.
 
 ## How it is built
 
