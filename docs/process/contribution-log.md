@@ -12,7 +12,7 @@ Counted with `git log` at `06cdda5` (after #30 merged) and the GitHub API. Commi
 | Pull requests authored | 12 merged: [#13](https://github.com/char-lv/b4gone/pull/13)–[#19](https://github.com/char-lv/b4gone/pull/19), [#21](https://github.com/char-lv/b4gone/pull/21), [#23](https://github.com/char-lv/b4gone/pull/23), [#24](https://github.com/char-lv/b4gone/pull/24), [#25](https://github.com/char-lv/b4gone/pull/25), [#29](https://github.com/char-lv/b4gone/pull/29). Open: [#31](https://github.com/char-lv/b4gone/pull/31); draft: [#22](https://github.com/char-lv/b4gone/pull/22) | 5 merged: [#20](https://github.com/char-lv/b4gone/pull/20), [#26](https://github.com/char-lv/b4gone/pull/26)–[#28](https://github.com/char-lv/b4gone/pull/28), [#30](https://github.com/char-lv/b4gone/pull/30) |
 | Approving reviews of the other partner's pull requests | 6: #20, #26, #27, #28, #30, #33 | 14: #13–#19, #21, #23, #24, #25, #29, #31, #32 |
 | AGENTS.md commits on `main` | 10 | 3 (`d287455`, `b676875`, `a6eb92b`) |
-| Slack planning and progress posts | 3 recaps or updates (Oct 24, Oct 28, Nov 4) and 1 acknowledgment (Oct 27) | 4 recaps or updates (Oct 25, Oct 30, Nov 8, Nov 10) and 1 confirmation (Oct 25) |
+| Slack planning and progress posts | 5 recaps or updates (Oct 24, Oct 28, Nov 4, Nov 9, Nov 10) and 1 acknowledgment (Oct 27) | 3 recaps or updates (Oct 25, Oct 30, Nov 8) and 1 confirmation (Oct 25) |
 
 The Slack posts are listed with links in [sprint-1.md](sprint-1.md#standups) and [sprint-2.md](sprint-2.md#standups). The author column counts who posted, not whose work a post describes; most posts describe both partners.
 
