@@ -1,6 +1,6 @@
 # B4Gone project report
 
-This is the overview for the P2 submission: what B4Gone does today, how it is built, how we checked it, and what is still missing. It links to the detailed documents instead of repeating them. Facts are as of `main` at `06cdda5` on 2026-11-09, after the dashboard merged.
+This is the overview for the P2 submission: what B4Gone does today, how it is built, how we checked it, and what is still missing. It links to the detailed documents instead of repeating them. Facts are as of `main` at `b013f95` on 2026-11-10, after the cross-view checks (#10) and the retrospectives merged.
 
 Team: Chengling Lv ([`char-lv`](https://github.com/char-lv)) and Jiaying Guo ([`Jasmine-G-uo`](https://github.com/Jasmine-G-uo)).
 
@@ -65,13 +65,15 @@ The decisions that shaped the code:
 
 After #30 merged, CI on `06cdda5` ([run](https://github.com/char-lv/b4gone/actions/runs/42579382300)) passed 621 unit and component tests in 50 files (91.91% lines, 88.51% statements, 89.12% functions, 85.5% branches), 148 integration tests, and 46 Playwright tests.
 
+After #10 added seven Playwright checks, CI on `b013f95` ([run](https://github.com/char-lv/b4gone/actions/runs/42941676499)) passed the same 621 unit and component tests and 148 integration tests, and 53 Playwright tests.
+
 The integration suites include two-user checks for every item and subscription operation. The Playwright suites cover sign-in, add with field errors fixed by keyboard, a failed save that keeps the draft, edit, return and undo, cancel and reactivate, confirmed delete, phone width, and a second account that sees nothing. The dashboard suite adds the 30-day window and groups, and the count and average changing after a return or cancellation.
 
 **Security checks.** `npm audit`, dependency review on pull requests, and CodeQL (`security-extended`) run in CI. CodeQL flagged a dynamic regular expression in a #7 test, and we replaced it with static matchers instead of suppressing the alert.
 
-**Deployment.** Merges to `main` deploy to Vercel production. `deployment-smoke.yml` checks each deployment's homepage; the run after #21 merged reported `7db64cd` ([run](https://github.com/char-lv/b4gone/actions/runs/42566222197)). After #30 merged, the run reported `06cdda5` ([run](https://github.com/char-lv/b4gone/actions/runs/42579535653)). The smoke check does not sign in. On 2026-11-09 we also checked production by hand with an invented account: we added a labeled subscription, cancelled it, reactivated it, edited it, and deleted it ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6732546792)). Database migrations are applied to the Neon preview branch first, then to production before the merge, with checks before and after ([`003` record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)).
+**Deployment.** Merges to `main` deploy to Vercel production. `deployment-smoke.yml` checks each deployment's homepage; the run after #21 merged reported `7db64cd` ([run](https://github.com/char-lv/b4gone/actions/runs/42566222197)). After #30 merged, the run reported `06cdda5` ([run](https://github.com/char-lv/b4gone/actions/runs/42579535653)), and the run for `b013f95` also passed ([run](https://github.com/char-lv/b4gone/actions/runs/42941871493)). The smoke check does not sign in. On 2026-11-09 we also checked production by hand with an invented account: we added a labeled subscription, cancelled it, reactivated it, edited it, and deleted it ([record in #11](https://github.com/char-lv/b4gone/issues/11#issuecomment-6732546792)). Database migrations are applied to the Neon preview branch first, then to production before the merge, with checks before and after ([`003` record](https://github.com/char-lv/b4gone/pull/29#issuecomment-6730624159)).
 
-**Review.** Each merged pull request was approved by the other partner first. As of 2026-11-09, Jiaying has approved 13 of Chengling's pull requests (including this documentation pull request, #31), and Chengling has approved 5 of Jiaying's. The fifth was #30, approved at `9fad79c` after local unit, Playwright, and browser checks ([review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987)).
+**Review.** Each merged pull request was approved by the other partner first. As of 2026-11-10, Jiaying has approved 14 of Chengling's pull requests (through #32), and Chengling has approved 6 of Jiaying's (through #33). Her fifth was #30, approved at `9fad79c` after local unit, Playwright, and browser checks ([review](https://github.com/char-lv/b4gone/pull/30#pullrequestreview-5822700987)).
 
 ## Known limitations
 
